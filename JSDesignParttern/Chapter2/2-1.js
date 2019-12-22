@@ -1,4 +1,4 @@
-//这里有个问题，我们一般声明对象，都是通过{}，为何这个却是用函数做对象？难道单纯是为了面向对象？
+//这里有个问题，我们一般声明对象，都是通过{}，为何这个却是用函数做对象？难道单纯是为了面向对象？函数也是对象
 var obj = {}; //type is object 
 var fun = function() {};  //type is function
 var newfun = new Function();  //type is function
@@ -24,7 +24,7 @@ console.log("Book's prototype is %O",Book.prototype);
 Book.prototype.display = function (){console.log("id=%s,name=%s,price=%s",this.id,this.bookname,this.price)}; //或Book.prototype = {display:function(){...}}
 console.log("Book's prototype is %O",Book.prototype);
 
-//bookTem并不是Book的赋值，而是Book函数执行的结果
+//bookTmp并不是Book的赋值，而是Book函数执行的结果
 var bookTmp = Book(2,'Data Base',26.5);
 if(bookTmp){
   console.log("bookTmp name id is %s, name is %s, price is %d ", bookTmp.id, bookTmp.bookname, bookTmp.price);
@@ -37,4 +37,5 @@ var book = new Book(124,'C# Book', 30);
 console.log("book name id is %s, name is %s, price is %d ", book.id, book.bookname, book.price);
 console.log("book's' %O", book.prototype);
 console.log("book's parent prototype %O",book.__proto__);
+console.log("Book's constructor %O", Book.constructor);
 book.display(); //原型链
