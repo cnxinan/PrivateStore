@@ -1,4 +1,4 @@
-//闭包
+//更像整体的闭包
 var Book = (function () {
     var material = "Paper";
     var bookQuentity = 0;
@@ -7,7 +7,7 @@ var Book = (function () {
         throw new Error('We just can publish 10 books');
     }
 
-    return function (id, name, price) {
+    var _book = function (id, name, price) {
         bookQuentity++;
 
         this.id = id;
@@ -26,19 +26,23 @@ var Book = (function () {
             return material;
         }
     }
+
+    _book.prototype = {
+        isJsBook: true,
+        changeBookType: function (is_js_book) {
+            this.isJsBook = is_js_book;
+        },
+        display: function () {
+            console.log(this.name);
+            console.log(this.getMaterial());
+            this.checkName();
+        }
+    };
+
+    return _book;
 })();
 
-Book.prototype = {
-    isJsBook: true,
-    changeBookType: function (is_js_book) {
-        this.isJsBook = is_js_book;
-    },
-    display: function () {
-        console.log(this.name);
-        console.log(this.getMaterial());
-        this.checkName();
-    }
-};
+
 
 var jsBook = new Book(1, "Js Parttern", 10);
 jsBook.display();
