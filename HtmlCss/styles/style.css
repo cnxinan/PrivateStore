@@ -1,5 +1,5 @@
 html {
-    font-size: 10px;
+    font-size: 16px;
     font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -14,18 +14,24 @@ h1 {
 body {
     width: 600px;
     margin: 0 auto;
-    background-color: #FF9500;
+    /* background-color: #FF9500; */
     padding: 0px 20px 20px 20px;
     border: 5px solid black;
 }
+
 /*make image to center of page*/
 img {
     display: block;
     margin: 0 auto;
 }
 
-p, li {
-    font-size:16px;
+p,
+li {
+    font-size: 16px;
     line-height: 2;
     letter-spacing: 1px;
+}
+
+.warning {
+    color: red;
 }
