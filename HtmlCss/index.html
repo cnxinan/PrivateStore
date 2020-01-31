@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,11 +8,13 @@
     <link rel="stylesheet" href="styles/style.css">
     <title>My Test Pages</title>
 </head>
-<body>
+
+<body lang="en-US">
     <h1>
         Mozilla is cool
     </h1>
-    <img src="http://mdn.github.io/beginner-html-site-styled/images/firefox-icon.png" alt="The Firefox logo: a flaming fox surrounding the Earth.">
+    <img src="http://mdn.github.io/beginner-html-site-styled/images/firefox-icon.png"
+        alt="The Firefox logo: a flaming fox surrounding the Earth.">
     <p>At Mozilla, we’re a global community of</p>
     <ul>
         <li>technologists</li>
@@ -19,9 +22,29 @@
         <li>builders</li>
     </ul>
     <p>
-        working together to keep the Internet alive and accessible, so people worldwide can be informed contributors and creators of the Web. We believe this act of human collaboration across an open platform is essential to individual growth and our collective future.
+        working together to keep the Internet alive and accessible, so people worldwide can be informed contributors and
+        creators of the Web. We believe this act of human collaboration across an open platform is essential to
+        individual growth and our collective future.
     </p>
     <span>Test testeaasdf asdfasfas</span>
     <span>Test testeaasdf asdfasfas</span>
+    <dl>
+        <dt>Enabled Input</dt>
+        <dd><input type="button" value="test0"></dd>
+        <dt>Disabled Input(disabled)</dt>
+        <dd><input type="button" value="test1" disabled></dd>
+        <dt>Disabled Input(disabled="disabled")</dt>
+        <dd><input type="button" value="test2" disabled="disabled"></dd>
+        <dt>Disabled Input(disabled="true")</dt>
+        <dd><input type="button" value="test3" disabled="true"></dd>
+    </dl>
+    <!-- Double quotes and Single quotes both right -->
+    <p class="warning">Test warning</p>
+    <p class='warning'>Test warning</p>
+    <!-- Html parser will merge multiple whitespace to a single space-->
+    <p>Dogs are silly.</p>
+    <p>Dogs   are   silly.</p>
+    <!--Can set language for each single tag-->
+    <p lang="zh-CN">我的前半生</p>
 </body>
 </html>
