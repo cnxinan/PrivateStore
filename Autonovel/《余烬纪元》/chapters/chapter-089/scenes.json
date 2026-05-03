@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-089",
+  "title": "共同签名",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-089-scene-01",
+      "pov": "陆鸣",
+      "location": "宪章签署层",
+      "goal": "建立共同签名不是庆典而是共担。",
+      "obstacle": "每个人都清楚签名后仍要承担长期后果。",
+      "emotional_shift": "从推进签署 -> 感到文本重量压实",
+      "must_include": [
+        "共同签名名单到齐",
+        "不同来源并列",
+        "签署层无庆典气氛"
+      ],
+      "cannot_violate": [
+        "不能写成大团圆",
+        "必须保留复杂余绪"
+      ],
+      "exit_hook": "签名前的最后迟疑。"
+    },
+    {
+      "scene_id": "chapter-089-scene-02",
+      "pov": "陆鸣",
+      "location": "签名缓冲室",
+      "goal": "让不同立场的人在签名前短暂对视各自的代价。",
+      "obstacle": "签与不签都带着无法完全承担的风险。",
+      "emotional_shift": "从推进流程 -> 回到人的犹疑",
+      "must_include": [
+        "顾南巡的边境顾虑",
+        "阿阙对尺度重写的保留",
+        "唐见星与林述尘都知道文本未完"
+      ],
+      "cannot_violate": [
+        "不能把分歧消解成共识口号",
+        "必须保留各自位置"
+      ],
+      "exit_hook": "第一笔签名落下。"
+    },
+    {
+      "scene_id": "chapter-089-scene-03",
+      "pov": "陆鸣",
+      "location": "多地同步屏前",
+      "goal": "完成共同签名动作。",
+      "obstacle": "任何人临时退开，都会让旧回滚后门继续存在。",
+      "emotional_shift": "从迟疑 -> 接受一起往前推",
+      "must_include": [
+        "多地同步签名",
+        "陆鸣落笔",
+        "不同主体共同确认文本"
+      ],
+      "cannot_violate": [
+        "不能写成仪式抒情",
+        "必须带现实功能感"
+      ],
+      "exit_hook": "同步生效倒计时开始。"
+    },
+    {
+      "scene_id": "chapter-089-scene-04",
+      "pov": "陆鸣",
+      "location": "签署层外窗",
+      "goal": "以生效前夜结束。",
+      "obstacle": "签完不代表世界会立刻跟上文本。",
+      "emotional_shift": "从完成动作 -> 进入下一阶段承担",
+      "must_include": [
+        "共同签名完成",
+        "多地同步生效预告",
+        "下一章宪章生效"
+      ],
+      "cannot_violate": [
+        "不能给出终局感",
+        "必须留出继续生活的重量"
+      ],
+      "exit_hook": "宪章生效。"
+    }
+  ]
+}

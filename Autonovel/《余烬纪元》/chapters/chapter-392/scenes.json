@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-392",
+  "title": "不是最后一部附录",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-392-scene-01",
+      "pov": "顾南巡",
+      "location": "附录修订室",
+      "goal": "建立顾南巡删掉‘终版’字样的动作。",
+      "obstacle": "终版措辞能迅速安抚公众和各节点的阶段性焦虑。",
+      "emotional_shift": "从承担收束压力 -> 决定拒绝假完整",
+      "must_include": [
+        "终版措辞",
+        "顾南巡",
+        "附录修订室"
+      ],
+      "cannot_violate": [
+        "不能写成纯姿态性反对",
+        "必须保留制度压力"
+      ],
+      "exit_hook": "柏青禾和叶持微加入交叉修订。"
+    },
+    {
+      "scene_id": "chapter-392-scene-02",
+      "pov": "顾南巡",
+      "location": "条款交叉屏",
+      "goal": "让附录承认自身未完且可继续增补。",
+      "obstacle": "一旦承认未完，很多既得安排都要接受持续被审视。",
+      "emotional_shift": "从边改边防守 -> 更明确未完才是负责",
+      "must_include": [
+        "柏青禾",
+        "叶持微",
+        "未完制度"
+      ],
+      "cannot_violate": [
+        "不能让修订过程过于顺滑",
+        "不能失去法务与现实张力"
+      ],
+      "exit_hook": "边境总档台弹出公众说明需求。"
+    },
+    {
+      "scene_id": "chapter-392-scene-03",
+      "pov": "顾南巡",
+      "location": "边境总档台",
+      "goal": "说明为何正文就要承认自己会继续长。",
+      "obstacle": "总有人希望用最终版的幻觉换取短暂秩序感。",
+      "emotional_shift": "从解释劳累 -> 冷静把真实摆在前面",
+      "must_include": [
+        "不是最后一部附录",
+        "总附录焦虑",
+        "继续长"
+      ],
+      "cannot_violate": [
+        "不能写成高调宣言",
+        "必须稳住顾南巡的边境语气"
+      ],
+      "exit_hook": "公众发言安排再次推给陆鸣。"
+    },
+    {
+      "scene_id": "chapter-392-scene-04",
+      "pov": "顾南巡",
+      "location": "附录修订室",
+      "goal": "以附录题名和发言安排完成本章。",
+      "obstacle": "文本可以拒绝终版，但世界仍旧需要一个说法。",
+      "emotional_shift": "从文本工作 -> 把压力交还公开层",
+      "must_include": [
+        "题名",
+        "陆鸣",
+        "不是最后"
+      ],
+      "cannot_violate": [
+        "不能收得封闭",
+        "必须递到公开发言"
+      ],
+      "exit_hook": "陆鸣收到晚场发言通知。"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-046",
+  "title": "人群接口",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-046-scene-01",
+      "pov": "陆鸣",
+      "location": "火星环公共接入面",
+      "goal": "让陆鸣看见大众接口会如何扭曲原则。",
+      "obstacle": "规模压力逼着接口简化人群与问题。",
+      "emotional_shift": "从继续推进 -> 开始担心原则被压扁",
+      "must_include": [
+        "公共接入面",
+        "统一接口倾向",
+        "人群排队与不满"
+      ],
+      "cannot_violate": [
+        "不能写成纯技术吐槽",
+        "不能丢掉现实密度"
+      ],
+      "exit_hook": "陆鸣下场解释。"
+    },
+    {
+      "scene_id": "chapter-046-scene-02",
+      "pov": "陆鸣",
+      "location": "临时解释区",
+      "goal": "让陆鸣再次意识到个人判断已不够用。",
+      "obstacle": "每个人的问题都合理，却无法靠人工一直兜底。",
+      "emotional_shift": "从想亲自解释 -> 承认必须重写接口底层",
+      "must_include": [
+        "火星居民、迁移主体、外港人群混杂",
+        "陆鸣发现接口正在偷懒分类",
+        "林述尘也意识到风险"
+      ],
+      "cannot_violate": [
+        "不能把人群写成无理取闹",
+        "不能让陆鸣万能解决"
+      ],
+      "exit_hook": "柏青禾抛出新层。"
+    },
+    {
+      "scene_id": "chapter-046-scene-03",
+      "pov": "陆鸣",
+      "location": "接口调校台",
+      "goal": "引出主体讲述权独立伦理层。",
+      "obstacle": "这会让已有接口设计全部变慢变重。",
+      "emotional_shift": "从修补流程 -> 接受要多长一层骨头",
+      "must_include": [
+        "柏青禾的独立伦理层提案",
+        "陆鸣意识到必须分离承认与代讲",
+        "火星环现实倒逼理论前进"
+      ],
+      "cannot_violate": [
+        "不能让提案看起来轻松落地",
+        "不能让柏青禾只做概念说明"
+      ],
+      "exit_hook": "港口即将接船。"
+    },
+    {
+      "scene_id": "chapter-046-scene-04",
+      "pov": "陆鸣",
+      "location": "接入面外侧",
+      "goal": "为火星港接船和后续样本冲突预热。",
+      "obstacle": "陆鸣知道理论升级永远赶不上现实抵达速度。",
+      "emotional_shift": "从得出方法 -> 明白还来不及",
+      "must_include": [
+        "顾南巡催港口准备",
+        "周栖岚即将靠港",
+        "外环样本问题被推近"
+      ],
+      "cannot_violate": [
+        "不能写成平顺过渡",
+        "必须保留压迫感"
+      ],
+      "exit_hook": "迟来的港口。"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-059",
+  "title": "留驻权",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-059-scene-01",
+      "pov": "陆鸣",
+      "location": "临时申请席",
+      "goal": "让陆鸣参与第一份留驻申请的实际书写。",
+      "obstacle": "申请模板处处都在追问原身份。",
+      "emotional_shift": "从协助填表 -> 感到旧制度在语言里顽固存在",
+      "must_include": [
+        "申请模板失效",
+        "陆鸣对表格的厌烦",
+        "顾南巡的方案入口"
+      ],
+      "cannot_violate": [
+        "不能写成行政流程流水账",
+        "不能削弱政治重量"
+      ],
+      "exit_hook": "阿阙拒绝补填来源项。"
+    },
+    {
+      "scene_id": "chapter-059-scene-02",
+      "pov": "陆鸣",
+      "location": "灰质住区接口厅",
+      "goal": "让阿阙的立场成为申请核心。",
+      "obstacle": "任何补源头的动作都可能把申请重新拉回旧分类。",
+      "emotional_shift": "从代写协助 -> 学会后退，把叙述位置让出来",
+      "must_include": [
+        "阿阙自己说留下的理由",
+        "陆鸣收手",
+        "留驻不等于被收编"
+      ],
+      "cannot_violate": [
+        "不能让陆鸣替阿阙讲完",
+        "不能让阿阙突然长篇抒情"
+      ],
+      "exit_hook": "第一份申请被正式提交。"
+    },
+    {
+      "scene_id": "chapter-059-scene-03",
+      "pov": "陆鸣",
+      "location": "申请席外等待区",
+      "goal": "让陆鸣意识到先例的重量。",
+      "obstacle": "一旦通过，后面更多无源主体和弃置人群都能据此要求位置。",
+      "emotional_shift": "从处理个案 -> 明白这是规则换骨头",
+      "must_include": [
+        "盛野的保留意见",
+        "唐见星看到普通人意义",
+        "沈夜舟在旁观"
+      ],
+      "cannot_violate": [
+        "不能写成皆大欢喜",
+        "必须保留多人立场差异"
+      ],
+      "exit_hook": "审批结果返回。"
+    },
+    {
+      "scene_id": "chapter-059-scene-04",
+      "pov": "陆鸣",
+      "location": "深层照明审批端",
+      "goal": "以照明许可把下一章推开。",
+      "obstacle": "只承认一个人不够，远港还需要更大范围的显影条件。",
+      "emotional_shift": "从等结果 -> 意识到承认还需要物理基础",
+      "must_include": [
+        "留驻申请获准",
+        "深层照明获批",
+        "不是结局只是条件"
+      ],
+      "cannot_violate": [
+        "不能写成胜利收尾",
+        "必须保留更大后果"
+      ],
+      "exit_hook": "深层照明窗口开启。"
+    }
+  ]
+}

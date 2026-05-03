@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-323",
+  "title": "仍旧比你年轻",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-323-scene-01",
+      "pov": "唐见星",
+      "location": "返航通道拐角",
+      "goal": "让唐见星与白以澄的错龄重逢直接发生。",
+      "obstacle": "她记忆里的年龄排序与眼前现实完全不一致。",
+      "emotional_shift": "从赶路状态 -> 被旧关系突然拽停",
+      "must_include": [
+        "仍旧比你年轻",
+        "白以澄",
+        "拐角停步"
+      ],
+      "cannot_violate": [
+        "不能煽情拥抱",
+        "不能跳过失语"
+      ],
+      "exit_hook": "两人决定去低照会谈室慢一点说话。"
+    },
+    {
+      "scene_id": "chapter-323-scene-02",
+      "pov": "唐见星",
+      "location": "低照会谈室",
+      "goal": "让双方承认彼此已经不共享同一年龄顺序。",
+      "obstacle": "任何熟悉称呼都可能把对方推回旧版本。",
+      "emotional_shift": "从尴尬迟疑 -> 开始用现在时重新说话",
+      "must_include": [
+        "旧朋友",
+        "称呼迟疑",
+        "现在时"
+      ],
+      "cannot_violate": [
+        "不能假装一聊就顺",
+        "不能抹去唐见星的普通人疲惫"
+      ],
+      "exit_hook": "叶持微建议为此类重逢加缓冲说明。"
+    },
+    {
+      "scene_id": "chapter-323-scene-03",
+      "pov": "唐见星",
+      "location": "课程档案柜前",
+      "goal": "通过白以澄带回的课程材料说明时间差如何进入普通生活。",
+      "obstacle": "旧课纲还在按统一年龄设计关系与责任。",
+      "emotional_shift": "从私人错乱 -> 意识到整代人都要重学相处",
+      "must_include": [
+        "课程档案",
+        "关系错龄",
+        "教育语言"
+      ],
+      "cannot_violate": [
+        "不能让白以澄只当功能角色",
+        "不能把问题局限于两人私情"
+      ],
+      "exit_hook": "唐见星提出也许该有一份新版说明。"
+    },
+    {
+      "scene_id": "chapter-323-scene-04",
+      "pov": "唐见星",
+      "location": "会谈室门外",
+      "goal": "以唐见星的决定把问题交给孟回声的档案线。",
+      "obstacle": "任何说明一旦写得太顺，就会再次抹平真正的变化。",
+      "emotional_shift": "从想马上找回从前 -> 接受先写清变化",
+      "must_include": [
+        "新版说明",
+        "关系更新",
+        "慢一点"
+      ],
+      "cannot_violate": [
+        "不能把说明书写成使用指南笑料",
+        "必须保留克制感"
+      ],
+      "exit_hook": "消息被发往孟回声的终端。"
+    }
+  ]
+}

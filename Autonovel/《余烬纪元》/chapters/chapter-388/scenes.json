@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-388",
+  "title": "后来者的先行权",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-388-scene-01",
+      "pov": "叶持微",
+      "location": "长时法务接口",
+      "goal": "建立叶持微决定提出先行权条款的理由。",
+      "obstacle": "先来者普遍认为自己承担过成本，因此天然拥有优先定义权。",
+      "emotional_shift": "从法条谨慎 -> 决定正面冲撞既得格局",
+      "must_include": [
+        "后来者",
+        "先行权",
+        "长时法务"
+      ],
+      "cannot_violate": [
+        "不能写成情绪冲动",
+        "必须保留法务锋利"
+      ],
+      "exit_hook": "叶持微把条款递进会场。"
+    },
+    {
+      "scene_id": "chapter-388-scene-02",
+      "pov": "叶持微",
+      "location": "重议条款会场",
+      "goal": "让先行权条款引爆会场争议。",
+      "obstacle": "所有已形成的安排都不愿轻易接受后来者重开讨论。",
+      "emotional_shift": "从承受反弹 -> 更平静地举出迟到样本",
+      "must_include": [
+        "重开讨论权",
+        "既得格局",
+        "顾南巡"
+      ],
+      "cannot_violate": [
+        "不能让争议一边倒",
+        "不能把先行权写成万能否决权"
+      ],
+      "exit_hook": "叶持微调出迟到样本档案。"
+    },
+    {
+      "scene_id": "chapter-388-scene-03",
+      "pov": "叶持微",
+      "location": "迟到样本档案台",
+      "goal": "用具体案例说明后来者为何需要先行权。",
+      "obstacle": "许多人会把迟到视为自己的问题，而不是制度应补偿的时间差。",
+      "emotional_shift": "从解释防守 -> 把问题转回制度责任",
+      "must_include": [
+        "回信晚到",
+        "航程更长",
+        "不是自动失语"
+      ],
+      "cannot_violate": [
+        "不能忽视先来者付出的成本",
+        "必须保持平衡而坚定"
+      ],
+      "exit_hook": "试行条款被保留。"
+    },
+    {
+      "scene_id": "chapter-388-scene-04",
+      "pov": "叶持微",
+      "location": "长时法务接口",
+      "goal": "以条款试行与一段更远影像收束本章。",
+      "obstacle": "先行权真正生效仍要依赖未来无数次执行。",
+      "emotional_shift": "从高压争论 -> 只得到尚可继续的余地",
+      "must_include": [
+        "试行",
+        "后来者的先行权",
+        "门外白昼"
+      ],
+      "cannot_violate": [
+        "不能写成彻底胜利",
+        "必须接到前沿日常"
+      ],
+      "exit_hook": "黎照临传回新的白昼影像。"
+    }
+  ]
+}

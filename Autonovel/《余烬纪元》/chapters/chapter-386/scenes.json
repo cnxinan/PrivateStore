@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-386",
+  "title": "不设终站",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-386-scene-01",
+      "pov": "周栖岚",
+      "location": "运输调度室",
+      "goal": "建立周栖岚要取消终站标记的决定。",
+      "obstacle": "终站逻辑早已嵌进计价、庆典、保险和风险归档系统。",
+      "emotional_shift": "从熟悉旧格式 -> 决定动刀",
+      "must_include": [
+        "终站标记",
+        "运输调度室",
+        "周栖岚"
+      ],
+      "cannot_violate": [
+        "不能写成一纸命令就解决",
+        "不能脱离现实运输链"
+      ],
+      "exit_hook": "霍闻潮打开受影响的协议清单。"
+    },
+    {
+      "scene_id": "chapter-386-scene-02",
+      "pov": "周栖岚",
+      "location": "路网投影墙",
+      "goal": "让‘不设终站’在技术和物流上显出难度。",
+      "obstacle": "取消终站意味着许多既有责任闭环和奖励机制都要改写。",
+      "emotional_shift": "从麻烦评估 -> 更确认必须改",
+      "must_include": [
+        "霍闻潮",
+        "持续可接入路网",
+        "责任闭环"
+      ],
+      "cannot_violate": [
+        "不能把技术问题一笔带过",
+        "不能失去周栖岚的一线判断"
+      ],
+      "exit_hook": "黎照临发来更远前哨的真实需求单。"
+    },
+    {
+      "scene_id": "chapter-386-scene-03",
+      "pov": "周栖岚",
+      "location": "载荷审校台",
+      "goal": "让前沿需求压过市场对终站庆典的偏好。",
+      "obstacle": "终站更方便结算，也更利于向公众展示成果。",
+      "emotional_shift": "从平衡多方诉求 -> 直接砍掉好看但无用的项",
+      "must_include": [
+        "载荷取舍",
+        "住居优先",
+        "不设终站"
+      ],
+      "cannot_violate": [
+        "不能写成纯理念辩论",
+        "不能让后果消失"
+      ],
+      "exit_hook": "新的路网模式开始测试。"
+    },
+    {
+      "scene_id": "chapter-386-scene-04",
+      "pov": "周栖岚",
+      "location": "路网投影墙",
+      "goal": "以取消终站后的新路网完成本章。",
+      "obstacle": "没有终站会让很多人失去‘终于到了’的心理安放。",
+      "emotional_shift": "从执行压力 -> 冷静接受路比终点更重要",
+      "must_include": [
+        "路不是奖杯",
+        "继续接入",
+        "星间暂住证"
+      ],
+      "cannot_violate": [
+        "不能写成全面胜利",
+        "必须递到身份过渡问题"
+      ],
+      "exit_hook": "林述尘的申请队列亮起。"
+    }
+  ]
+}

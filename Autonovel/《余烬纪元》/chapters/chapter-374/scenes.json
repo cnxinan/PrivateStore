@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-374",
+  "title": "白以澄的第三课",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-374-scene-01",
+      "pov": "白以澄",
+      "location": "第三课讲台",
+      "goal": "让白以澄明白这堂课不能教成标准答案。",
+      "obstacle": "所有人都希望老师在关键节点给出可记忆的总结。",
+      "emotional_shift": "从准备授课 -> 决定把课讲成退席练习",
+      "must_include": [
+        "第三课",
+        "不替后来者说完",
+        "白以澄"
+      ],
+      "cannot_violate": [
+        "不能把课堂写成宣讲会",
+        "不能把白以澄神化"
+      ],
+      "exit_hook": "唐见星坐进第一排又往旁边挪了一格。"
+    },
+    {
+      "scene_id": "chapter-374-scene-02",
+      "pov": "白以澄",
+      "location": "公共席位厅",
+      "goal": "用过往经验讲明老师该如何退后。",
+      "obstacle": "老师一开口就容易重新占满解释权。",
+      "emotional_shift": "从想说明太多 -> 只留下必要原则",
+      "must_include": [
+        "老师退席",
+        "后来的人",
+        "唐见星"
+      ],
+      "cannot_violate": [
+        "不能让课堂变成回顾清单",
+        "不能代替学生发言"
+      ],
+      "exit_hook": "沈夜舟给出一句补充。"
+    },
+    {
+      "scene_id": "chapter-374-scene-03",
+      "pov": "白以澄",
+      "location": "旁听回声区",
+      "goal": "让旁听区也成为课程的一部分。",
+      "obstacle": "人们仍习惯把旁听当成被动接收位置。",
+      "emotional_shift": "从讲述 -> 更明确真正的课堂在回声里",
+      "must_include": [
+        "旁听回声区",
+        "沈夜舟",
+        "回声"
+      ],
+      "cannot_violate": [
+        "不能抢走沈夜舟的话语",
+        "不能写成完美课堂"
+      ],
+      "exit_hook": "远端传来第一阵不同步的掌声。"
+    },
+    {
+      "scene_id": "chapter-374-scene-04",
+      "pov": "白以澄",
+      "location": "第三课讲台",
+      "goal": "把第三课结束在老师退回旁听席的动作上。",
+      "obstacle": "结束得太像结束，就会再次封住未来。",
+      "emotional_shift": "从讲台中心 -> 主动离开讲台",
+      "must_include": [
+        "周栖岚",
+        "不同步掌声",
+        "退回旁听席"
+      ],
+      "cannot_violate": [
+        "不能热血收束",
+        "必须把下一章交给前线回应"
+      ],
+      "exit_hook": "周栖岚的掌声一段段抵达。"
+    }
+  ]
+}

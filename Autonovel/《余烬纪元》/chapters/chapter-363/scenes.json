@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-363",
+  "title": "迟到的道歉",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-363-scene-01",
+      "pov": "唐见星",
+      "location": "恢复陪伴走廊",
+      "goal": "让唐见星先处在照顾别人、还没顾上自己的状态里。",
+      "obstacle": "她太习惯先接住别人，再决定要不要处理自己的感受。",
+      "emotional_shift": "从工作惯性 -> 被一封私人旧信拦住",
+      "must_include": [
+        "唐见星",
+        "恢复陪伴",
+        "迟到的信"
+      ],
+      "cannot_violate": [
+        "不能把唐见星写成纯功能接口",
+        "不能削弱她的普通人疲惫感"
+      ],
+      "exit_hook": "她走进慢光阅信间。"
+    },
+    {
+      "scene_id": "chapter-363-scene-02",
+      "pov": "唐见星",
+      "location": "慢光阅信间",
+      "goal": "拆开道歉并直面其迟到的重量。",
+      "obstacle": "道歉里仍夹杂着为过去自己开脱的惯性。",
+      "emotional_shift": "从防备 -> 承认这份看见仍有其价值",
+      "must_include": [
+        "太晚",
+        "看见此前没肯看的部分",
+        "不自动原谅"
+      ],
+      "cannot_violate": [
+        "不能把道歉写成洗白",
+        "不能让唐见星马上释然"
+      ],
+      "exit_hook": "白以澄安静地陪在门外。"
+    },
+    {
+      "scene_id": "chapter-363-scene-03",
+      "pov": "唐见星",
+      "location": "阅信间门外",
+      "goal": "让唐见星把道歉价值说清楚。",
+      "obstacle": "周围人倾向于要求她给出原谅或拒绝的明快答案。",
+      "emotional_shift": "从想把信收起来 -> 愿意认真回应但不交换原状",
+      "must_include": [
+        "白以澄",
+        "非交换原谅",
+        "回复"
+      ],
+      "cannot_violate": [
+        "不能把白以澄写成代答者",
+        "不能把关系修复写成二元选择"
+      ],
+      "exit_hook": "唐见星走向留痕回复台。"
+    },
+    {
+      "scene_id": "chapter-363-scene-04",
+      "pov": "唐见星",
+      "location": "留痕回复台",
+      "goal": "让她留下既不宽赦也不抹杀意义的回复。",
+      "obstacle": "一句话太短会失真，太长又容易变成替对方整理体面。",
+      "emotional_shift": "从被过去拖住 -> 用当下的清楚把边界立住",
+      "must_include": [
+        "留痕回复",
+        "不换回原状",
+        "柏青禾"
+      ],
+      "cannot_violate": [
+        "不能写成鸡汤式和解",
+        "必须把下一章入口落到规则修订"
+      ],
+      "exit_hook": "柏青禾提交‘不求同意书’初稿。"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-222",
+  "title": "先收件后判断",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-222-scene-01",
+      "pov": "柏青禾",
+      "location": "分布式签收实验台",
+      "goal": "让柏青禾把原则推进到可执行流程。",
+      "obstacle": "系统默认接收后立即生成摘要和风险判断。",
+      "emotional_shift": "从理论表达 -> 转向硬性的流程拆分",
+      "must_include": [
+        "先收件后判断",
+        "分离式签收",
+        "自动摘要"
+      ],
+      "cannot_violate": [
+        "不能让原则停留在口号",
+        "不能弱化系统惯性"
+      ],
+      "exit_hook": "公共层追问没有即时判断谁来担责。"
+    },
+    {
+      "scene_id": "chapter-222-scene-02",
+      "pov": "柏青禾",
+      "location": "公共归档接口",
+      "goal": "回应公众对空白期的焦虑。",
+      "obstacle": "很多人把未判断状态视为系统失职。",
+      "emotional_shift": "从冷静论证 -> 更明确地替空白期辩护",
+      "must_include": [
+        "未判断状态",
+        "公共焦虑",
+        "归档接口"
+      ],
+      "cannot_violate": [
+        "不能把公众疑虑写成愚蠢",
+        "不能让柏青禾失去现场感"
+      ],
+      "exit_hook": "林述尘提出风险传播和应急处置的实际难题。"
+    },
+    {
+      "scene_id": "chapter-222-scene-03",
+      "pov": "柏青禾",
+      "location": "延迟发布观察窗",
+      "goal": "区分应急行动与代替解释之间的边界。",
+      "obstacle": "一切紧急事务都很容易滑回先由近处说完。",
+      "emotional_shift": "从守边界 -> 承认边界必须能承压",
+      "must_include": [
+        "林述尘",
+        "应急行动",
+        "不代讲"
+      ],
+      "cannot_violate": [
+        "不能否认应急需要",
+        "不能把边界写得过于绝对"
+      ],
+      "exit_hook": "霍闻潮提交新的时延评估。"
+    },
+    {
+      "scene_id": "chapter-222-scene-04",
+      "pov": "柏青禾",
+      "location": "分布式签收实验台",
+      "goal": "确认接收与判断分离将成为宪约底层结构。",
+      "obstacle": "所有人都要接受流程变慢且更难看。",
+      "emotional_shift": "从防守原则 -> 接受原则将直接改变治理速度",
+      "must_include": [
+        "流程变慢",
+        "首轮接收",
+        "解释拆分"
+      ],
+      "cannot_violate": [
+        "不能写成问题解决完毕",
+        "必须导向下一章临时终点协议"
+      ],
+      "exit_hook": "霍闻潮指出，很多远端节点还得借用别人家的终点。"
+    }
+  ]
+}

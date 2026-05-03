@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-398",
+  "title": "故事继续变慢",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-398-scene-01",
+      "pov": "唐见星",
+      "location": "普通接口大厅",
+      "goal": "建立唐见星对‘故事变慢’的日常体感。",
+      "obstacle": "普通工作被视为不够像故事，容易被自己也忽略其价值。",
+      "emotional_shift": "从忙碌琐碎 -> 渐渐看见慢本身的规模",
+      "must_include": [
+        "普通接口大厅",
+        "唐见星",
+        "排队"
+      ],
+      "cannot_violate": [
+        "不能把普通人视角写成旁支",
+        "必须保留生活气"
+      ],
+      "exit_hook": "有人抱怨现在不像故事了。"
+    },
+    {
+      "scene_id": "chapter-398-scene-02",
+      "pov": "唐见星",
+      "location": "课程与照护走廊",
+      "goal": "让唐见星在教育与照护现场理解‘慢’的意义。",
+      "obstacle": "慢常被误解为拖延、冷却或失去方向。",
+      "emotional_shift": "从被质疑影响 -> 更坚定慢不是退步",
+      "must_include": [
+        "白以澄",
+        "照护与课程",
+        "慢不是失去"
+      ],
+      "cannot_violate": [
+        "不能写成鸡汤式领悟",
+        "不能失去现实疲惫"
+      ],
+      "exit_hook": "新同意样本送到大厅。"
+    },
+    {
+      "scene_id": "chapter-398-scene-03",
+      "pov": "唐见星",
+      "location": "普通接口大厅",
+      "goal": "用新样本与普通申请者的反应说明文明如何慢慢变大。",
+      "obstacle": "普通人面对未完、可撤回和持续修改时也会焦虑。",
+      "emotional_shift": "从解释工作 -> 理解慢其实让更多人有位置",
+      "must_include": [
+        "遥远同意样本",
+        "普通申请者",
+        "更多人在场"
+      ],
+      "cannot_violate": [
+        "不能把普通人写成保守背景",
+        "必须保持群像温度"
+      ],
+      "exit_hook": "傍晚时分大家开始往外沿汇拢。"
+    },
+    {
+      "scene_id": "chapter-398-scene-04",
+      "pov": "唐见星",
+      "location": "傍晚外沿路口",
+      "goal": "以慢下来的日常把四百章前夜递出来。",
+      "obstacle": "越接近节点，越容易又被宏大叙事接管。",
+      "emotional_shift": "从一天忙完 -> 意识到慢也能通向更大故事",
+      "must_include": [
+        "故事继续变慢",
+        "外沿路口",
+        "四百章前夜"
+      ],
+      "cannot_violate": [
+        "不能提前进入终章腔调",
+        "必须保留开放夜色"
+      ],
+      "exit_hook": "陆鸣等人陆续抵达夜面平台。"
+    }
+  ]
+}

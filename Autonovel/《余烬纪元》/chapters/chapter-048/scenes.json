@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-048",
+  "title": "外环样本",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-048-scene-01",
+      "pov": "盛野",
+      "location": "港区安保线",
+      "goal": "建立盛野的边境视角。",
+      "obstacle": "港口每一步让路，都可能给后续留下更大压力。",
+      "emotional_shift": "从执行控制 -> 发现事情不只是违规运输",
+      "must_include": [
+        "盛野对风险的敏感",
+        "他不信地球式快速推进",
+        "港区现实压力"
+      ],
+      "cannot_violate": [
+        "不能把盛野写得扁平粗暴",
+        "不能掩盖他逻辑的合理部分"
+      ],
+      "exit_hook": "转运箱被打开。"
+    },
+    {
+      "scene_id": "chapter-048-scene-02",
+      "pov": "盛野",
+      "location": "转运箱前",
+      "goal": "让异常回路露头。",
+      "obstacle": "一旦确认不是旧类目能装下的东西，港区所有预案都将失效。",
+      "emotional_shift": "从警惕 -> 真正感到失控边缘",
+      "must_include": [
+        "异常回路",
+        "非上传人类迹象",
+        "盛野第一次明确不确定"
+      ],
+      "cannot_violate": [
+        "不能直接完整揭示阿阙",
+        "不能把发现写成奇观"
+      ],
+      "exit_hook": "顾南巡要求暂不封死。"
+    },
+    {
+      "scene_id": "chapter-048-scene-03",
+      "pov": "盛野",
+      "location": "轨安署临时室",
+      "goal": "让盛野和顾南巡形成更深的理念冲突。",
+      "obstacle": "顾南巡要留门，盛野则必须先看边境能不能撑住。",
+      "emotional_shift": "从单纯警戒 -> 意识到旧分类真不够了",
+      "must_include": [
+        "盛野不想立刻放人",
+        "顾南巡阻止粗暴封存",
+        "边境安保逻辑被逼到边上"
+      ],
+      "cannot_violate": [
+        "不能让顾南巡轻松说服盛野",
+        "不能让盛野突然软化"
+      ],
+      "exit_hook": "第二批名字即将登记。"
+    },
+    {
+      "scene_id": "chapter-048-scene-04",
+      "pov": "盛野",
+      "location": "安保线末端",
+      "goal": "以盛野的判断结束本章。",
+      "obstacle": "他知道自己面对的已不是单纯风险，而是新秩序未准备好的未来。",
+      "emotional_shift": "从守边 -> 看到边界正在失效",
+      "must_include": [
+        "盛野承认事态比预想更大",
+        "阿阙线索埋下",
+        "下一章进入第二批名字"
+      ],
+      "cannot_violate": [
+        "不能写成顿悟",
+        "必须保留他的强硬底色"
+      ],
+      "exit_hook": "第二批名字。"
+    }
+  ]
+}

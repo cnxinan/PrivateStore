@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-058",
+  "title": "断续联邦",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-058-scene-01",
+      "pov": "顾南巡",
+      "location": "跨殖民地联席链路",
+      "goal": "建立联邦协调的碎裂现实。",
+      "obstacle": "各地都只愿承认原则，不愿承认成本。",
+      "emotional_shift": "从逐项协调 -> 看清连续共同体只是表面",
+      "must_include": [
+        "不同殖民地回执不一致",
+        "责任拆分",
+        "顾南巡的干净措辞"
+      ],
+      "cannot_violate": [
+        "不能写成吵闹会议剧",
+        "不能让顾南巡失去边境现实感"
+      ],
+      "exit_hook": "远港被要求自行消化问题。"
+    },
+    {
+      "scene_id": "chapter-058-scene-02",
+      "pov": "顾南巡",
+      "location": "远港临时仲裁舱",
+      "goal": "让顾南巡把问题重新定义。",
+      "obstacle": "旧制度只认来源地、注册地和上传链，接不住远港这类形成地。",
+      "emotional_shift": "从应付推责 -> 开始主动换问题问法",
+      "must_include": [
+        "来源地失效",
+        "形成地概念",
+        "阿阙成为关键例外"
+      ],
+      "cannot_violate": [
+        "不能让理论跳得太快",
+        "必须保留制度操作面"
+      ],
+      "exit_hook": "顾南巡开始写方案。"
+    },
+    {
+      "scene_id": "chapter-058-scene-03",
+      "pov": "顾南巡",
+      "location": "火星环回执面板",
+      "goal": "提出留驻权的制度雏形。",
+      "obstacle": "这会逼本地承担长期供能、治安和承认责任。",
+      "emotional_shift": "从调停折中 -> 更硬地要求边境拥有定义权",
+      "must_include": [
+        "留驻权方案",
+        "不依附原始身份",
+        "边境不能只当中转站"
+      ],
+      "cannot_violate": [
+        "不能写成顾南巡突然激进",
+        "不能忽略现实成本"
+      ],
+      "exit_hook": "陆鸣被要求协助第一份申请。"
+    },
+    {
+      "scene_id": "chapter-058-scene-04",
+      "pov": "顾南巡",
+      "location": "仲裁舱外静区",
+      "goal": "为下一章的具体权利申请铺路。",
+      "obstacle": "一旦开口子，后面会有更多无法映射原身份的主体跟进。",
+      "emotional_shift": "从写方案 -> 接受这是必须承担的后果",
+      "must_include": [
+        "顾南巡与陆鸣短谈",
+        "阿阙不是唯一一个",
+        "第一份留驻申请"
+      ],
+      "cannot_violate": [
+        "不能写成制度胜利时刻",
+        "必须保留压力"
+      ],
+      "exit_hook": "留驻权进入实操。"
+    }
+  ]
+}

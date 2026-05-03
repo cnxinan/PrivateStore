@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-368",
+  "title": "沈夜舟的慢答",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-368-scene-01",
+      "pov": "沈夜舟",
+      "location": "低照会谈区",
+      "goal": "让沈夜舟感受到被期待给答案的压力。",
+      "obstacle": "所有人都希望他尽快说出可供引用的立场。",
+      "emotional_shift": "从本能防备 -> 决定不再用沉默保护他人轻松",
+      "must_include": [
+        "沈夜舟",
+        "共同脆弱档",
+        "被期待回答"
+      ],
+      "cannot_violate": [
+        "不能让沈夜舟轻易释怀",
+        "不能抹掉他的长期伤口"
+      ],
+      "exit_hook": "陆鸣说，你可以慢一点。"
+    },
+    {
+      "scene_id": "chapter-368-scene-02",
+      "pov": "沈夜舟",
+      "location": "未决回应台",
+      "goal": "让他把‘未决回应权’从私人情绪变成公共说法。",
+      "obstacle": "连支持者也担心慢答会拖住修复进程。",
+      "emotional_shift": "从犹疑 -> 把慢答明确说出口",
+      "must_include": [
+        "未决回应权",
+        "慢答",
+        "陆鸣"
+      ],
+      "cannot_violate": [
+        "不能写成长篇演说",
+        "不能让陆鸣代答"
+      ],
+      "exit_hook": "沈夜舟开始写那段极短回复。"
+    },
+    {
+      "scene_id": "chapter-368-scene-03",
+      "pov": "沈夜舟",
+      "location": "慢光回复窗",
+      "goal": "完成那句既不原谅也不封门的回复。",
+      "obstacle": "任何过多解释都可能再次被拿去做范本。",
+      "emotional_shift": "从压抑翻涌 -> 找到可承受的简短表达",
+      "must_include": [
+        "我还需要更多时间",
+        "门先别关",
+        "慢光回复窗"
+      ],
+      "cannot_violate": [
+        "不能写成情绪爆发解决一切",
+        "不能让回复过度漂亮"
+      ],
+      "exit_hook": "这份回复被公共层谨慎转发。"
+    },
+    {
+      "scene_id": "chapter-368-scene-04",
+      "pov": "沈夜舟",
+      "location": "低照会谈区",
+      "goal": "让慢答成为下一场会议的背景。",
+      "obstacle": "人们会立刻想用这份回复总结沈夜舟的立场。",
+      "emotional_shift": "从给出一句话 -> 再次把解释权收回自己这里",
+      "must_include": [
+        "不是答案",
+        "暂不关门",
+        "零号"
+      ],
+      "cannot_violate": [
+        "不能让慢答被立刻消费成共识",
+        "必须给下一章留出零号沉默的空间"
+      ],
+      "exit_hook": "零号收到会议议程后，决定那次不开口。"
+    }
+  ]
+}

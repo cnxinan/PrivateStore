@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-226",
+  "title": "代答禁令",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-226-scene-01",
+      "pov": "柏青禾",
+      "location": "原则裁定台",
+      "goal": "把代答从抽象风险变成需被明文禁止的行为。",
+      "obstacle": "所有人都能举出看似无害的临时代答场景。",
+      "emotional_shift": "从提醒边界 -> 决定把边界写成禁令",
+      "must_include": [
+        "代答禁令",
+        "柏青禾",
+        "善意伪装"
+      ],
+      "cannot_violate": [
+        "不能把争议写成非黑即白",
+        "不能否认紧急现实"
+      ],
+      "exit_hook": "顾南巡要求禁令必须能承受现场压力。"
+    },
+    {
+      "scene_id": "chapter-226-scene-02",
+      "pov": "柏青禾",
+      "location": "应急回应走廊",
+      "goal": "区分应急处置和替人回答之间的差别。",
+      "obstacle": "现场人员习惯把临时稳定话术当成必要工具。",
+      "emotional_shift": "从坚持原则 -> 把例外条件压到最窄",
+      "must_include": [
+        "顾南巡",
+        "应急稳定",
+        "最窄例外"
+      ],
+      "cannot_violate": [
+        "不能把顾南巡写成原则对立面",
+        "不能让例外吞掉原则"
+      ],
+      "exit_hook": "系统列出一批过往以善意名义发生的代答案例。"
+    },
+    {
+      "scene_id": "chapter-226-scene-03",
+      "pov": "柏青禾",
+      "location": "代答追责面板",
+      "goal": "建立代答留痕和追责机制。",
+      "obstacle": "没有追责，禁令很容易沦为漂亮姿态。",
+      "emotional_shift": "从防守伦理 -> 转入可执行的责任设计",
+      "must_include": [
+        "抢答追责",
+        "留痕",
+        "过去案例"
+      ],
+      "cannot_violate": [
+        "不能写成一次性清算",
+        "不能忽略制度自我保护"
+      ],
+      "exit_hook": "闻折川被提名去守最远的未定状态公证井。"
+    },
+    {
+      "scene_id": "chapter-226-scene-04",
+      "pov": "柏青禾",
+      "location": "原则裁定台",
+      "goal": "确认禁令核心是不给近处善意垄断未来。",
+      "obstacle": "很多人仍觉得代答只是暂时帮忙。",
+      "emotional_shift": "从写条文 -> 更清楚时间差如何制造温柔权力",
+      "must_include": [
+        "未到场者",
+        "不能先说完",
+        "闻折川"
+      ],
+      "cannot_violate": [
+        "不能写成全面终止代行处置",
+        "必须导向远处公证"
+      ],
+      "exit_hook": "闻折川接下守门任务。"
+    }
+  ]
+}

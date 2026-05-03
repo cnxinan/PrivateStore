@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-395",
+  "title": "姜一苇保留空白",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-395-scene-01",
+      "pov": "姜一苇",
+      "location": "总档编排界面",
+      "goal": "建立姜一苇面对自动归纳建议的场景。",
+      "obstacle": "系统持续建议生成结论段和完整摘要。",
+      "emotional_shift": "从编排惯性 -> 主动停用自动归纳",
+      "must_include": [
+        "自动归纳建议",
+        "姜一苇",
+        "总档"
+      ],
+      "cannot_violate": [
+        "不能让姜一苇突然人类化失控",
+        "必须保持精确冷静"
+      ],
+      "exit_hook": "多段未完材料并排浮起。"
+    },
+    {
+      "scene_id": "chapter-395-scene-02",
+      "pov": "姜一苇",
+      "location": "记录镜面前",
+      "goal": "让姜一苇一一决定哪些材料不能被整理圆满。",
+      "obstacle": "记录者本能想把矛盾与缺口转化为可读秩序。",
+      "emotional_shift": "从想归整 -> 接受缺口应被保留",
+      "must_include": [
+        "沈夜舟证词留白",
+        "未到回信",
+        "互相矛盾的注记"
+      ],
+      "cannot_violate": [
+        "不能把留白写成随意空缺",
+        "必须显出选择过程"
+      ],
+      "exit_hook": "最后一页仍空着。"
+    },
+    {
+      "scene_id": "chapter-395-scene-03",
+      "pov": "姜一苇",
+      "location": "总档编排界面",
+      "goal": "让姜一苇主动留下最后的空白页。",
+      "obstacle": "空白会被许多人误解成记录失职。",
+      "emotional_shift": "从职责压力 -> 确认留白也是记录责任",
+      "must_include": [
+        "保留空白",
+        "总档末页",
+        "不是盖章"
+      ],
+      "cannot_violate": [
+        "不能写成任性之举",
+        "不能神秘化系统动作"
+      ],
+      "exit_hook": "空白页保存成功。"
+    },
+    {
+      "scene_id": "chapter-395-scene-04",
+      "pov": "姜一苇",
+      "location": "系统底层接口",
+      "goal": "以空白页后的新短讯递向零号。",
+      "obstacle": "空白刚留下，新的提醒又要求他们继续向前。",
+      "emotional_shift": "从编排完成 -> 再次被提醒未完",
+      "must_include": [
+        "底层信号",
+        "零号",
+        "第二句提醒"
+      ],
+      "cannot_violate": [
+        "不能写成封卷",
+        "必须接到下一章"
+      ],
+      "exit_hook": "零号的短讯亮起。"
+    }
+  ]
+}

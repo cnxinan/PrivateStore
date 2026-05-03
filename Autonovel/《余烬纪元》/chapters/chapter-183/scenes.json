@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-183",
+  "title": "不是阿阙之后",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-183-scene-01",
+      "pov": "阿阙",
+      "location": "公共辩场",
+      "goal": "建立阿阙对‘阿阙之后’说法的本能反感。",
+      "obstacle": "大量善意言论都想借他来降低公众对未知样本的恐惧。",
+      "emotional_shift": "从警惕围观 -> 公开出声拒绝",
+      "must_include": [
+        "不是阿阙之后",
+        "善意的收编",
+        "公共辩场"
+      ],
+      "cannot_violate": [
+        "不能让阿阙接受样板位置",
+        "不能写成简单的情绪发作"
+      ],
+      "exit_hook": "有人要求阿阙给未命名样本提供解释词。"
+    },
+    {
+      "scene_id": "chapter-183-scene-02",
+      "pov": "阿阙",
+      "location": "开放接口看台",
+      "goal": "让阿阙指出类比会怎样悄悄吞掉后来者的差异。",
+      "obstacle": "公众只愿意接受能被解释回既有经验的未来。",
+      "emotional_shift": "从防守 -> 反过来逼大家承认自己的偷懒",
+      "must_include": [
+        "解释词",
+        "类比偷懒",
+        "未来差异"
+      ],
+      "cannot_violate": [
+        "不能把公众写成纯恶意",
+        "不能让阿阙失去词的敏感度"
+      ],
+      "exit_hook": "姜一苇选择不代替阿阙补充说明。"
+    },
+    {
+      "scene_id": "chapter-183-scene-03",
+      "pov": "阿阙",
+      "location": "活档旁听区",
+      "goal": "让孟回声带来一条真正不同于旧残响的新节律消息。",
+      "obstacle": "阿阙也担心这又会变成新的发现狂欢。",
+      "emotional_shift": "从锋利拒绝 -> 对更大的未知生出复杂警惕",
+      "must_include": [
+        "孟回声",
+        "新节律",
+        "活档"
+      ],
+      "cannot_violate": [
+        "不能把新节律直接讲清",
+        "不能让发现变成庆典"
+      ],
+      "exit_hook": "孟回声要求先别让任何人抢着命名。"
+    },
+    {
+      "scene_id": "chapter-183-scene-04",
+      "pov": "阿阙",
+      "location": "公共辩场外沿",
+      "goal": "以阿阙一句不代讲后来者的表态收束本章。",
+      "obstacle": "所有平台都在等一个更简洁、更易传播的口号。",
+      "emotional_shift": "从被观看 -> 主动夺回讲述边界",
+      "must_include": [
+        "不代讲",
+        "公共传播",
+        "未来留白"
+      ],
+      "cannot_violate": [
+        "不能写成领袖宣言",
+        "必须留下后续活档调查入口"
+      ],
+      "exit_hook": "孟回声把那段新节律送进活档比对。"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-065",
+  "title": "人类副本",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-065-scene-01",
+      "pov": "魏合",
+      "location": "试验登记台",
+      "goal": "以魏合的粗粝视角进入人类副本试验。",
+      "obstacle": "他讨厌被当样本，但更讨厌只有别人一直被剖开。",
+      "emotional_shift": "从不耐烦 -> 决定亲自进去试",
+      "must_include": [
+        "魏合自愿签字",
+        "唐见星在场",
+        "人类副本名称让人不舒服"
+      ],
+      "cannot_violate": [
+        "不能把魏合写得突然高尚",
+        "不能失去他的硬口气"
+      ],
+      "exit_hook": "访问舱开启。"
+    },
+    {
+      "scene_id": "chapter-065-scene-02",
+      "pov": "魏合",
+      "location": "人类副本访问舱",
+      "goal": "让魏合体验被回看、被命名的难堪。",
+      "obstacle": "他过去擅长攻击，不擅长承受别人把自己读成一组模式。",
+      "emotional_shift": "从顶着进去 -> 真正感到难看",
+      "must_include": [
+        "暴力记录片段",
+        "被看位置的不适",
+        "魏合没有失控却明显变冷"
+      ],
+      "cannot_violate": [
+        "不能把场面写成惩罚秀",
+        "不能让他轻易把感受说顺"
+      ],
+      "exit_hook": "外头有人要求只旁观。"
+    },
+    {
+      "scene_id": "chapter-065-scene-03",
+      "pov": "魏合",
+      "location": "隔离观察区",
+      "goal": "爆发旁观权争议。",
+      "obstacle": "有人想看人类副本，却不愿承担被进入的对等代价。",
+      "emotional_shift": "从忍着恶心 -> 直接看出问题核心",
+      "must_include": [
+        "只看不进的申请",
+        "另一名志愿者崩溃",
+        "魏合挡住围观口"
+      ],
+      "cannot_violate": [
+        "不能写成打斗",
+        "不能削弱制度层含义"
+      ],
+      "exit_hook": "争议送往访问议会。"
+    },
+    {
+      "scene_id": "chapter-065-scene-04",
+      "pov": "魏合",
+      "location": "试验层出口",
+      "goal": "以魏合的短硬判断收束本章。",
+      "obstacle": "他说不出完整理论，却比很多人更先撞见不对劲。",
+      "emotional_shift": "从厌烦制度 -> 逼出一句有分量的判断",
+      "must_include": [
+        "魏合的粗粝结论",
+        "唐见星听见",
+        "下一章旁观权"
+      ],
+      "cannot_violate": [
+        "不能让魏合忽然文绉绉",
+        "必须保留余怒与保护欲"
+      ],
+      "exit_hook": "旁观权。"
+    }
+  ]
+}

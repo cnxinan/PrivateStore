@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-068",
+  "title": "声带权限",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-068-scene-01",
+      "pov": "阿阙",
+      "location": "权限缓冲室",
+      "goal": "让阿阙在开口前先处理词与位置的关系。",
+      "obstacle": "所有人都在等他说话，也都想提前替他准备说法。",
+      "emotional_shift": "从冷着等待 -> 更清楚自己不接受被代讲",
+      "must_include": [
+        "阿阙对词敏感",
+        "他拒绝来源异常等旧称",
+        "顾南巡不替他说话"
+      ],
+      "cannot_violate": [
+        "不能把阿阙写成神秘玄言体",
+        "不能让他忽然柔顺"
+      ],
+      "exit_hook": "公共层接通。"
+    },
+    {
+      "scene_id": "chapter-068-scene-02",
+      "pov": "阿阙",
+      "location": "公共发声接口台",
+      "goal": "完成第一次公共发言。",
+      "obstacle": "每个词都会被当成立场和证据放大。",
+      "emotional_shift": "从警觉克制 -> 以最短的话夺回定义权",
+      "must_include": [
+        "阿阙首次发声",
+        "不是上传残余的声明",
+        "现场反应分裂"
+      ],
+      "cannot_violate": [
+        "不能写成长篇檄文",
+        "不能失去冷和锋利"
+      ],
+      "exit_hook": "政治主体资格争论被彻底推前。"
+    },
+    {
+      "scene_id": "chapter-068-scene-03",
+      "pov": "阿阙",
+      "location": "外侧等候廊",
+      "goal": "让公共发声后的余波落在具体人身上。",
+      "obstacle": "被听见不等于被承认，很多人只是换了方式继续打量他。",
+      "emotional_shift": "从完成发言 -> 感到自己仍在被归档视线包围",
+      "must_include": [
+        "柏青禾谈主体位置",
+        "盛野未阻断现场",
+        "阿阙对被研究眼神的厌烦"
+      ],
+      "cannot_violate": [
+        "不能写成瞬间逆转舆论",
+        "不能削弱阿阙的防卫性"
+      ],
+      "exit_hook": "陆鸣收到新争议案。"
+    },
+    {
+      "scene_id": "chapter-068-scene-04",
+      "pov": "阿阙",
+      "location": "接口台外廊",
+      "goal": "以阿阙的短促判断收尾。",
+      "obstacle": "他说出了话，但制度接下来会要求更多定义和证明。",
+      "emotional_shift": "从必须开口 -> 明白以后还得不断夺词",
+      "must_include": [
+        "阿阙极少的自我总结",
+        "公共层冷光",
+        "下一章可撤回人生"
+      ],
+      "cannot_violate": [
+        "不能写成豪迈收官",
+        "必须保留孤冷和重量"
+      ],
+      "exit_hook": "可撤回的人生。"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-380",
+  "title": "时间公地",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-380-scene-01",
+      "pov": "唐见星",
+      "location": "主台与边缘交界带",
+      "goal": "把时间公地从生活感受说成制度问题。",
+      "obstacle": "时间长期被当成效率和先来后到的自然资产。",
+      "emotional_shift": "从普通人直觉 -> 把直觉推成原则",
+      "must_include": [
+        "时间公地",
+        "唐见星",
+        "交界带"
+      ],
+      "cannot_violate": [
+        "不能把唐见星写成抽象法学家",
+        "不能脱离普通人视角"
+      ],
+      "exit_hook": "提案页被正式打开。"
+    },
+    {
+      "scene_id": "chapter-380-scene-02",
+      "pov": "唐见星",
+      "location": "时间公地提案页",
+      "goal": "说明时间为何也应被共同维护。",
+      "obstacle": "很多旧制度默认先占、先到、先说的人天然拥有更多未来安排权。",
+      "emotional_shift": "从解释经验 -> 直接点破旧特权逻辑",
+      "must_include": [
+        "未来共享权",
+        "不是私产",
+        "先占逻辑"
+      ],
+      "cannot_violate": [
+        "不能把概念写得空泛无落点",
+        "不能抹掉资源矛盾"
+      ],
+      "exit_hook": "白以澄与叶持微分别补上教育和法务注释。"
+    },
+    {
+      "scene_id": "chapter-380-scene-03",
+      "pov": "唐见星",
+      "location": "未来共享权说明窗",
+      "goal": "把时间公地与前面所有节律、附录、托底连起来。",
+      "obstacle": "一旦概念变大，就容易再次离开具体生活。",
+      "emotional_shift": "从原则提出 -> 把它重新落回班次、等待和入口",
+      "must_include": [
+        "班次",
+        "等待",
+        "入口"
+      ],
+      "cannot_violate": [
+        "不能写成空中楼阁",
+        "不能让时间公地取代前文所有具体规则"
+      ],
+      "exit_hook": "公共层开始接受这一原则的第一轮标注。"
+    },
+    {
+      "scene_id": "chapter-380-scene-04",
+      "pov": "唐见星",
+      "location": "主台与边缘交界带",
+      "goal": "以开放前沿结束本幕。",
+      "obstacle": "任何新原则都可能被误当成终极命名。",
+      "emotional_shift": "从提出原则 -> 再次把门留给未知",
+      "must_include": [
+        "门外之门",
+        "下一阶段",
+        "未完"
+      ],
+      "cannot_violate": [
+        "不能形成封闭大结局",
+        "必须留下继续扩写入口"
+      ],
+      "exit_hook": "更远处还有门。"
+    }
+  ]
+}

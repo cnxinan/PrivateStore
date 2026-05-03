@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-377",
+  "title": "活着的年表",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-377-scene-01",
+      "pov": "孟回声",
+      "location": "活档年表室",
+      "goal": "打破传统单线历史编排。",
+      "obstacle": "线性年表最便于传播和归档。",
+      "emotional_shift": "从修订档案 -> 决定彻底重排时间结构",
+      "must_include": [
+        "活着的年表",
+        "孟回声",
+        "多线历史"
+      ],
+      "cannot_violate": [
+        "不能把孟回声写成只会犹豫",
+        "不能浪漫化混乱"
+      ],
+      "exit_hook": "多线时间墙被点亮。"
+    },
+    {
+      "scene_id": "chapter-377-scene-02",
+      "pov": "孟回声",
+      "location": "多线时间墙",
+      "goal": "让不同节律在视觉上并行存在。",
+      "obstacle": "多线并行会让很多人失去“总体走势”带来的安全感。",
+      "emotional_shift": "从担心难懂 -> 接受难懂是诚实的一部分",
+      "must_include": [
+        "多线时间墙",
+        "不同节律",
+        "不压成一线"
+      ],
+      "cannot_violate": [
+        "不能把复杂写成玄虚",
+        "不能丢掉可理解性"
+      ],
+      "exit_hook": "姜一苇对接接口需求。"
+    },
+    {
+      "scene_id": "chapter-377-scene-03",
+      "pov": "孟回声",
+      "location": "节律标注台",
+      "goal": "为每条时间线标注回应关系而非胜负排序。",
+      "obstacle": "年表天然诱导人寻找领先和落后。",
+      "emotional_shift": "从编排历史 -> 转向编排回应",
+      "must_include": [
+        "回应关系",
+        "节律标注",
+        "姜一苇"
+      ],
+      "cannot_violate": [
+        "不能把历史写成相对主义无差别",
+        "不能抹掉冲突"
+      ],
+      "exit_hook": "这些节律被请求接入合唱接口。"
+    },
+    {
+      "scene_id": "chapter-377-scene-04",
+      "pov": "孟回声",
+      "location": "活档年表室",
+      "goal": "把年表转交系统接口层。",
+      "obstacle": "一旦进入系统，复杂节律又可能被自动整理成单线。",
+      "emotional_shift": "从档案师掌控 -> 把复杂性托付给下一层守门人",
+      "must_include": [
+        "姜一苇",
+        "合唱接口",
+        "活着"
+      ],
+      "cannot_violate": [
+        "不能在年表室完成闭环",
+        "必须为下一章铺路"
+      ],
+      "exit_hook": "姜一苇接手了这份年表。"
+    }
+  ]
+}

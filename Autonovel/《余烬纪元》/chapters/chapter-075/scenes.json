@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-075",
+  "title": "回滚区",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-075-scene-01",
+      "pov": "陆鸣",
+      "location": "回滚区观察廊",
+      "goal": "让陆鸣第一次看到可运行的回滚区。",
+      "obstacle": "这里没有灾难景观，只有过分平滑的秩序。",
+      "emotional_shift": "从赶来救火 -> 被平静反向压住",
+      "must_include": [
+        "回滚区正式运转",
+        "公共层安静恢复",
+        "陆鸣感到不对"
+      ],
+      "cannot_violate": [
+        "不能写成末日场景",
+        "必须写出治理气质"
+      ],
+      "exit_hook": "最低可见度原则被展示。"
+    },
+    {
+      "scene_id": "chapter-075-scene-02",
+      "pov": "陆鸣",
+      "location": "最低可见度居住面",
+      "goal": "让“最低可见度原则”变得具体。",
+      "obstacle": "这里没有人被公开伤害，却处处都在减少某些人的存在感。",
+      "emotional_shift": "从观察 -> 明确意识到这是回滚秩序",
+      "must_include": [
+        "最低可见度原则",
+        "主体外显被压缩",
+        "安静以他者退场为代价"
+      ],
+      "cannot_violate": [
+        "不能靠哭喊制造冲击",
+        "必须保持冷感"
+      ],
+      "exit_hook": "林述尘送来谈判窗口。"
+    },
+    {
+      "scene_id": "chapter-075-scene-03",
+      "pov": "陆鸣",
+      "location": "边境谈判室",
+      "goal": "让顾南巡提出极夜协定雏形。",
+      "obstacle": "任何协定都像承认回滚区暂时合理存在。",
+      "emotional_shift": "从本能反对 -> 被迫面对止血需要",
+      "must_include": [
+        "顾南巡要求谈判",
+        "林述尘转述法理风险",
+        "极夜协定草案被提出"
+      ],
+      "cannot_violate": [
+        "不能让顾南巡显得软弱",
+        "不能立刻得出答案"
+      ],
+      "exit_hook": "陆鸣没有立刻答应。"
+    },
+    {
+      "scene_id": "chapter-075-scene-04",
+      "pov": "陆鸣",
+      "location": "回滚区外窗",
+      "goal": "以陆鸣的判断收束章节。",
+      "obstacle": "他既不愿承认回滚有效，也不能否认这里暂时压住了更大崩裂。",
+      "emotional_shift": "从单纯愤怒 -> 落入更难的现实选择",
+      "must_include": [
+        "沈夜舟失联压力",
+        "回滚区不是抽象威胁",
+        "极夜协定成为下一步"
+      ],
+      "cannot_violate": [
+        "不能用口号收尾",
+        "必须保留陆鸣的裂口"
+      ],
+      "exit_hook": "顾南巡进入中心舞台。"
+    }
+  ]
+}

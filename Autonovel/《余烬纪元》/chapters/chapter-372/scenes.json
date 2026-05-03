@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-372",
+  "title": "错拍发言",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-372-scene-01",
+      "pov": "霍闻潮",
+      "location": "公共声场控制台",
+      "goal": "让霍闻潮面对系统天然偏爱的自动对齐逻辑。",
+      "obstacle": "所有传播指标都更喜欢整齐同步。",
+      "emotional_shift": "从技术处理 -> 明确这是权利问题",
+      "must_include": [
+        "错拍发言",
+        "自动对齐",
+        "霍闻潮"
+      ],
+      "cannot_violate": [
+        "不能把霍闻潮写成纯技术工具人",
+        "不能把问题简化为参数选择"
+      ],
+      "exit_hook": "他决定给错拍设立单独规则。"
+    },
+    {
+      "scene_id": "chapter-372-scene-02",
+      "pov": "霍闻潮",
+      "location": "错拍接口测试井",
+      "goal": "验证不同延迟发言如何在同一事件中并存。",
+      "obstacle": "一旦保留错拍，统计、摘要和回放都会更难看。",
+      "emotional_shift": "从担心系统失控 -> 接受难看才更诚实",
+      "must_include": [
+        "测试井",
+        "节拍保留",
+        "难看"
+      ],
+      "cannot_violate": [
+        "不能让技术一键解决复杂性",
+        "不能忽略现场代价"
+      ],
+      "exit_hook": "阿阙对发言席位提出新要求。"
+    },
+    {
+      "scene_id": "chapter-372-scene-03",
+      "pov": "霍闻潮",
+      "location": "节拍保留参数页",
+      "goal": "把错拍保留写进接口底层而非临时备注。",
+      "obstacle": "默认系统总会想重新回到中心世界那种顺滑格式。",
+      "emotional_shift": "从修补接口 -> 把承认时差写进规则本身",
+      "must_include": [
+        "参数页",
+        "默认禁对齐",
+        "时间速度"
+      ],
+      "cannot_violate": [
+        "不能把慢光治理写成已完成工程",
+        "不能脱离法务语境"
+      ],
+      "exit_hook": "阿阙说，同席也不能按旧顺序。"
+    },
+    {
+      "scene_id": "chapter-372-scene-04",
+      "pov": "霍闻潮",
+      "location": "公共声场控制台",
+      "goal": "把技术处理自然推向席位政治。",
+      "obstacle": "保留节拍之后，席位排序会立刻暴露旧默认。",
+      "emotional_shift": "从技术专注 -> 意识到真正难题转入公共层",
+      "must_include": [
+        "阿阙",
+        "多代同席",
+        "不按年序"
+      ],
+      "cannot_violate": [
+        "不能在技术层收束",
+        "必须留到下一章"
+      ],
+      "exit_hook": "阿阙要求把座位表重新打乱。"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-351",
+  "title": "互译失败",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-351-scene-01",
+      "pov": "闻折川",
+      "location": "受控互译台",
+      "goal": "呈现首次正式互译为何会在善意和谨慎中仍然失败。",
+      "obstacle": "人类在搭建互译接口时仍偷偷夹带了能消化对方的解释骨架。",
+      "emotional_shift": "从压住紧张执行 -> 亲眼看见互译失手",
+      "must_include": [
+        "首次互译窗口",
+        "闻折川",
+        "失败"
+      ],
+      "cannot_violate": [
+        "不能把失败写成恶意攻击",
+        "不能让闻折川提前免责"
+      ],
+      "exit_hook": "译码井触发停机。"
+    },
+    {
+      "scene_id": "chapter-351-scene-02",
+      "pov": "闻折川",
+      "location": "深空译码井",
+      "goal": "让闻折川拒绝把这次事件包装成单纯技术波动。",
+      "obstacle": "所有部门都担心‘失败’一词会被拿去要求关门。",
+      "emotional_shift": "从想先止损 -> 决定准确命名",
+      "must_include": [
+        "互译失败",
+        "停机",
+        "准确命名"
+      ],
+      "cannot_violate": [
+        "不能轻易解决外部压力",
+        "不能淡化失败后果"
+      ],
+      "exit_hook": "顾南巡要求进入失误复盘。"
+    },
+    {
+      "scene_id": "chapter-351-scene-03",
+      "pov": "闻折川",
+      "location": "失误复盘室",
+      "goal": "把失败界定为文明层面的伦理失手，而非纯算力不足。",
+      "obstacle": "一旦这样界定，就必须承认此前所有谨慎仍不够。",
+      "emotional_shift": "从职业羞耻 -> 进入更重的共同责任感",
+      "must_include": [
+        "伦理失手",
+        "共同责任",
+        "复盘室"
+      ],
+      "cannot_violate": [
+        "不能把责任全推给系统",
+        "不能写成一人事故"
+      ],
+      "exit_hook": "林述尘被调入后果评估。"
+    },
+    {
+      "scene_id": "chapter-351-scene-04",
+      "pov": "闻折川",
+      "location": "深空译码井",
+      "goal": "以公开承认失败为第四十幕起点。",
+      "obstacle": "这个承认会立刻撬动舆论、前线和制度防线。",
+      "emotional_shift": "从想保住前沿 -> 相信保住前沿只能先保住诚实",
+      "must_include": [
+        "失败公开原则",
+        "闻折川的发声",
+        "停机窗口"
+      ],
+      "cannot_violate": [
+        "不能给出和解感",
+        "必须把余震交给下一章"
+      ],
+      "exit_hook": "林述尘开始统计善意造成的伤。"
+    }
+  ]
+}

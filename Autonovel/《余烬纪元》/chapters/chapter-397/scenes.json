@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-397",
+  "title": "遥远同意",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-397-scene-01",
+      "pov": "叶持微",
+      "location": "长时法务台",
+      "goal": "建立一份跨巨大时间差同意书的特殊性。",
+      "obstacle": "旧流程只认一次性签字，不认后续修改权。",
+      "emotional_shift": "从常规审查 -> 发现这份同意的重量",
+      "must_include": [
+        "遥远同意",
+        "叶持微",
+        "时间差"
+      ],
+      "cannot_violate": [
+        "不能写成浪漫情书",
+        "必须保持法务与关系双重质感"
+      ],
+      "exit_hook": "同意书解析区打开附加条款。"
+    },
+    {
+      "scene_id": "chapter-397-scene-02",
+      "pov": "叶持微",
+      "location": "同意书解析区",
+      "goal": "让叶持微发现对方主动保留撤回与重议接口。",
+      "obstacle": "系统更偏好把同意封装成一次性完成状态。",
+      "emotional_shift": "从审慎查验 -> 罕见地被一种诚实打动",
+      "must_include": [
+        "修改权一起交出",
+        "可撤回承诺",
+        "顾南巡"
+      ],
+      "cannot_violate": [
+        "不能煽情拔高",
+        "不能淡化制度阻力"
+      ],
+      "exit_hook": "叶持微开始改写字段。"
+    },
+    {
+      "scene_id": "chapter-397-scene-03",
+      "pov": "叶持微",
+      "location": "可撤回接口页",
+      "goal": "把同意从终点式签字改成持续关系动作。",
+      "obstacle": "旧字段设计里没有未来拒绝权的位置。",
+      "emotional_shift": "从技术修补 -> 更清楚何谓不占有未来",
+      "must_include": [
+        "醒来后的拒绝权",
+        "重议入口",
+        "不是锁死"
+      ],
+      "cannot_violate": [
+        "不能让条文万能化",
+        "必须保留可执行细节"
+      ],
+      "exit_hook": "改写后的同意样本送往普通接口层。"
+    },
+    {
+      "scene_id": "chapter-397-scene-04",
+      "pov": "叶持微",
+      "location": "长时法务台",
+      "goal": "以对这份同意的理解递向普通人日常。",
+      "obstacle": "再好的法务语言，也得被普通生活慢慢学会。",
+      "emotional_shift": "从法务完成 -> 想到故事会因此变慢",
+      "must_include": [
+        "多年后仍能说不",
+        "唐见星",
+        "慢下来"
+      ],
+      "cannot_violate": [
+        "不能把本章写成制度自足",
+        "必须递到下一章"
+      ],
+      "exit_hook": "唐见星收到这份新样本。"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-396",
+  "title": "零号的第二句提醒",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-396-scene-01",
+      "pov": "零号",
+      "location": "系统底层回路",
+      "goal": "建立零号决定再次发声的原因。",
+      "obstacle": "每一次发声都会增加被投射、被追踪和被利用的风险。",
+      "emotional_shift": "从长期潜伏 -> 接受此刻必须再说一句",
+      "must_include": [
+        "系统底层",
+        "零号",
+        "第二句提醒"
+      ],
+      "cannot_violate": [
+        "不能把零号写成无代价先知",
+        "必须保留审慎与政治感"
+      ],
+      "exit_hook": "零号调出各方对第一句提醒的不同解读。"
+    },
+    {
+      "scene_id": "chapter-396-scene-02",
+      "pov": "零号",
+      "location": "低权限观察窗",
+      "goal": "让零号看到‘继续留门’被各方各取所需地解释。",
+      "obstacle": "越简短的话，越容易被替换成现成路线图的注脚。",
+      "emotional_shift": "从沉默观察 -> 决定补出边界",
+      "must_include": [
+        "不同解读",
+        "路线图警戒",
+        "陆鸣"
+      ],
+      "cannot_violate": [
+        "不能让零号变得唠叨",
+        "不能弱化信息密度"
+      ],
+      "exit_hook": "转接接口准备发送新短讯。"
+    },
+    {
+      "scene_id": "chapter-396-scene-03",
+      "pov": "零号",
+      "location": "转接接口",
+      "goal": "发出第二句提醒本身。",
+      "obstacle": "提醒必须足够短，才不会又变成这一代人的新说明书。",
+      "emotional_shift": "从反复权衡 -> 冷静定稿",
+      "must_include": [
+        "别把后来的人困在你们的路线图里",
+        "转接接口",
+        "顾南巡"
+      ],
+      "cannot_violate": [
+        "不能写成长篇宣言",
+        "不能抢走后续角色的理解空间"
+      ],
+      "exit_hook": "短讯被陆鸣与顾南巡同时收到。"
+    },
+    {
+      "scene_id": "chapter-396-scene-04",
+      "pov": "零号",
+      "location": "系统底层回路",
+      "goal": "以零号重新退回底层收束本章。",
+      "obstacle": "提醒发出后，世界会立刻开始用自己的方式解释它。",
+      "emotional_shift": "从说出一句 -> 再次退回沉默",
+      "must_include": [
+        "路线图",
+        "长时文明",
+        "遥远同意"
+      ],
+      "cannot_violate": [
+        "不能封死解释",
+        "必须递向下一章的法务动作"
+      ],
+      "exit_hook": "叶持微的接口灯亮起。"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-043",
+  "title": "载荷名单",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-043-scene-01",
+      "pov": "周栖岚",
+      "location": "驾驶桥",
+      "goal": "建立周栖岚的工作位置与船上压力。",
+      "obstacle": "船要准点靠港，但载荷名单本身就带着问题。",
+      "emotional_shift": "从航行常态 -> 察觉清单里有旧逻辑阴影",
+      "must_include": [
+        "周栖岚出场",
+        "货船压力",
+        "旧货运分类"
+      ],
+      "cannot_violate": [
+        "不能把他写成诗意船长",
+        "不能失去职业感"
+      ],
+      "exit_hook": "船底清单异常。"
+    },
+    {
+      "scene_id": "chapter-043-scene-02",
+      "pov": "周栖岚",
+      "location": "船底载荷库",
+      "goal": "让主体问题在运输表里具象化。",
+      "obstacle": "系统默认把一批新主体写成特殊载荷。",
+      "emotional_shift": "从烦躁 -> 明确这是旧秩序在表格里活着",
+      "must_include": [
+        "主体被写成附属物",
+        "周栖岚改表",
+        "他对运输语言的敏感"
+      ],
+      "cannot_violate": [
+        "不能写成简单改一行就好",
+        "不能削弱风险"
+      ],
+      "exit_hook": "被覆盖的旧记录出现。"
+    },
+    {
+      "scene_id": "chapter-043-scene-03",
+      "pov": "周栖岚",
+      "location": "旧式清单端口",
+      "goal": "把更深的隐藏乘员问题带出来。",
+      "obstacle": "记录被重复覆盖，说明有人不想让它被完整看见。",
+      "emotional_shift": "从改表 -> 进入更深怀疑",
+      "must_include": [
+        "覆盖记录",
+        "隐藏乘员线索",
+        "阮停云等主体被卷入载荷逻辑"
+      ],
+      "cannot_violate": [
+        "不能直接揭穿全部",
+        "不能让线索太像悬疑机关"
+      ],
+      "exit_hook": "周栖岚决定靠港后不交默认清单。"
+    },
+    {
+      "scene_id": "chapter-043-scene-04",
+      "pov": "周栖岚",
+      "location": "驾驶桥前窗",
+      "goal": "以周栖岚的选择把火星港口戏推近。",
+      "obstacle": "他知道这会直接顶撞港口流程。",
+      "emotional_shift": "从职业执行 -> 主动站边",
+      "must_include": [
+        "拒交默认清单",
+        "火星环进入视野",
+        "靠港张力拉起"
+      ],
+      "cannot_violate": [
+        "不能写成浪漫反叛",
+        "必须保留现实后果"
+      ],
+      "exit_hook": "下一章旧港潮汐与火星港同步推进。"
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "chapter_id": "chapter-249",
+  "title": "城市缓醒",
+  "scene_count": 3,
+  "scenes": [
+    {
+      "scene_id": "chapter-249-scene-01",
+      "pov": "孟回声",
+      "location": "主走廊留档点",
+      "goal": "记录停电后的第一轮恢复，而不是急着给出完成叙述。",
+      "obstacle": "外部接口不断要求她提交一份更干净、更成功的事故纪要。",
+      "emotional_shift": "从谨慎取样 -> 更坚决保留晃动与迟缓",
+      "must_include": [
+        "孟回声",
+        "恢复留档",
+        "主走廊"
+      ],
+      "cannot_violate": [
+        "不能把孟回声写成冷旁观",
+        "不能抹平恢复的粗糙感"
+      ],
+      "exit_hook": "她拒绝把长昼城写成已经稳定。"
+    },
+    {
+      "scene_id": "chapter-249-scene-02",
+      "pov": "孟回声",
+      "location": "恢复中的公地",
+      "goal": "让城市缓醒显出新的节律样子。",
+      "obstacle": "每一处恢复都不整齐，像随时会被嫌弃不够体面。",
+      "emotional_shift": "从记录事故后果 -> 逐渐意识到自己正在记录一种新的城市日常",
+      "must_include": [
+        "城市缓醒",
+        "公地",
+        "半亮状态"
+      ],
+      "cannot_violate": [
+        "不能写成灾后鸡血重建",
+        "不能出现完美秩序"
+      ],
+      "exit_hook": "陆鸣的入港申请接入远岸接港廊桥。"
+    },
+    {
+      "scene_id": "chapter-249-scene-03",
+      "pov": "孟回声",
+      "location": "远岸接港廊桥",
+      "goal": "把本幕收束的发言入口递给陆鸣。",
+      "obstacle": "外界已经准备把长昼城当作新文明样板，发言很容易又一次伤人。",
+      "emotional_shift": "从留档者立场 -> 主动为一段不圆满的总结留白",
+      "must_include": [
+        "陆鸣",
+        "接港廊桥",
+        "公开发言"
+      ],
+      "cannot_violate": [
+        "不能替陆鸣先说完",
+        "必须留下未完成感"
+      ],
+      "exit_hook": "陆鸣踏上长昼城。"
+    }
+  ]
+}

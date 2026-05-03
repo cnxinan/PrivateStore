@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-384",
+  "title": "黎照临的另一班",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-384-scene-01",
+      "pov": "黎照临",
+      "location": "轮值交接台",
+      "goal": "让更远轮值以平实的工作交接开场。",
+      "obstacle": "新来的值守者仍容易把这里想成值得激昂的最前沿岗位。",
+      "emotional_shift": "从例行交接 -> 再次确认工作重心",
+      "must_include": [
+        "轮值表",
+        "交接台",
+        "黎照临"
+      ],
+      "cannot_violate": [
+        "不能写成英雄出征",
+        "必须保持工作语言质感"
+      ],
+      "exit_hook": "黎照临把第一份工单递过去。"
+    },
+    {
+      "scene_id": "chapter-384-scene-02",
+      "pov": "黎照临",
+      "location": "门外接口值守区",
+      "goal": "通过维修、校压和报修展示前沿的真实重量。",
+      "obstacle": "所有人都更容易记住门开了，却不记得门得一直有人修。",
+      "emotional_shift": "从机械处理 -> 更清楚日常本身就是成果",
+      "must_include": [
+        "门井校压",
+        "滤芯更换",
+        "工单堆积"
+      ],
+      "cannot_violate": [
+        "不能把劳动浪漫化",
+        "不能让问题一次性清空"
+      ],
+      "exit_hook": "周栖岚发来补给重量调整请求。"
+    },
+    {
+      "scene_id": "chapter-384-scene-03",
+      "pov": "黎照临",
+      "location": "共居舱走廊",
+      "goal": "让前沿落回住居、照护和普通人白天。",
+      "obstacle": "资源越紧，越容易把人的疲惫默认成可牺牲项。",
+      "emotional_shift": "从工作专注 -> 主动校正照护排序",
+      "must_include": [
+        "共居舱",
+        "照护排班",
+        "盛野"
+      ],
+      "cannot_violate": [
+        "不能写成单纯后勤说明",
+        "不能忽略人的状态"
+      ],
+      "exit_hook": "黎照临在班末开始补记值守账。"
+    },
+    {
+      "scene_id": "chapter-384-scene-04",
+      "pov": "黎照临",
+      "location": "轮值交接台",
+      "goal": "以记账和换班完成本章收束。",
+      "obstacle": "外界更愿意记住开门瞬间，而不是持续存在的换班制度。",
+      "emotional_shift": "从疲惫收班 -> 确认普通白天的重量",
+      "must_include": [
+        "另一班",
+        "记账",
+        "真的在那儿"
+      ],
+      "cannot_violate": [
+        "不能抒情过量",
+        "必须把下一章递向制度层"
+      ],
+      "exit_hook": "柏青禾来调取值守样本，准备写进底法。"
+    }
+  ]
+}

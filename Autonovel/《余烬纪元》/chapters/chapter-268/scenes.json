@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-268",
+  "title": "一百年后的监护答辩",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-268-scene-01",
+      "pov": "叶持微",
+      "location": "百年答辩厅",
+      "goal": "建立一场跨越百年的公开答辩氛围。",
+      "obstacle": "反对者把终止机制说成对祖辈承诺的背弃。",
+      "emotional_shift": "从准备证据 -> 明白自己要辩的是过去没有永久代理权",
+      "must_include": [
+        "百年答辩厅",
+        "叶持微",
+        "祖辈承诺"
+      ],
+      "cannot_violate": [
+        "不能把答辩写成爽快胜诉",
+        "必须保留复杂情感"
+      ],
+      "exit_hook": "反方展示了一份百年前的监护誓言。"
+    },
+    {
+      "scene_id": "chapter-268-scene-02",
+      "pov": "叶持微",
+      "location": "祖辈证词陈列室",
+      "goal": "正面回应“过去的牺牲是否该被持续执行”。",
+      "obstacle": "证词里确实有大量真实的付出与照护。",
+      "emotional_shift": "从锋利驳斥 -> 改为承认过去价值但拒绝永久占有",
+      "must_include": [
+        "祖辈证词",
+        "牺牲",
+        "永久绑架"
+      ],
+      "cannot_violate": [
+        "不能羞辱过去的照护者",
+        "必须保留尊重"
+      ],
+      "exit_hook": "顾南巡在连线端要求一句边境能执行的话。"
+    },
+    {
+      "scene_id": "chapter-268-scene-03",
+      "pov": "叶持微",
+      "location": "跨域中继公屏",
+      "goal": "让顾南巡把原则压缩成执行语言。",
+      "obstacle": "过度抽象会让边境继续按旧习惯处理。",
+      "emotional_shift": "从法务辩论 -> 找到“先保全到醒来”这一中线",
+      "must_include": [
+        "顾南巡",
+        "先保全到醒来",
+        "中继公屏"
+      ],
+      "cannot_violate": [
+        "不能把折中写成退让",
+        "必须显出它的硬度"
+      ],
+      "exit_hook": "林述尘要求把终止机制写成可追责时间点。"
+    },
+    {
+      "scene_id": "chapter-268-scene-04",
+      "pov": "叶持微",
+      "location": "百年答辩厅",
+      "goal": "以答辩阶段性通过收束本章。",
+      "obstacle": "通过只意味着开始改规则，不意味着反对者消失。",
+      "emotional_shift": "从高压应答 -> 冷静接受真正难的是执行",
+      "must_include": [
+        "终止机制",
+        "林述尘",
+        "通过但未完"
+      ],
+      "cannot_violate": [
+        "不能写成彻底胜利",
+        "必须导向边境执行"
+      ],
+      "exit_hook": "顾南巡开始重写边境登记界面。"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-375",
+  "title": "不同时抵达的掌声",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-375-scene-01",
+      "pov": "周栖岚",
+      "location": "远轨货运控制舱",
+      "goal": "从前线视角看见掌声如何分段抵达。",
+      "obstacle": "远端的任何回应都天然晚于近端叙事。",
+      "emotional_shift": "从把回声当信号 -> 感到自己也被这场声场接住",
+      "must_include": [
+        "周栖岚",
+        "延迟掌声",
+        "控制舱"
+      ],
+      "cannot_violate": [
+        "不能把周栖岚写成浪漫旁观者",
+        "不能脱离运输现场"
+      ],
+      "exit_hook": "黎照临从前哨那边补进一段回应。"
+    },
+    {
+      "scene_id": "chapter-375-scene-02",
+      "pov": "周栖岚",
+      "location": "前线回声汇入带",
+      "goal": "让前哨和货运线的掌声以各自节拍汇入。",
+      "obstacle": "系统想自动剪平它们，做成同时到达的效果。",
+      "emotional_shift": "从习惯处理信号 -> 主动守住迟到本身",
+      "must_include": [
+        "黎照临",
+        "错时接住",
+        "不剪平"
+      ],
+      "cannot_violate": [
+        "不能写成单纯技术阻止",
+        "不能忽视前哨劳动现实"
+      ],
+      "exit_hook": "周栖岚提交保留原始抵达时间的请求。"
+    },
+    {
+      "scene_id": "chapter-375-scene-03",
+      "pov": "周栖岚",
+      "location": "外前哨公共屏",
+      "goal": "让掌声成为对前线劳动的一次回应，而不只是给中心舞台加气氛。",
+      "obstacle": "公众更容易把掌声理解成庆典而不是接力。",
+      "emotional_shift": "从旁线支援感 -> 真正参与到公共事件里",
+      "must_include": [
+        "前线劳动",
+        "公共屏",
+        "每一段都算"
+      ],
+      "cannot_violate": [
+        "不能把前线浪漫化成英雄叙事",
+        "不能抹掉疲惫"
+      ],
+      "exit_hook": "叶持微发来要插入的附录草稿。"
+    },
+    {
+      "scene_id": "chapter-375-scene-04",
+      "pov": "周栖岚",
+      "location": "前线回声汇入带",
+      "goal": "把前线掌声自然交接给未来附录。",
+      "obstacle": "掌声太容易被消费成“此刻圆满”的证据。",
+      "emotional_shift": "从被动接收 -> 主动为尚未来临者留位",
+      "must_include": [
+        "叶持微",
+        "尚未来临者",
+        "附录"
+      ],
+      "cannot_violate": [
+        "不能在掌声处封口",
+        "必须给下一章留下未来边栏"
+      ],
+      "exit_hook": "叶持微的附录接入了合唱。"
+    }
+  ]
+}

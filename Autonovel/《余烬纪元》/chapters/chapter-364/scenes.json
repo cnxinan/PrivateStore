@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-364",
+  "title": "不求同意书",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-364-scene-01",
+      "pov": "柏青禾",
+      "location": "讲述权修订室",
+      "goal": "提出‘不求同意书’的核心命题。",
+      "obstacle": "大家都习惯用推定同意推进善后。",
+      "emotional_shift": "从概念推演 -> 对现场后果更具体",
+      "must_include": [
+        "不求同意书",
+        "推定同意",
+        "修复边界"
+      ],
+      "cannot_violate": [
+        "不能写成纯学术空谈",
+        "不能否认现实推进需求"
+      ],
+      "exit_hook": "叶持微提出异步主体的特殊风险。"
+    },
+    {
+      "scene_id": "chapter-364-scene-02",
+      "pov": "柏青禾",
+      "location": "边界推演台",
+      "goal": "列出无法即时同意时允许和禁止的动作。",
+      "obstacle": "越划边界，越显得修复行动笨拙迟缓。",
+      "emotional_shift": "从强调原则 -> 接受笨慢本身就是尊重",
+      "must_include": [
+        "只可保全",
+        "不可代讲",
+        "不可结案"
+      ],
+      "cannot_violate": [
+        "不能让规则无限扩张",
+        "不能替缺席者发言"
+      ],
+      "exit_hook": "顾南巡把边境执行问题摆上台面。"
+    },
+    {
+      "scene_id": "chapter-364-scene-03",
+      "pov": "柏青禾",
+      "location": "伦理公开底稿区",
+      "goal": "让规则接受外界质疑并保持成立。",
+      "obstacle": "公众会把限制理解成机构无能或道德洁癖。",
+      "emotional_shift": "从被动解释 -> 更硬地守住限制",
+      "must_include": [
+        "公开底稿",
+        "善意越线",
+        "笨慢"
+      ],
+      "cannot_violate": [
+        "不能把反对者写成恶意",
+        "不能抹掉争议"
+      ],
+      "exit_hook": "顾南巡决定先画出共存最低线。"
+    },
+    {
+      "scene_id": "chapter-364-scene-04",
+      "pov": "柏青禾",
+      "location": "讲述权修订室",
+      "goal": "把伦理限制交给执行层继续推进。",
+      "obstacle": "原则一旦离开房间，就可能被现实削薄。",
+      "emotional_shift": "从担心落地变形 -> 接受必须进入现实拉扯",
+      "must_include": [
+        "顾南巡",
+        "叶持微",
+        "共存最低线"
+      ],
+      "cannot_violate": [
+        "不能给出完美制度",
+        "必须保留下一章的现实压力"
+      ],
+      "exit_hook": "顾南巡说，先把最低线立住。"
+    }
+  ]
+}

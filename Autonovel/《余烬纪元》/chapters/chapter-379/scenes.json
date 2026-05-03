@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-379",
+  "title": "每个人只唱一段",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-379-scene-01",
+      "pov": "陆鸣",
+      "location": "公共声场主台",
+      "goal": "在时间合唱开启前拦住总括冲动。",
+      "obstacle": "所有人都习惯等一个居中者给出完整意义。",
+      "emotional_shift": "从想帮忙串起全局 -> 决定主动缩短自己的段落",
+      "must_include": [
+        "每个人只唱一段",
+        "陆鸣",
+        "公开声场"
+      ],
+      "cannot_violate": [
+        "不能把陆鸣写成救世式主持人",
+        "不能让活动变成他的独白"
+      ],
+      "exit_hook": "第一段错时发言进入主台。"
+    },
+    {
+      "scene_id": "chapter-379-scene-02",
+      "pov": "陆鸣",
+      "location": "错时回声幕",
+      "goal": "让多段发言以不总括的方式并列出现。",
+      "obstacle": "每多一段声音，现场越想有人负责整理意义。",
+      "emotional_shift": "从主持压力 -> 真正信任多声部并存",
+      "must_include": [
+        "错时回声幕",
+        "不总结",
+        "每一段都算"
+      ],
+      "cannot_violate": [
+        "不能统一人物声音",
+        "不能消掉错拍"
+      ],
+      "exit_hook": "开放发言边缘带被更多人占满。"
+    },
+    {
+      "scene_id": "chapter-379-scene-03",
+      "pov": "陆鸣",
+      "location": "开放发言边缘带",
+      "goal": "让陆鸣看见真正的公共事件不再依赖一个中心。",
+      "obstacle": "边缘带仍可能被主台光压暗。",
+      "emotional_shift": "从担心失控 -> 接受分段才是长久办法",
+      "must_include": [
+        "边缘带",
+        "白以澄",
+        "顾南巡"
+      ],
+      "cannot_violate": [
+        "不能抹平主台与边缘的差异",
+        "不能写成整齐大团圆"
+      ],
+      "exit_hook": "唐见星提出时间公地原则。"
+    },
+    {
+      "scene_id": "chapter-379-scene-04",
+      "pov": "陆鸣",
+      "location": "公共声场主台",
+      "goal": "把收束权交给制度层下一步。",
+      "obstacle": "一旦进入制度命名，复杂经验又可能被收窄。",
+      "emotional_shift": "从活动主持 -> 再次把门留给别人继续写",
+      "must_include": [
+        "唐见星",
+        "时间公地",
+        "反总括原则"
+      ],
+      "cannot_violate": [
+        "不能封闭活动意义",
+        "必须引向下一章"
+      ],
+      "exit_hook": "唐见星说，时间也该成为公地。"
+    }
+  ]
+}

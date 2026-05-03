@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-197",
+  "title": "第一束回信",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-197-scene-01",
+      "pov": "阿阙",
+      "location": "慢光接口厅",
+      "goal": "建立阿阙面对第一束回信时的复杂戒备。",
+      "obstacle": "主线已经开始把这一刻包装成里程碑。",
+      "emotional_shift": "从警惕被再度代讲 -> 被真正不同的回应稍微击中",
+      "must_include": [
+        "第一束回信",
+        "阿阙",
+        "里程碑压力"
+      ],
+      "cannot_violate": [
+        "不能让阿阙轻易感动表白",
+        "不能把回信写成简单祝词"
+      ],
+      "exit_hook": "回信中的新语法让旧译法失效。"
+    },
+    {
+      "scene_id": "chapter-197-scene-02",
+      "pov": "阿阙",
+      "location": "回信缓冲带",
+      "goal": "让阿阙看见远前哨如何在共处中回写新语法。",
+      "obstacle": "公共层迫不及待想要标准译本。",
+      "emotional_shift": "从只想自保 -> 首次承认更远处真的有人接住了这种陌生",
+      "must_include": [
+        "回信缓冲带",
+        "新语法回声",
+        "远前哨"
+      ],
+      "cannot_violate": [
+        "不能把新语法讲成全部可译",
+        "不能让陌生性消失"
+      ],
+      "exit_hook": "姜一苇拒绝发布标准译本。"
+    },
+    {
+      "scene_id": "chapter-197-scene-03",
+      "pov": "阿阙",
+      "location": "公共译注台",
+      "goal": "把众人对解释权的争夺推到台前。",
+      "obstacle": "一旦没有统一译注，很多人会认为主线在逃避说明责任。",
+      "emotional_shift": "从回信私人冲击 -> 再次站回公共争夺里",
+      "must_include": [
+        "公共译注台",
+        "姜一苇",
+        "解释权争夺"
+      ],
+      "cannot_violate": [
+        "不能让姜一苇突然全退场",
+        "不能让阿阙被迫做代言人"
+      ],
+      "exit_hook": "零号从底层送来一句提醒。"
+    },
+    {
+      "scene_id": "chapter-197-scene-04",
+      "pov": "阿阙",
+      "location": "慢光接口厅",
+      "goal": "以零号的提醒把阶段性抵达重新拉回未完成。",
+      "obstacle": "主流叙事已经开始把这束回信包装成新时代的成功证明。",
+      "emotional_shift": "从难得松动 -> 再次保持锋利清醒",
+      "must_include": [
+        "零号",
+        "不是终点",
+        "第一束回信之后"
+      ],
+      "cannot_violate": [
+        "不能写成阶段终章",
+        "必须导向零号下一章发言"
+      ],
+      "exit_hook": "零号说：别把未来写窄。"
+    }
+  ]
+}

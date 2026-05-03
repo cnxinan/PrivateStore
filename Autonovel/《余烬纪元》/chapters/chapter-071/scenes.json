@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-071",
+  "title": "熄灯令",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-071-scene-01",
+      "pov": "盛野",
+      "location": "紧急安保指令层",
+      "goal": "建立熄灯令不是口号而是边境现实命令。",
+      "obstacle": "节点波动上升，任何犹豫都可能被解释成放任失控。",
+      "emotional_shift": "从执行准备 -> 对命令本身生出迟疑",
+      "must_include": [
+        "双向法庭判例余波",
+        "边境安全警报",
+        "盛野收到熄灯令"
+      ],
+      "cannot_violate": [
+        "不能把盛野写成单纯反派",
+        "不能弱化外环真实风险"
+      ],
+      "exit_hook": "顾南巡要求暂缓。"
+    },
+    {
+      "scene_id": "chapter-071-scene-02",
+      "pov": "盛野",
+      "location": "共生接口廊",
+      "goal": "写出切断接口的冷硬现场。",
+      "obstacle": "一旦断开，正在发声的主体会被重新压回静默背景。",
+      "emotional_shift": "从职业冷静 -> 听见旧时代回声",
+      "must_include": [
+        "共生接口逐段熄灭",
+        "公共层声音中断",
+        "盛野想到旧清洗语言"
+      ],
+      "cannot_violate": [
+        "不能写成爆炸式灾难",
+        "必须保持安静压感"
+      ],
+      "exit_hook": "陆鸣的远程请求接入。"
+    },
+    {
+      "scene_id": "chapter-071-scene-03",
+      "pov": "盛野",
+      "location": "节点E-17控制台",
+      "goal": "让盛野与顾南巡、陆鸣形成价值冲突。",
+      "obstacle": "边境执行层要的不是道理，而是立刻可承担的后果。",
+      "emotional_shift": "从被外部质问 -> 更清楚自己正在复制什么",
+      "must_include": [
+        "顾南巡远程通话",
+        "陆鸣反对整体切断",
+        "盛野坚持先保节点"
+      ],
+      "cannot_violate": [
+        "不能让争论像法庭复述",
+        "不能失去执行时差压力"
+      ],
+      "exit_hook": "第一批公共层账号被强制静音。"
+    },
+    {
+      "scene_id": "chapter-071-scene-04",
+      "pov": "盛野",
+      "location": "外环节点观察窗",
+      "goal": "以熄灯后的安静确认危机已成事实。",
+      "obstacle": "表面平稳正是最危险的自我欺骗。",
+      "emotional_shift": "从完成命令 -> 意识到自己打开了回滚入口",
+      "must_include": [
+        "节点灯带变暗",
+        "熄灯后异常地平静",
+        "隔离航线启动通知"
+      ],
+      "cannot_violate": [
+        "不能用胜负口吻收尾",
+        "必须保留盛野的不安"
+      ],
+      "exit_hook": "隔离航线启动。"
+    }
+  ]
+}

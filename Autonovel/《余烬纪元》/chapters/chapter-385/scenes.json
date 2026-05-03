@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-385",
+  "title": "继续留门法",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-385-scene-01",
+      "pov": "柏青禾",
+      "location": "法条工作台",
+      "goal": "让柏青禾把口头提醒拆成底法条款。",
+      "obstacle": "“继续留门”太像伦理姿态，难以直接进入法条语言。",
+      "emotional_shift": "从谨慎措辞 -> 接受方向先于细则",
+      "must_include": [
+        "继续留门",
+        "方向性底法",
+        "柏青禾"
+      ],
+      "cannot_violate": [
+        "不能把法务写得悬空",
+        "不能让条文变成口号"
+      ],
+      "exit_hook": "听证厅要求给出可执行范围。"
+    },
+    {
+      "scene_id": "chapter-385-scene-02",
+      "pov": "柏青禾",
+      "location": "原则听证厅",
+      "goal": "让反对者正面质疑这条法太诗。",
+      "obstacle": "一旦无法说明约束对象，底法就会被当成修辞。",
+      "emotional_shift": "从被逼解释 -> 更精确地指出其约束方向",
+      "must_include": [
+        "听证质疑",
+        "不得永久关闭重议入口",
+        "零号"
+      ],
+      "cannot_violate": [
+        "不能让听证轻松通过",
+        "不能把零号神化"
+      ],
+      "exit_hook": "底层引文库调出零号旧提醒。"
+    },
+    {
+      "scene_id": "chapter-385-scene-03",
+      "pov": "柏青禾",
+      "location": "底层引文库",
+      "goal": "让“继续留门”从个人提醒转为共同方向。",
+      "obstacle": "所有人都可能试图按自己的利益解释这句话。",
+      "emotional_shift": "从引述敬慎 -> 确认它不能属于单一来源",
+      "must_include": [
+        "引文库",
+        "不是最后版",
+        "不轻易背叛的方向"
+      ],
+      "cannot_violate": [
+        "不能写成神谕场面",
+        "不能让条款失去现实约束"
+      ],
+      "exit_hook": "法条被送入表决前的最后修订。"
+    },
+    {
+      "scene_id": "chapter-385-scene-04",
+      "pov": "柏青禾",
+      "location": "原则听证厅",
+      "goal": "以底法过线完成本章，并把问题递给运输未来。",
+      "obstacle": "即便通过，真正难的是谁来把方向写进日后每一个格式里。",
+      "emotional_shift": "从绷紧 -> 只得到克制的确定",
+      "must_include": [
+        "底法通过",
+        "继续留门法",
+        "周栖岚"
+      ],
+      "cannot_violate": [
+        "不能写成胜利庆典",
+        "必须保留后续执行压力"
+      ],
+      "exit_hook": "周栖岚打开新的运输路网图。"
+    }
+  ]
+}

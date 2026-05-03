@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-370",
+  "title": "和解只是开始",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-370-scene-01",
+      "pov": "陆鸣",
+      "location": "慢修复接口外沿",
+      "goal": "让陆鸣面对外界对阶段结论的期待。",
+      "obstacle": "公众需要可抓住的说法，真实却无法被说成结束。",
+      "emotional_shift": "从想尽量说圆 -> 接受必须说得不圆",
+      "must_include": [
+        "和解只是开始",
+        "陆鸣",
+        "慢修复接口"
+      ],
+      "cannot_violate": [
+        "不能写成阶段胜利宣言",
+        "不能否定前面修复的价值"
+      ],
+      "exit_hook": "陆鸣走向公开说明台。"
+    },
+    {
+      "scene_id": "chapter-370-scene-02",
+      "pov": "陆鸣",
+      "location": "公开说明台",
+      "goal": "让他用克制语言完成这一幕收束。",
+      "obstacle": "过于诚实会让很多人失望，过于漂亮又会撒谎。",
+      "emotional_shift": "从紧绷 -> 说出可承受的真话",
+      "must_include": [
+        "不是过去了",
+        "慢动作",
+        "继续共处"
+      ],
+      "cannot_violate": [
+        "不能让陆鸣变成热血演说家",
+        "不能替别人总结全部"
+      ],
+      "exit_hook": "边境回声带开始传回不同回应。"
+    },
+    {
+      "scene_id": "chapter-370-scene-03",
+      "pov": "陆鸣",
+      "location": "边境回声带",
+      "goal": "确认不同角色对这段收束各自接住的方式。",
+      "obstacle": "没有人会因为这一句而轻松，回应也不会整齐。",
+      "emotional_shift": "从独自承担 -> 再次看见多手接力",
+      "must_include": [
+        "沈夜舟",
+        "白以澄",
+        "顾南巡"
+      ],
+      "cannot_violate": [
+        "不能统一人物口径",
+        "不能抹平未完成感"
+      ],
+      "exit_hook": "白以澄提到下一步要做一场时间合唱。"
+    },
+    {
+      "scene_id": "chapter-370-scene-04",
+      "pov": "陆鸣",
+      "location": "慢修复接口外沿",
+      "goal": "把长时和解交接到下一阶段的公共声场。",
+      "obstacle": "从修复转向合唱意味着要承受更多节律不齐。",
+      "emotional_shift": "从阶段性收束 -> 面向更复杂的共同声场",
+      "must_include": [
+        "时间合唱",
+        "不同时间层",
+        "开始"
+      ],
+      "cannot_violate": [
+        "不能封口",
+        "必须留下第四十二幕入口"
+      ],
+      "exit_hook": "霍闻潮开始调试错拍发言接口。"
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "chapter_id": "chapter-251",
+  "title": "异步公民",
+  "scene_count": 3,
+  "scenes": [
+    {
+      "scene_id": "chapter-251-scene-01",
+      "pov": "叶持微",
+      "location": "长时法务会面室",
+      "goal": "建立异步公民问题的制度必要性。",
+      "obstacle": "既有公民框架默认到场、同步、即时回应才算完整参与。",
+      "emotional_shift": "从准备论证 -> 被现实案例逼得更锋利",
+      "must_include": [
+        "叶持微",
+        "异步公民",
+        "长时法务"
+      ],
+      "cannot_violate": [
+        "不能把叶持微写成空谈法务",
+        "不能脱离远岸现场"
+      ],
+      "exit_hook": "林述尘质疑新框架会不会拖慢一切。"
+    },
+    {
+      "scene_id": "chapter-251-scene-02",
+      "pov": "叶持微",
+      "location": "异步公民草案台",
+      "goal": "让异步公民的底层原则第一次成形。",
+      "obstacle": "所有人都害怕程序被无限拉长，却不愿承认现有速度本身就是特权。",
+      "emotional_shift": "从谨慎措辞 -> 明确指出同步在场并不天然正义",
+      "must_include": [
+        "到场重写",
+        "林述尘",
+        "草案"
+      ],
+      "cannot_violate": [
+        "不能写成一锤定音",
+        "不能忽略执行难度"
+      ],
+      "exit_hook": "顾南巡提议用一次晚到投票做试点。"
+    },
+    {
+      "scene_id": "chapter-251-scene-03",
+      "pov": "叶持微",
+      "location": "远岸连线屏",
+      "goal": "完成本章揭示，并把试点递给下一章。",
+      "obstacle": "框架一旦进入试点，立刻要面对中心节点的程序反弹。",
+      "emotional_shift": "从提出原则 -> 转向准备承担后果",
+      "must_include": [
+        "顾南巡",
+        "试点",
+        "晚到投票"
+      ],
+      "cannot_violate": [
+        "不能形成封闭结尾",
+        "必须形成转场"
+      ],
+      "exit_hook": "顾南巡把第一场晚到投票送进试点。"
+    }
+  ]
+}

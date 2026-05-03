@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-389",
+  "title": "门外白昼",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-389-scene-01",
+      "pov": "黎照临",
+      "location": "更远接口站",
+      "goal": "让更远前沿以普通白天开场。",
+      "obstacle": "外界总想把这里想成只属于旗帜和远征的地方。",
+      "emotional_shift": "从例行巡看 -> 更笃定普通白天的意义",
+      "must_include": [
+        "白昼",
+        "更远接口站",
+        "黎照临"
+      ],
+      "cannot_violate": [
+        "不能写成奇观展示",
+        "必须有日常细节"
+      ],
+      "exit_hook": "照护站发来临时请求。"
+    },
+    {
+      "scene_id": "chapter-389-scene-02",
+      "pov": "黎照临",
+      "location": "照护站前厅",
+      "goal": "展示白昼里的照护劳动。",
+      "obstacle": "资源有限，所有照护都要和维修、运输争时间。",
+      "emotional_shift": "从工作排布 -> 更清楚谁也不能被默认放后",
+      "must_include": [
+        "照护站",
+        "白以澄",
+        "排班"
+      ],
+      "cannot_violate": [
+        "不能把照护写成背景板",
+        "不能抹掉紧张"
+      ],
+      "exit_hook": "共居厨房的物资冲突冒头。"
+    },
+    {
+      "scene_id": "chapter-389-scene-03",
+      "pov": "黎照临",
+      "location": "共居厨房",
+      "goal": "把前沿白昼落回吃饭、排队和小型故障。",
+      "obstacle": "越是普通的小事，越容易暴露结构性分配偏差。",
+      "emotional_shift": "从处理琐事 -> 再次确认日常本身就是前沿",
+      "must_include": [
+        "共居厨房",
+        "补给箱",
+        "稳定比壮观更难"
+      ],
+      "cannot_violate": [
+        "不能写成温暖治愈片段",
+        "必须保留现实摩擦"
+      ],
+      "exit_hook": "远处新亮起一束更暗的光。"
+    },
+    {
+      "scene_id": "chapter-389-scene-04",
+      "pov": "黎照临",
+      "location": "更远接口站",
+      "goal": "以白昼尽头的暗光将本章递给陆鸣。",
+      "obstacle": "任何新光都会被过度解释成历史时刻。",
+      "emotional_shift": "从忙碌白昼 -> 冷静看见更远继续",
+      "must_include": [
+        "门外白昼",
+        "更暗的光",
+        "不是旗帜"
+      ],
+      "cannot_violate": [
+        "不能写成终局预告",
+        "必须保留开放感"
+      ],
+      "exit_hook": "陆鸣在夜面平台看到那束光。"
+    }
+  ]
+}

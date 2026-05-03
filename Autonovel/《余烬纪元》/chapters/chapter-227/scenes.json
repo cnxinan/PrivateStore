@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-227",
+  "title": "远处公证",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-227-scene-01",
+      "pov": "闻折川",
+      "location": "深空公证井",
+      "goal": "建立闻折川接手远处公证井时的警惕。",
+      "obstacle": "所有人都容易把公证误认成新的判断中心。",
+      "emotional_shift": "从被任命的迟疑 -> 更清楚守门不是夺门",
+      "must_include": [
+        "闻折川",
+        "远处公证",
+        "守门人"
+      ],
+      "cannot_violate": [
+        "不能让闻折川享受权威感",
+        "不能把公证写成判决"
+      ],
+      "exit_hook": "第一份需要未定状态证明的回信抵达。"
+    },
+    {
+      "scene_id": "chapter-227-scene-02",
+      "pov": "闻折川",
+      "location": "未定状态证明台",
+      "goal": "给不可贸然解释的内容开出合法停留位置。",
+      "obstacle": "公众和制度都不习惯承认无法立即定义。",
+      "emotional_shift": "从技术谨慎 -> 明确把不能定义写进证明",
+      "must_include": [
+        "未定状态证明",
+        "不可贸然解释",
+        "合法停留"
+      ],
+      "cannot_violate": [
+        "不能让公证井独占原件",
+        "不能神化未知"
+      ],
+      "exit_hook": "姜一苇提醒公证井必须保持可读而非神秘。"
+    },
+    {
+      "scene_id": "chapter-227-scene-03",
+      "pov": "闻折川",
+      "location": "互译缓冲层",
+      "goal": "让公证成为保全陌生性的工作，而不是玻璃柜陈列。",
+      "obstacle": "一旦过度保留，公证又会像另一种独占解释权。",
+      "emotional_shift": "从只想防误读 -> 接受自己也必须面对公众",
+      "must_include": [
+        "姜一苇",
+        "互译缓冲",
+        "可读边界"
+      ],
+      "cannot_violate": [
+        "不能让闻折川变成拒绝一切公开的人",
+        "不能丢掉陌生性"
+      ],
+      "exit_hook": "林述尘担心这会制造永久灰区。"
+    },
+    {
+      "scene_id": "chapter-227-scene-04",
+      "pov": "闻折川",
+      "location": "深空公证井",
+      "goal": "确认远处公证只证明此刻不能替它收口。",
+      "obstacle": "制度更习惯要明确结论，不习惯要明确边界。",
+      "emotional_shift": "从防守任务 -> 接受灰区本身也要被制度承担",
+      "must_include": [
+        "林述尘",
+        "灰区",
+        "不是终判"
+      ],
+      "cannot_violate": [
+        "不能消除争议",
+        "必须导向资源层争论"
+      ],
+      "exit_hook": "林述尘把问题推向回信资源分配。"
+    }
+  ]
+}

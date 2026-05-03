@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-067",
+  "title": "交叉抚养",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-067-scene-01",
+      "pov": "唐见星",
+      "location": "共居照护区",
+      "goal": "把争议从议会拉进日常照护现场。",
+      "obstacle": "照护一旦真实发生，就没有人能只靠抽象原则站稳。",
+      "emotional_shift": "从忙于排班 -> 看到关系开始变得更难命名",
+      "must_include": [
+        "普通照护劳动",
+        "新主体参与守夜或陪学",
+        "唐见星的现实疲惫"
+      ],
+      "cannot_violate": [
+        "不能写成温馨治愈区",
+        "不能失去现实摩擦"
+      ],
+      "exit_hook": "一个提问卡住现场。"
+    },
+    {
+      "scene_id": "chapter-067-scene-02",
+      "pov": "唐见星",
+      "location": "夜班守护站",
+      "goal": "具体呈现谁照顾谁的角色失衡。",
+      "obstacle": "照护资格、信任感和公共观念都还没准备好。",
+      "emotional_shift": "从日常运转 -> 被一个普通问题击中",
+      "must_include": [
+        "沈夜舟在场协助",
+        "监护与陪伴边界",
+        "孩子或恢复者的直白提问"
+      ],
+      "cannot_violate": [
+        "不能写成煽情儿童戏",
+        "不能让唐见星轻松化解"
+      ],
+      "exit_hook": "大家想到阿阙的演示。"
+    },
+    {
+      "scene_id": "chapter-067-scene-03",
+      "pov": "唐见星",
+      "location": "共居照护区外廊",
+      "goal": "让交叉抚养的伦理重量落下。",
+      "obstacle": "一旦承认新主体也能照护人类，旧保护想象就会松动。",
+      "emotional_shift": "从工作应对 -> 承认自己也在被照护秩序改变",
+      "must_include": [
+        "唐见星与沈夜舟短谈",
+        "谁替谁守夜",
+        "普通人的迟疑不只是偏见"
+      ],
+      "cannot_violate": [
+        "不能把普通人担心写成无理",
+        "不能失去复杂度"
+      ],
+      "exit_hook": "公共演示开始准备。"
+    },
+    {
+      "scene_id": "chapter-067-scene-04",
+      "pov": "唐见星",
+      "location": "公共演示前场",
+      "goal": "以声带权限的首次公开测试收尾。",
+      "obstacle": "还没真正发言，现场已经承受了政治投影。",
+      "emotional_shift": "从琐碎照护现场 -> 被更大问题重新拉回前台",
+      "must_include": [
+        "公共测试音",
+        "阿阙出现但未长谈",
+        "下一章公共发声"
+      ],
+      "cannot_violate": [
+        "不能写成造势舞台",
+        "必须保留克制与不安"
+      ],
+      "exit_hook": "声带权限。"
+    }
+  ]
+}

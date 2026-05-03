@@ -1,0 +1,61 @@
+{
+  "chapter_id": "chapter-132",
+  "title": "失序年表",
+  "scene_count": 3,
+  "scenes": [
+    {
+      "scene_id": "chapter-132-scene-01",
+      "pov": "孟回声",
+      "location": "档案修复台",
+      "goal": "把百年残档拼成可供阅读但不伪造连续性的年表。",
+      "obstacle": "所有修复工具都本能地偏爱填平缺口。",
+      "emotional_shift": "从耐心拼接 -> 更执拗地保留断裂",
+      "must_include": [
+        "失序年表",
+        "修复裂口",
+        "深时档案"
+      ],
+      "cannot_violate": [
+        "不能把修复写成纯技术活",
+        "不能让裂口只剩装饰意味"
+      ],
+      "exit_hook": "林述尘要求给公众一个能读懂的版本。"
+    },
+    {
+      "scene_id": "chapter-132-scene-02",
+      "pov": "孟回声",
+      "location": "失序年表墙",
+      "goal": "公开展示一份故意不流畅的历史结构。",
+      "obstacle": "不流畅会让很多人误以为修复失败或工作不专业。",
+      "emotional_shift": "从专业谨慎 -> 主动承担被误解的代价",
+      "must_include": [
+        "柏青禾",
+        "林述尘",
+        "不顺滑的年表"
+      ],
+      "cannot_violate": [
+        "不能把林述尘写成只会要宣传稿",
+        "不能让孟回声一味退让"
+      ],
+      "exit_hook": "柏青禾意识到有些裂口不能允许后人补说。"
+    },
+    {
+      "scene_id": "chapter-132-scene-03",
+      "pov": "孟回声",
+      "location": "裂口标注区",
+      "goal": "把缺口从技术问题升级为伦理边界问题。",
+      "obstacle": "公众与机构都更偏爱完整、可传播的历史版本。",
+      "emotional_shift": "从守住修复底线 -> 推动新的讲述禁区",
+      "must_include": [
+        "代讲禁区",
+        "缺口保留",
+        "档案伦理"
+      ],
+      "cannot_violate": [
+        "不能提前让问题收束",
+        "必须为下一章柏青禾主导铺路"
+      ],
+      "exit_hook": "柏青禾决定给不可替说的地方正式划线。"
+    }
+  ]
+}

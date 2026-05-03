@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-366",
+  "title": "叶持微的托底",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-366-scene-01",
+      "pov": "叶持微",
+      "location": "长时法务台",
+      "goal": "把最低线下方仍需承接的人标出来。",
+      "obstacle": "制度更擅长记录能立刻说清的人。",
+      "emotional_shift": "从技术补条款 -> 更明确要先托住迟到者",
+      "must_include": [
+        "托底",
+        "迟到者优先保护",
+        "叶持微"
+      ],
+      "cannot_violate": [
+        "不能把叶持微写成冷硬条文机器",
+        "不能忽略长时主体的现实脆弱"
+      ],
+      "exit_hook": "异步监护案例被调上屏。"
+    },
+    {
+      "scene_id": "chapter-366-scene-02",
+      "pov": "叶持微",
+      "location": "异步监护案例池",
+      "goal": "通过案例说明为什么托底必须写在框架底部。",
+      "obstacle": "外界更愿把托底看成临时福利而非制度基础。",
+      "emotional_shift": "从解释风险 -> 更锋利地拒绝默认代理",
+      "must_include": [
+        "先保全到醒来",
+        "拒绝默认代理",
+        "顾南巡"
+      ],
+      "cannot_violate": [
+        "不能让托底沦为安慰性措辞",
+        "不能把人写成可托管未来财产"
+      ],
+      "exit_hook": "柏青禾认同托底要先于归类。"
+    },
+    {
+      "scene_id": "chapter-366-scene-03",
+      "pov": "叶持微",
+      "location": "托底条款草拟区",
+      "goal": "把托底写成可执行条款而不是道德口号。",
+      "obstacle": "执行层担心托底无限扩大责任。",
+      "emotional_shift": "从法务谨慎 -> 决定在底部先站人",
+      "must_include": [
+        "托底条款",
+        "底部先站人",
+        "修复框架"
+      ],
+      "cannot_violate": [
+        "不能给出全能保障",
+        "不能抹除成本"
+      ],
+      "exit_hook": "白以澄提出要记录共同脆弱。"
+    },
+    {
+      "scene_id": "chapter-366-scene-04",
+      "pov": "叶持微",
+      "location": "长时法务台",
+      "goal": "让托底条款自然过渡到下一章的共同脆弱档。",
+      "obstacle": "制度习惯只记录责任和伤害，不记录彼此脆弱。",
+      "emotional_shift": "从守住底线 -> 接受修复还需共享脆弱现实",
+      "must_include": [
+        "白以澄",
+        "共同脆弱档",
+        "最底部"
+      ],
+      "cannot_violate": [
+        "不能封闭收束",
+        "必须把重心交给教育与公共层"
+      ],
+      "exit_hook": "白以澄说，只有托底还不够。"
+    }
+  ]
+}

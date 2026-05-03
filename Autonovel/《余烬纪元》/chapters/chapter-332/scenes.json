@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-332",
+  "title": "异步席次",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-332-scene-01",
+      "pov": "霍闻潮",
+      "location": "席次调度台",
+      "goal": "提出异步席次的核心原则：先保留座位。",
+      "obstacle": "会务系统本能偏好固定、一次性分配完毕的座次。",
+      "emotional_shift": "从技术调度 -> 明确这是权力问题不是排座位问题",
+      "must_include": [
+        "异步席次",
+        "保留座位",
+        "席次调度台"
+      ],
+      "cannot_violate": [
+        "不能写成纯技术说明",
+        "不能失去霍闻潮的快硬语感"
+      ],
+      "exit_hook": "近处代表质疑这样会空着太多位置。"
+    },
+    {
+      "scene_id": "chapter-332-scene-02",
+      "pov": "霍闻潮",
+      "location": "路由可视墙",
+      "goal": "用路由和时差数据证明固定席次天然偏近。",
+      "obstacle": "很多人把自己离按钮近，误认成自然应该先说话。",
+      "emotional_shift": "从解释技术事实 -> 对权力惯性生出短促怒意",
+      "must_include": [
+        "按钮距离",
+        "时差路由",
+        "常驻中心"
+      ],
+      "cannot_violate": [
+        "不能美化技术中立",
+        "不能把争论写得空洞"
+      ],
+      "exit_hook": "林述尘要求席次方案配合法律格式。"
+    },
+    {
+      "scene_id": "chapter-332-scene-03",
+      "pov": "霍闻潮",
+      "location": "主议厅后场",
+      "goal": "让霍闻潮与顾南巡、林述尘确认席次必须和正文可重开绑定。",
+      "obstacle": "若正文一经生成就不可回开，席次保留就只剩礼貌。",
+      "emotional_shift": "从孤立设计 -> 找到程序层的联动需求",
+      "must_include": [
+        "正文可重开",
+        "顾南巡",
+        "林述尘"
+      ],
+      "cannot_violate": [
+        "不能把林述尘写成阻碍者 caricature",
+        "不能提前解决法案格式"
+      ],
+      "exit_hook": "叶持微提出法案也该跨年份写。"
+    },
+    {
+      "scene_id": "chapter-332-scene-04",
+      "pov": "霍闻潮",
+      "location": "席次调度台",
+      "goal": "以霍闻潮的结论收束本章：留位置必须写进法案骨架。",
+      "obstacle": "不改变文本结构，异步席次会退化成空置美德。",
+      "emotional_shift": "从修系统 -> 把问题推向立法格式",
+      "must_include": [
+        "不同年份的法案",
+        "持续修订",
+        "留位不是礼貌"
+      ],
+      "cannot_violate": [
+        "不能在本章完成立法设计",
+        "必须引出叶持微"
+      ],
+      "exit_hook": "叶持微说：法案得学会跨年说话。"
+    }
+  ]
+}

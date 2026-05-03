@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-192",
+  "title": "远向合流",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-192-scene-01",
+      "pov": "周栖岚",
+      "location": "合流主船桥",
+      "goal": "建立远向多线首次真正合流的现场压力。",
+      "obstacle": "每一条线路都带着自己的迟延、缺口和优先级争议。",
+      "emotional_shift": "从老练调度 -> 看见联邦承诺终于要经受物理现实",
+      "must_include": [
+        "远向合流",
+        "主船桥",
+        "多线压力"
+      ],
+      "cannot_violate": [
+        "不能把运输写成抽象背景",
+        "不能缺少周栖岚的一线判断"
+      ],
+      "exit_hook": "前哨发来新的补给与住居请求。"
+    },
+    {
+      "scene_id": "chapter-192-scene-02",
+      "pov": "周栖岚",
+      "location": "补给排程台",
+      "goal": "让互保承诺接受具体排程考验。",
+      "obstacle": "每多保留一项边缘需求，整条线路都会更慢一点。",
+      "emotional_shift": "从技术调度 -> 更清楚承诺的重量",
+      "must_include": [
+        "补给排程",
+        "互保承诺",
+        "更慢一点"
+      ],
+      "cannot_violate": [
+        "不能把慢写成纯浪漫",
+        "不能忽略成本"
+      ],
+      "exit_hook": "霍闻潮发来格式修订建议。"
+    },
+    {
+      "scene_id": "chapter-192-scene-03",
+      "pov": "周栖岚",
+      "location": "前哨对接窗",
+      "goal": "让周栖岚亲眼看到承诺抵达前哨后的样子。",
+      "obstacle": "合流网络仍旧脆弱，一次错配就可能重演旧时代的轻重排序。",
+      "emotional_shift": "从忙于调度 -> 对‘接住’二字生出更硬的理解",
+      "must_include": [
+        "对接窗",
+        "黎照临",
+        "接住"
+      ],
+      "cannot_violate": [
+        "不能写成轻松会师",
+        "不能淡化前哨现实"
+      ],
+      "exit_hook": "顾南巡要求把这些新压力写进制度附录。"
+    },
+    {
+      "scene_id": "chapter-192-scene-04",
+      "pov": "周栖岚",
+      "location": "合流主船桥",
+      "goal": "以线路真正连成网的代价感收束本章。",
+      "obstacle": "没有人能保证下一轮延误不会立刻撕开这张网。",
+      "emotional_shift": "从疲惫调度 -> 冷静接受网必须靠一班班撑住",
+      "must_include": [
+        "前哨补给网",
+        "合流不是口号",
+        "顾南巡的附录入口"
+      ],
+      "cannot_violate": [
+        "不能写成全面稳固",
+        "必须导向慢光宪附录"
+      ],
+      "exit_hook": "顾南巡开始写下第一条附录条款。"
+    }
+  ]
+}

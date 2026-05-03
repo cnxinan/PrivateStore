@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-373",
+  "title": "多代同席",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-373-scene-01",
+      "pov": "阿阙",
+      "location": "公共席位厅",
+      "goal": "指出座位表里潜藏的旧默认秩序。",
+      "obstacle": "很多人会把旧排序当成理所当然的礼貌。",
+      "emotional_shift": "从冷眼旁观 -> 决定正面提出重排",
+      "must_include": [
+        "阿阙",
+        "多代同席",
+        "座位表"
+      ],
+      "cannot_violate": [
+        "不能把阿阙写成只会反刺",
+        "不能让问题停留在情绪抱怨"
+      ],
+      "exit_hook": "阿阙要求取消按年序排位。"
+    },
+    {
+      "scene_id": "chapter-373-scene-02",
+      "pov": "阿阙",
+      "location": "重排序座位表",
+      "goal": "把席位问题上升到主体资格问题。",
+      "obstacle": "他一发言，就容易被说成过度敏感。",
+      "emotional_shift": "从锋利质问 -> 更清楚自己在守什么",
+      "must_include": [
+        "不按年序",
+        "不是旁注",
+        "叶持微"
+      ],
+      "cannot_violate": [
+        "不能让阿阙轻易接受被安抚",
+        "不能把冲突写成单向发火"
+      ],
+      "exit_hook": "席位厅不得不重做入口布局。"
+    },
+    {
+      "scene_id": "chapter-373-scene-03",
+      "pov": "阿阙",
+      "location": "旁听扩展带",
+      "goal": "让旁听者与未命名者也被写进同席结构。",
+      "obstacle": "旁听席常被默认成低一层的位置。",
+      "emotional_shift": "从只争主桌 -> 看到真正的问题是边注化",
+      "must_include": [
+        "旁听扩展带",
+        "未命名者",
+        "同席"
+      ],
+      "cannot_violate": [
+        "不能把旁听席浪漫化",
+        "不能忽略具体布局"
+      ],
+      "exit_hook": "白以澄接过现场，准备讲第三课。"
+    },
+    {
+      "scene_id": "chapter-373-scene-04",
+      "pov": "阿阙",
+      "location": "公共席位厅",
+      "goal": "以阿阙的视角确认重排后的意义。",
+      "obstacle": "形式调整仍可能被之后的语言重新偷回去。",
+      "emotional_shift": "从戒备 -> 暂时认可这一次没有被排成脚注",
+      "must_include": [
+        "白以澄",
+        "第三课",
+        "席位重排"
+      ],
+      "cannot_violate": [
+        "不能写成问题解决完毕",
+        "必须保留下一章教育收束"
+      ],
+      "exit_hook": "白以澄站到了不在中央的位置。"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-394",
+  "title": "沈夜舟不作结论",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-394-scene-01",
+      "pov": "沈夜舟",
+      "location": "缓冲等候区",
+      "goal": "建立沈夜舟被推上公共证词台前的心理状态。",
+      "obstacle": "所有人都期待他以当事者身份说一句最终判断。",
+      "emotional_shift": "从疲惫抵触 -> 更清楚自己不能被做成结论机",
+      "must_include": [
+        "沈夜舟",
+        "公共证词",
+        "最终判断期待"
+      ],
+      "cannot_violate": [
+        "不能让沈夜舟忽然外放热烈",
+        "必须保留压抑与锋利"
+      ],
+      "exit_hook": "陆鸣只说你可以不说满。"
+    },
+    {
+      "scene_id": "chapter-394-scene-02",
+      "pov": "沈夜舟",
+      "location": "公共证词台",
+      "goal": "让沈夜舟公开拒绝作结论。",
+      "obstacle": "越有重量的伤口，越容易被世界要求总结意义。",
+      "emotional_shift": "从被观看的不适 -> 稳住自己的边界",
+      "must_include": [
+        "不作结论",
+        "模板化人生",
+        "别再把别人做成模板"
+      ],
+      "cannot_violate": [
+        "不能写成煽情控诉",
+        "不能让他替后人指路"
+      ],
+      "exit_hook": "现场只剩非常克制的记录动作。"
+    },
+    {
+      "scene_id": "chapter-394-scene-03",
+      "pov": "沈夜舟",
+      "location": "会后记录席",
+      "goal": "让孟回声处理这段证词时故意保留尾部留白。",
+      "obstacle": "系统与公众都偏好把证词整理成完整闭环。",
+      "emotional_shift": "从说完后的空 -> 看见留白被接住",
+      "must_include": [
+        "孟回声",
+        "尾注留白",
+        "证词不闭环"
+      ],
+      "cannot_violate": [
+        "不能把留白神秘化",
+        "必须保持档案质感"
+      ],
+      "exit_hook": "姜一苇调走这份留白记录。"
+    },
+    {
+      "scene_id": "chapter-394-scene-04",
+      "pov": "沈夜舟",
+      "location": "缓冲等候区",
+      "goal": "以沈夜舟对留白的接受递向姜一苇。",
+      "obstacle": "连他自己也会本能想补一句更完整的话。",
+      "emotional_shift": "从证词消耗 -> 接受不把伤口讲圆",
+      "must_include": [
+        "后人",
+        "伤口",
+        "空白"
+      ],
+      "cannot_violate": [
+        "不能写成释然大团圆",
+        "必须递到系统记录层"
+      ],
+      "exit_hook": "姜一苇在总档末页停住。"
+    }
+  ]
+}

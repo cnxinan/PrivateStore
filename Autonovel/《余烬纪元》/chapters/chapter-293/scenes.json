@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-293",
+  "title": "维修权向外",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-293-scene-01",
+      "pov": "黎照临",
+      "location": "远端维护舱",
+      "goal": "处理一处若等批复就会拖垮白班的中继故障。",
+      "obstacle": "当前权限不足，只能上报，不能正式拆修。",
+      "emotional_shift": "从习惯性压事 -> 认定不能再照旧等",
+      "must_include": [
+        "白班",
+        "权限不足",
+        "中继故障"
+      ],
+      "cannot_violate": [
+        "不能把前线写成戏剧性灾难秀",
+        "不能忽略日常维护语境"
+      ],
+      "exit_hook": "黎照临决定先修后追认。"
+    },
+    {
+      "scene_id": "chapter-293-scene-02",
+      "pov": "黎照临",
+      "location": "中继外壳检修架",
+      "goal": "带队完成一次未获中心预批的现场自修。",
+      "obstacle": "任何操作失误都可能成为反对放权的证据。",
+      "emotional_shift": "从绷紧操作 -> 更清楚现场劳动为何该有决定权",
+      "must_include": [
+        "手动校正",
+        "检修架",
+        "盛野"
+      ],
+      "cannot_violate": [
+        "不能把维修写成奇迹成功",
+        "不能让黎照临失去工作语言"
+      ],
+      "exit_hook": "修复成功却被标记为越权。"
+    },
+    {
+      "scene_id": "chapter-293-scene-03",
+      "pov": "黎照临",
+      "location": "授权听证窗",
+      "goal": "公开说出远端为何必须拥有先修权。",
+      "obstacle": "中心把秩序、安全和追责全放在反对方一侧。",
+      "emotional_shift": "从陈述事实 -> 说出更硬的判断",
+      "must_include": [
+        "先修后追认",
+        "授权外放",
+        "安静的控制"
+      ],
+      "cannot_violate": [
+        "不能变成长篇演说",
+        "不能抹平安全顾虑"
+      ],
+      "exit_hook": "顾南巡在记录里圈出“公地”二字。"
+    },
+    {
+      "scene_id": "chapter-293-scene-04",
+      "pov": "黎照临",
+      "location": "远端维护舱",
+      "goal": "让白班恢复并留下代价感。",
+      "obstacle": "放权争议仍未结束，下一次故障还会再来。",
+      "emotional_shift": "从对抗后的硬撑 -> 接受这只是第一道口子",
+      "must_include": [
+        "恢复白班",
+        "追认记录",
+        "顾南巡"
+      ],
+      "cannot_violate": [
+        "不能写成全面胜利",
+        "必须保留后续制度战"
+      ],
+      "exit_hook": "顾南巡开始推动路由公地条款。"
+    }
+  ]
+}

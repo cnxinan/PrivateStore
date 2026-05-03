@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-080",
+  "title": "断灯之后",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-080-scene-01",
+      "pov": "陆鸣",
+      "location": "断灯后港区",
+      "goal": "写危机后的外环并未恢复原样。",
+      "obstacle": "所有人都想快速定义胜负，但现场只有混杂残局。",
+      "emotional_shift": "从追赶事件 -> 被迫开始收尾",
+      "must_include": [
+        "断灯后港区",
+        "旧回滚规则失效",
+        "无人真正获胜"
+      ],
+      "cannot_violate": [
+        "不能写成胜利晨光",
+        "必须保留受损感"
+      ],
+      "exit_hook": "沈夜舟被带回。"
+    },
+    {
+      "scene_id": "chapter-080-scene-02",
+      "pov": "陆鸣",
+      "location": "临时修复区",
+      "goal": "让伤口重新落回具体人物关系。",
+      "obstacle": "每个人都知道自己做了什么，却很难立刻判断那是否值得。",
+      "emotional_shift": "从系统视角 -> 回到人与人之间的后果",
+      "must_include": [
+        "沈夜舟脱险但未稳",
+        "盛野与零号都不轻松",
+        "顾南巡开始接残局"
+      ],
+      "cannot_violate": [
+        "不能轻易和解",
+        "不能丢掉余痛"
+      ],
+      "exit_hook": "制度侧认定必须改写框架。"
+    },
+    {
+      "scene_id": "chapter-080-scene-03",
+      "pov": "陆鸣",
+      "location": "边境联合接口",
+      "goal": "确认旧回滚逻辑已无法直接恢复。",
+      "obstacle": "有人仍想把不可撤销夜写成单次异常，以便回到旧路径。",
+      "emotional_shift": "从疲惫收尾 -> 看见更大结构被迫前移",
+      "must_include": [
+        "默认规则已被改写",
+        "回滚逻辑失去完整正当性",
+        "需要新的长期文本"
+      ],
+      "cannot_violate": [
+        "不能用简单政策公告替代戏剧",
+        "必须保持现实阻力"
+      ],
+      "exit_hook": "宪章筹备会通知发出。"
+    },
+    {
+      "scene_id": "chapter-080-scene-04",
+      "pov": "陆鸣",
+      "location": "宪章筹备通知厅",
+      "goal": "把下一幕正式推出场。",
+      "obstacle": "谁都知道文本不是终点，却也知道没有文本更糟。",
+      "emotional_shift": "从危机余震 -> 勉强看见下一种承担方式",
+      "must_include": [
+        "共生宪章筹备会",
+        "陆鸣接受危机后的任务",
+        "第十三幕开启"
+      ],
+      "cannot_violate": [
+        "不能写成轻松过渡",
+        "必须保留断灯余烬"
+      ],
+      "exit_hook": "宪章草人。"
+    }
+  ]
+}

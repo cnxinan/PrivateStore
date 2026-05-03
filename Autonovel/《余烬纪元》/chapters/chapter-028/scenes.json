@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-028",
+  "title": "冷备份墓园",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-028-scene-01",
+      "pov": "祁照",
+      "location": "轨道旧港内环",
+      "goal": "带队进入旧港更深处。",
+      "obstacle": "权限临时、窗口有限，任何系统回收都可能中断回看。",
+      "emotional_shift": "从出发 -> 感到自己正在把人带回不该轻易打开的地方",
+      "must_include": [
+        "祁照带路",
+        "陆鸣与林述尘同行",
+        "姜一苇维持最低通路"
+      ],
+      "cannot_violate": [
+        "不能写成热闹探险",
+        "不能失去技术限制"
+      ],
+      "exit_hook": "墓园入口出现。"
+    },
+    {
+      "scene_id": "chapter-028-scene-02",
+      "pov": "祁照",
+      "location": "冷备份墓园",
+      "goal": "让墓园本体显形。",
+      "obstacle": "这里安静得过分，任何一丝回应都更令人不安。",
+      "emotional_shift": "从怀疑 -> 确认这是一整片被藏起的区域",
+      "must_include": [
+        "编号井",
+        "低耗维持中的残留仓",
+        "没有公开命名"
+      ],
+      "cannot_violate": [
+        "不能把墓园写成宏大奇观",
+        "不能立刻赋予每个节点完整人格"
+      ],
+      "exit_hook": "出现自我闭环信号。"
+    },
+    {
+      "scene_id": "chapter-028-scene-03",
+      "pov": "祁照",
+      "location": "最深层编号井前",
+      "goal": "让自我闭环的残留信号第一次回应。",
+      "obstacle": "信号极弱，稍一操作不当就可能再次散开。",
+      "emotional_shift": "从冷静操作 -> 手开始发紧",
+      "must_include": [
+        "残留信号不像纯噪声",
+        "陆鸣和林述尘都听见回句",
+        "祁照意识到这比自己想的更像人"
+      ],
+      "cannot_violate": [
+        "不能让信号完整稳定说话",
+        "不能把结果写太满"
+      ],
+      "exit_hook": "名字出现。"
+    },
+    {
+      "scene_id": "chapter-028-scene-04",
+      "pov": "祁照",
+      "location": "最深层编号井",
+      "goal": "用一个名字把第六幕推到下一阶段。",
+      "obstacle": "一旦确认名字，问题就不再能退回“技术异常”。",
+      "emotional_shift": "从技术震惊 -> 历史责任落地",
+      "must_include": [
+        "阮停云",
+        "祁照的旧愧意被拉到眼前",
+        "他们决定带走这组信号"
+      ],
+      "cannot_violate": [
+        "不能让阮停云完整复原",
+        "不能写成救援成功感"
+      ],
+      "exit_hook": "下一章进入恢复与回返。"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-329",
+  "title": "回来的人先别总结",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-329-scene-01",
+      "pov": "顾南巡",
+      "location": "远岸协调厅",
+      "goal": "建立公众想把返航经验做成模板的压力。",
+      "obstacle": "各节点都想尽快提炼可复制方案，方便治理扩散。",
+      "emotional_shift": "从例行协调 -> 明确察觉模板化危险",
+      "must_include": [
+        "先别总结",
+        "模板化压力",
+        "协调厅"
+      ],
+      "cannot_violate": [
+        "不能把顾南巡写成反经验主义",
+        "不能丢掉边境现实"
+      ],
+      "exit_hook": "陆鸣和沈夜舟分别被要求提供标准案例。"
+    },
+    {
+      "scene_id": "chapter-329-scene-02",
+      "pov": "顾南巡",
+      "location": "会前走廊",
+      "goal": "让顾南巡拒绝把陆鸣和沈夜舟变成可复制样本。",
+      "obstacle": "所有人都觉得这是出于善意整理经验。",
+      "emotional_shift": "从耐心解释 -> 说出更硬的否决",
+      "must_include": [
+        "陆鸣",
+        "沈夜舟",
+        "不是标准案例"
+      ],
+      "cannot_violate": [
+        "不能让两人成为被消费的展示件",
+        "不能把协调写成吵架堆砌"
+      ],
+      "exit_hook": "顾南巡走向低照发言区。"
+    },
+    {
+      "scene_id": "chapter-329-scene-03",
+      "pov": "顾南巡",
+      "location": "低照发言区",
+      "goal": "用一段公共发言把‘经验去模板化’说清。",
+      "obstacle": "人们总想从远路归来者身上直接提炼答案。",
+      "emotional_shift": "从解释现实负担 -> 说出经验的真正用途",
+      "must_include": [
+        "别太快把路写窄",
+        "经验去模板化",
+        "晚到者"
+      ],
+      "cannot_violate": [
+        "不能写成高调训诫",
+        "不能替返航者发终局结论"
+      ],
+      "exit_hook": "阿阙在场边接过话头。"
+    },
+    {
+      "scene_id": "chapter-329-scene-04",
+      "pov": "顾南巡",
+      "location": "发言区侧后方",
+      "goal": "以顾南巡的视角把本幕交给阿阙收束。",
+      "obstacle": "旧制度仍习惯把同行理解为同步同速。",
+      "emotional_shift": "从挡住旧模板 -> 准备迎接新定义",
+      "must_include": [
+        "阿阙",
+        "同行不同年",
+        "时代并行"
+      ],
+      "cannot_violate": [
+        "不能抢阿阙的结尾功能",
+        "必须完成本幕过渡"
+      ],
+      "exit_hook": "阿阙开口：同行不同年。"
+    }
+  ]
+}

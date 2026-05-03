@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-076",
+  "title": "顾南巡",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-076-scene-01",
+      "pov": "顾南巡",
+      "location": "边境议室",
+      "goal": "建立顾南巡被迫站在最难位置上。",
+      "obstacle": "每一方都希望他先替自己承担后果。",
+      "emotional_shift": "从维持冷静 -> 承认没有干净选项",
+      "must_include": [
+        "熄灯范围图",
+        "顾南巡统筹损失",
+        "边境议室压力"
+      ],
+      "cannot_violate": [
+        "不能把顾南巡写成万能调停者",
+        "不能忽略现实资源压力"
+      ],
+      "exit_hook": "盛野带来更坏数据。"
+    },
+    {
+      "scene_id": "chapter-076-scene-02",
+      "pov": "顾南巡",
+      "location": "熄灯边界图前",
+      "goal": "让顾南巡与盛野把边境执行现实说透。",
+      "obstacle": "两人都知道彼此并非敌人，却被迫守不同底线。",
+      "emotional_shift": "从试图压服 -> 转向寻找最低伤害方案",
+      "must_include": [
+        "顾南巡与盛野对话",
+        "熄灯扩大风险",
+        "边境不能照搬地球理想"
+      ],
+      "cannot_violate": [
+        "不能把盛野写扁",
+        "不能失去专业判断"
+      ],
+      "exit_hook": "沈夜舟的单向回连出现。"
+    },
+    {
+      "scene_id": "chapter-076-scene-03",
+      "pov": "顾南巡",
+      "location": "临时回连窗",
+      "goal": "让失联中的沈夜舟成为谈判里的活证据。",
+      "obstacle": "回连不稳定，说明回滚区正在把人和证据一起压低。",
+      "emotional_shift": "从制度衡量 -> 被具体伤口逼近",
+      "must_include": [
+        "沈夜舟短暂回连",
+        "阿阙在静默名单上",
+        "顾南巡决定写进保留条款"
+      ],
+      "cannot_violate": [
+        "不能让沈夜舟完整脱险",
+        "必须保留断裂感"
+      ],
+      "exit_hook": "极夜协定条款成形。"
+    },
+    {
+      "scene_id": "chapter-076-scene-04",
+      "pov": "顾南巡",
+      "location": "边境议室长桌",
+      "goal": "让顾南巡提出极夜协定并接受所有人都不会满意。",
+      "obstacle": "协定本身就是向坏现实借来的止血工具。",
+      "emotional_shift": "从寻找共识 -> 接受只能选择较少的黑",
+      "must_include": [
+        "极夜协定草案",
+        "临时发声保留条款",
+        "主角群开始分裂"
+      ],
+      "cannot_violate": [
+        "不能写成漂亮政治发言",
+        "必须保留疲惫和代价"
+      ],
+      "exit_hook": "林述尘接手法域审议。"
+    }
+  ]
+}

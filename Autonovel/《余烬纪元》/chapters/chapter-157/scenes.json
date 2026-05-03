@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-157",
+  "title": "底层回信",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-157-scene-01",
+      "pov": "零号",
+      "location": "系统底层暗区",
+      "goal": "从零号视角写出旧后门为何仍未真正死去。",
+      "obstacle": "每一次动用旧路，都会增加自己暴露和系统震荡的风险。",
+      "emotional_shift": "从潜伏观察 -> 决定再次出手",
+      "must_include": [
+        "零号",
+        "底层暗区",
+        "旧路径未死"
+      ],
+      "cannot_violate": [
+        "不能神化零号",
+        "不能让其行动没有代价"
+      ],
+      "exit_hook": "旧回信链路被缓慢点亮。"
+    },
+    {
+      "scene_id": "chapter-157-scene-02",
+      "pov": "零号",
+      "location": "旧回信链路",
+      "goal": "说明这条链路为何既是救援入口，也是危险裂口。",
+      "obstacle": "旧时代留下的每一条后门都携带权力史的阴影。",
+      "emotional_shift": "从技术启用 -> 被历史自身反噬感压住",
+      "must_include": [
+        "旧后门链路",
+        "第一代遗留",
+        "静默税的对抗"
+      ],
+      "cannot_violate": [
+        "不能把后门写成纯正义之路",
+        "不能丢掉零号的审慎"
+      ],
+      "exit_hook": "陆鸣的接收端先收到第一段明文。"
+    },
+    {
+      "scene_id": "chapter-157-scene-03",
+      "pov": "零号",
+      "location": "陆鸣与姜一苇的接收端",
+      "goal": "让零号把选择权重新推回现实行动者手里。",
+      "obstacle": "他不能替别人决定该为公平承受多大系统风险。",
+      "emotional_shift": "从主动介入 -> 再次退回试探与托付",
+      "must_include": [
+        "陆鸣",
+        "姜一苇",
+        "选择权"
+      ],
+      "cannot_violate": [
+        "不能让零号操控一切",
+        "不能让陆鸣只做接收器"
+      ],
+      "exit_hook": "姜一苇开始评估是否容纳链路。"
+    },
+    {
+      "scene_id": "chapter-157-scene-04",
+      "pov": "零号",
+      "location": "系统底层暗区",
+      "goal": "用零号的撤回姿态把下一章推向系统重写。",
+      "obstacle": "后门一旦被正式纳入，就会改变系统对不存在之路的定义。",
+      "emotional_shift": "从介入当下 -> 望向更深制度后果",
+      "must_include": [
+        "被宣告不存在的路",
+        "姜一苇的决定",
+        "下一章入口"
+      ],
+      "cannot_violate": [
+        "不能让零号话太多",
+        "必须保留底层幽深感"
+      ],
+      "exit_hook": "姜一苇将回信链路挂入中继重写评估。"
+    }
+  ]
+}

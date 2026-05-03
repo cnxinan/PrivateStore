@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-073",
+  "title": "未授权救援",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-073-scene-01",
+      "pov": "唐见星",
+      "location": "灰质住区边缘",
+      "goal": "建立救援的临时性与违法性。",
+      "obstacle": "任何未授权移动都会被视为破坏熄灯秩序。",
+      "emotional_shift": "从安抚者位置 -> 主动越线",
+      "must_include": [
+        "灰质住区暗区",
+        "普通人与新主体共同准备",
+        "唐见星决定出发"
+      ],
+      "cannot_violate": [
+        "不能写成热血集结",
+        "必须保留恐惧"
+      ],
+      "exit_hook": "周栖岚的小艇就位。"
+    },
+    {
+      "scene_id": "chapter-073-scene-02",
+      "pov": "唐见星",
+      "location": "检修艇舱内",
+      "goal": "让救援中的相互信任具体化。",
+      "obstacle": "舱内所有人都知道一旦被截停，后果会直接落到个人身上。",
+      "emotional_shift": "从紧张组织 -> 感到共生已不是口号",
+      "must_include": [
+        "检修艇伪装",
+        "新主体协助导航",
+        "唐见星承担决定责任"
+      ],
+      "cannot_violate": [
+        "不能让行动过于顺利",
+        "不能失去普通人视角"
+      ],
+      "exit_hook": "断联区传回第一批求救回声。"
+    },
+    {
+      "scene_id": "chapter-073-scene-03",
+      "pov": "唐见星",
+      "location": "断联撤离线",
+      "goal": "写出不被批准的救援反而更像救援。",
+      "obstacle": "撤离线随时可能被隔离航线捕捉并中断。",
+      "emotional_shift": "从怕失败 -> 只想先把人带出来",
+      "must_include": [
+        "撤离对象混杂",
+        "唐见星不再先问身份类别",
+        "未授权通道的风险"
+      ],
+      "cannot_violate": [
+        "不能写成传奇冒险",
+        "必须保留现实成本"
+      ],
+      "exit_hook": "沈夜舟的联络中断。"
+    },
+    {
+      "scene_id": "chapter-073-scene-04",
+      "pov": "唐见星",
+      "location": "检修艇返程接口",
+      "goal": "把救援成功与更坏消息并置。",
+      "obstacle": "他们带回了人，却没带回全部人。",
+      "emotional_shift": "从勉强稳住 -> 被失联消息击穿",
+      "must_include": [
+        "救援艇返程",
+        "沈夜舟失联于沉默港",
+        "下一步必须进入回滚区"
+      ],
+      "cannot_violate": [
+        "不能给出轻松胜利感",
+        "必须保留后续扩大危机"
+      ],
+      "exit_hook": "沉默港。"
+    }
+  ]
+}

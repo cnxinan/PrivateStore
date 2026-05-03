@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-391",
+  "title": "回信仍在路上",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-391-scene-01",
+      "pov": "闻折川",
+      "location": "深空译码井",
+      "goal": "让四百章终段以未完成回信开场。",
+      "obstacle": "回信缺页、错序且带着大量未能互证的噪声。",
+      "emotional_shift": "从技术专注 -> 更清楚不能替它补完",
+      "must_include": [
+        "回信仍在路上",
+        "闻折川",
+        "译码井"
+      ],
+      "cannot_violate": [
+        "不能写成回信已被完全读懂",
+        "不能神化译码"
+      ],
+      "exit_hook": "缓冲发布台要求生成对外版本。"
+    },
+    {
+      "scene_id": "chapter-391-scene-02",
+      "pov": "闻折川",
+      "location": "缓冲发布台",
+      "goal": "让闻折川坚持公开未完成状态。",
+      "obstacle": "所有人都更希望拿到一份顺滑的结论稿。",
+      "emotional_shift": "从承受压力 -> 选择保全陌生性",
+      "must_include": [
+        "未完成状态",
+        "姜一苇",
+        "公开缺页"
+      ],
+      "cannot_violate": [
+        "不能把公众焦虑写成无理取闹",
+        "不能把克制写成冷酷"
+      ],
+      "exit_hook": "陆鸣来到发布台旁边。"
+    },
+    {
+      "scene_id": "chapter-391-scene-03",
+      "pov": "闻折川",
+      "location": "未完回信库",
+      "goal": "让‘仍在路上’被确认为事实而非借口。",
+      "obstacle": "漫长等待会不断诱惑人把任何片段误认成终点。",
+      "emotional_shift": "从防守解释 -> 确认途中本身有意义",
+      "must_include": [
+        "未完回信库",
+        "陆鸣",
+        "途中"
+      ],
+      "cannot_violate": [
+        "不能写成玄学领悟",
+        "必须保留实物细节"
+      ],
+      "exit_hook": "顾南巡索取回信注记作为附录开头。"
+    },
+    {
+      "scene_id": "chapter-391-scene-04",
+      "pov": "闻折川",
+      "location": "缓冲发布台",
+      "goal": "以一份不完整的公开稿收束本章。",
+      "obstacle": "公开不完整，比公开结论更容易遭受误读。",
+      "emotional_shift": "从谨慎守门 -> 接受四百章必须从未完开始",
+      "must_include": [
+        "路上",
+        "缓冲发布",
+        "不是结束"
+      ],
+      "cannot_violate": [
+        "不能收得太满",
+        "必须把门递给附录章节"
+      ],
+      "exit_hook": "顾南巡打开新的附录文档。"
+    }
+  ]
+}

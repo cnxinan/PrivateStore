@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-047",
+  "title": "迟来的港口",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-047-scene-01",
+      "pov": "周栖岚",
+      "location": "火星环港口外沿",
+      "goal": "建立靠港时的拥堵和紧张。",
+      "obstacle": "港口本身还没准备好接这一批人。",
+      "emotional_shift": "从航程结束 -> 发现真正麻烦才刚开始",
+      "must_include": [
+        "靠港窗口",
+        "顾南巡的临时调度",
+        "默认清单争议"
+      ],
+      "cannot_violate": [
+        "不能写成顺利靠岸",
+        "不能失去现场混杂感"
+      ],
+      "exit_hook": "核验台卡住。"
+    },
+    {
+      "scene_id": "chapter-047-scene-02",
+      "pov": "周栖岚",
+      "location": "临时核验台",
+      "goal": "让载荷语言和主体承认正面冲突。",
+      "obstacle": "港口系统只认默认表。",
+      "emotional_shift": "从职业交接 -> 必须硬扛流程",
+      "must_include": [
+        "周栖岚拒交旧表",
+        "核验台卡死",
+        "顾南巡与陆鸣试图接住现场"
+      ],
+      "cannot_violate": [
+        "不能把冲突写成打脸桥段",
+        "不能让周栖岚像故意挑事"
+      ],
+      "exit_hook": "盛野进入。"
+    },
+    {
+      "scene_id": "chapter-047-scene-03",
+      "pov": "周栖岚",
+      "location": "接舷走桥",
+      "goal": "引入盛野作为外环稳定派安保代表。",
+      "obstacle": "盛野的介入不全错，却会把现场重新拉向风险分类。",
+      "emotional_shift": "从僵持 -> 看见更硬的秩序力量到了",
+      "must_include": [
+        "盛野出场",
+        "轨安署临时介入",
+        "他先看风险后看理念"
+      ],
+      "cannot_violate": [
+        "不能把盛野写成粗暴恶人",
+        "不能让现场立刻失控"
+      ],
+      "exit_hook": "外环样本被发现。"
+    },
+    {
+      "scene_id": "chapter-047-scene-04",
+      "pov": "周栖岚",
+      "location": "港口内沿",
+      "goal": "以接人方式确认火星环的真实立场。",
+      "obstacle": "每一步都还在临时应对，没有稳定模式可用。",
+      "emotional_shift": "从程序冲突 -> 逼出新的接人顺序",
+      "must_include": [
+        "主体先下船",
+        "港口临时让路",
+        "盛野在转运箱前停下"
+      ],
+      "cannot_violate": [
+        "不能写成胜利性靠港",
+        "必须保留余压"
+      ],
+      "exit_hook": "下一章外环样本。"
+    }
+  ]
+}

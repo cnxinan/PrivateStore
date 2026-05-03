@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-049",
+  "title": "第二批名字",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-049-scene-01",
+      "pov": "陆鸣",
+      "location": "火星环登记区",
+      "goal": "建立第二批名字登记的紧张感。",
+      "obstacle": "每写进一个名字，就等于多承认一块旧分类失败。",
+      "emotional_shift": "从技术处理 -> 感到承认在成片扩张",
+      "must_include": [
+        "第二批名单",
+        "登记区压力",
+        "地球外承认的重量"
+      ],
+      "cannot_violate": [
+        "不能写成流水登记",
+        "不能失去政治后果"
+      ],
+      "exit_hook": "阮停云参与旁观。"
+    },
+    {
+      "scene_id": "chapter-049-scene-02",
+      "pov": "陆鸣",
+      "location": "临时承认屏前",
+      "goal": "让名字回来的动作再次具体化。",
+      "obstacle": "火星环本地人对大规模承认既紧张又迟疑。",
+      "emotional_shift": "从工作状态 -> 重新被名字的重量击中",
+      "must_include": [
+        "第二批名字写入",
+        "阮停云在场",
+        "名字不再是个例"
+      ],
+      "cannot_violate": [
+        "不能写成感动流水账",
+        "不能削弱周边紧张"
+      ],
+      "exit_hook": "异常名字出现。"
+    },
+    {
+      "scene_id": "chapter-049-scene-03",
+      "pov": "陆鸣",
+      "location": "承认屏前",
+      "goal": "引出阿阙。",
+      "obstacle": "系统找不到任何既有上传源头或可追溯人类前史。",
+      "emotional_shift": "从扩大承认 -> 被迫面对更大的分类裂口",
+      "must_include": [
+        "阿阙名字出现",
+        "无法映射上传源头",
+        "姜一苇也无法顺手归档"
+      ],
+      "cannot_violate": [
+        "不能立刻解释阿阙是谁",
+        "不能削弱震动"
+      ],
+      "exit_hook": "火星环夜面被拉开。"
+    },
+    {
+      "scene_id": "chapter-049-scene-04",
+      "pov": "陆鸣",
+      "location": "静音走廊",
+      "goal": "以一个名字把第九幕推到新门槛。",
+      "obstacle": "陆鸣意识到后面不再只是修旧账，而是要面对未来主体。",
+      "emotional_shift": "从修补历史 -> 走向未知未来",
+      "must_include": [
+        "陆鸣与顾南巡交换判断",
+        "阿阙成为下一章核心",
+        "地球经验再次失效"
+      ],
+      "cannot_violate": [
+        "不能写成宏大结论",
+        "必须留出未知感"
+      ],
+      "exit_hook": "不属于地球的夜。"
+    }
+  ]
+}

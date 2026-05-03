@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-390",
+  "title": "下一束更暗的光",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-390-scene-01",
+      "pov": "陆鸣",
+      "location": "夜面平台",
+      "goal": "让陆鸣看见那束更暗的新光。",
+      "obstacle": "任何新光都太容易被误写成明确答案或终局信号。",
+      "emotional_shift": "从本能期待 -> 主动压住解释冲动",
+      "must_include": [
+        "夜面平台",
+        "更暗的光",
+        "陆鸣"
+      ],
+      "cannot_violate": [
+        "不能写成壮观奇景",
+        "不能让陆鸣重回占有解释欲"
+      ],
+      "exit_hook": "闻折川提醒回信仍未完成。"
+    },
+    {
+      "scene_id": "chapter-390-scene-02",
+      "pov": "陆鸣",
+      "location": "低亮观测窗",
+      "goal": "通过闻折川把陌生回应留在未完成状态。",
+      "obstacle": "公众和制度都期待一个能立刻安抚焦虑的解释。",
+      "emotional_shift": "从想为世界翻译 -> 接受此刻只能保留陌生性",
+      "must_include": [
+        "闻折川",
+        "未完联系",
+        "不要抢先翻译"
+      ],
+      "cannot_violate": [
+        "不能把闻折川写成全知译者",
+        "不能消解未知"
+      ],
+      "exit_hook": "顾南巡和零号的短讯接入。"
+    },
+    {
+      "scene_id": "chapter-390-scene-03",
+      "pov": "陆鸣",
+      "location": "临时会谈带",
+      "goal": "让多方以最少的话确认前沿不会只开一次。",
+      "obstacle": "每个人都明白继续往外意味着更多责任和未完。",
+      "emotional_shift": "从阶段回望 -> 接受下一段已开始",
+      "must_include": [
+        "顾南巡",
+        "零号",
+        "不会只开一次"
+      ],
+      "cannot_violate": [
+        "不能写成整齐誓师",
+        "必须保留克制"
+      ],
+      "exit_hook": "陆鸣独自回到夜面栏杆边。"
+    },
+    {
+      "scene_id": "chapter-390-scene-04",
+      "pov": "陆鸣",
+      "location": "夜面平台",
+      "goal": "以陆鸣对更暗之光的理解完成本幕。",
+      "obstacle": "任何阶段节点都很容易诱惑人停在“已经够远”上。",
+      "emotional_shift": "从看光 -> 看见同行者本身",
+      "must_include": [
+        "下一束更暗的光",
+        "不是终点",
+        "仍在路上"
+      ],
+      "cannot_violate": [
+        "不能写成收官终局",
+        "必须递到四百章终段"
+      ],
+      "exit_hook": "闻折川开始整理仍在路上的回信。"
+    }
+  ]
+}

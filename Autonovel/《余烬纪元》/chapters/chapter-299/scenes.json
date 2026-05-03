@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-299",
+  "title": "一条更暗的路",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-299-scene-01",
+      "pov": "陆鸣",
+      "location": "新线评估窗",
+      "goal": "面对是否继续向更远黑区扩线的现实评估。",
+      "obstacle": "所有已有成果都可能被新一段更暗航程重新拉高成本。",
+      "emotional_shift": "从程序性旁听 -> 更深地感到这不是表决题",
+      "must_include": [
+        "新线评估",
+        "更远黑区",
+        "陆鸣"
+      ],
+      "cannot_violate": [
+        "不能写成单纯讲话总结",
+        "不能忽略运营代价"
+      ],
+      "exit_hook": "评估结束后陆鸣独自走向外沿。"
+    },
+    {
+      "scene_id": "chapter-299-scene-02",
+      "pov": "陆鸣",
+      "location": "群星接口外沿观测带",
+      "goal": "把道路、港口、补给和值守的变化重新看作一整套工法。",
+      "obstacle": "每项推进都伴随新的账单、疲惫和未解风险。",
+      "emotional_shift": "从回望 -> 更冷静地承认代价",
+      "must_include": [
+        "周栖岚",
+        "顾南巡",
+        "闻折川"
+      ],
+      "cannot_violate": [
+        "不能把人物写成整齐统一口径",
+        "不能出现胜利夜景"
+      ],
+      "exit_hook": "闻折川提醒新线前方仍有不可译黑段。"
+    },
+    {
+      "scene_id": "chapter-299-scene-03",
+      "pov": "陆鸣",
+      "location": "低照步廊",
+      "goal": "让陆鸣真正接受扩展意味着面对更暗而非更亮。",
+      "obstacle": "公众更容易理解“前进”，不容易承受“更暗也继续”。",
+      "emotional_shift": "从犹疑停步 -> 更清楚三百章该怎么说",
+      "must_include": [
+        "更暗的路",
+        "之后",
+        "未完成"
+      ],
+      "cannot_violate": [
+        "不能写成热血决断",
+        "不能替未来说完"
+      ],
+      "exit_hook": "陆鸣决定第三百章不说完成。"
+    },
+    {
+      "scene_id": "chapter-299-scene-04",
+      "pov": "陆鸣",
+      "location": "群星接口外沿观测带",
+      "goal": "以一段尚未完全亮起的新线结束本章。",
+      "obstacle": "前方还有更多尚未抵达、却已被道路影响的人。",
+      "emotional_shift": "从阶段回顾 -> 面向下一阶段的冷静继续",
+      "must_include": [
+        "新线灯",
+        "更暗处",
+        "第三百章之后"
+      ],
+      "cannot_violate": [
+        "不能写成终章气氛",
+        "必须保留开放入口"
+      ],
+      "exit_hook": "第三百章将以‘之后’而非‘完成’开口。"
+    }
+  ]
+}

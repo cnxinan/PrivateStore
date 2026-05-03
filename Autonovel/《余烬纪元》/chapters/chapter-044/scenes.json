@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-044",
+  "title": "旧港潮汐",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-044-scene-01",
+      "pov": "祁照",
+      "location": "旧港回流带",
+      "goal": "展示旧港出现周期性回流。",
+      "obstacle": "系统总把这种现象处理成背景噪波。",
+      "emotional_shift": "从例行盯守 -> 确认回流有规律",
+      "must_include": [
+        "回流带",
+        "残留信号再起",
+        "祁照对规律的敏感"
+      ],
+      "cannot_violate": [
+        "不能写成超自然异象",
+        "不能削弱技术基底"
+      ],
+      "exit_hook": "零号接入。"
+    },
+    {
+      "scene_id": "chapter-044-scene-02",
+      "pov": "祁照",
+      "location": "离线监测台",
+      "goal": "让零号与祁照共同确认问题正在流动。",
+      "obstacle": "回流信号分散、断续，很难直接证明来源。",
+      "emotional_shift": "从怀疑 -> 明白墓园不是固定地点",
+      "must_include": [
+        "零号的判断",
+        "流动性问题",
+        "祁照的旧愧意再被拉高"
+      ],
+      "cannot_violate": [
+        "不能让零号变成全知地图",
+        "不能给出完整坐标"
+      ],
+      "exit_hook": "一条深层向外港偏移。"
+    },
+    {
+      "scene_id": "chapter-044-scene-03",
+      "pov": "祁照",
+      "location": "潮汐节点前",
+      "goal": "确认有更大的深层节点存在。",
+      "obstacle": "节点只短暂显形，错过就会重新退回黑里。",
+      "emotional_shift": "从记录规律 -> 看到更大的坑口",
+      "must_include": [
+        "深层节点短暂显形",
+        "外环方向",
+        "祁照复制偏移数据"
+      ],
+      "cannot_violate": [
+        "不能直接打开节点",
+        "不能失去未知感"
+      ],
+      "exit_hook": "远港方向被锁定。"
+    },
+    {
+      "scene_id": "chapter-044-scene-04",
+      "pov": "祁照",
+      "location": "监测台侧窗",
+      "goal": "把潮汐从局部异象变成下一阶段线索。",
+      "obstacle": "祁照知道越往外走，越接近自己当年没敢看的地方。",
+      "emotional_shift": "从观测 -> 准备追出去",
+      "must_include": [
+        "深层节点锁定",
+        "不是孤例",
+        "下一章转向旁听席与跨域争论"
+      ],
+      "cannot_violate": [
+        "不能写成行动爆发",
+        "必须保留压着的寒意"
+      ],
+      "exit_hook": "旁听席开启。"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-367",
+  "title": "共同脆弱档",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-367-scene-01",
+      "pov": "白以澄",
+      "location": "远岸课程室",
+      "goal": "提出共同脆弱档的教育与修复意义。",
+      "obstacle": "公共层习惯记录成就、损害和责任，不习惯记录自己的脆弱。",
+      "emotional_shift": "从试探提出 -> 明确这不是情绪展示",
+      "must_include": [
+        "共同脆弱档",
+        "白以澄",
+        "不是示弱"
+      ],
+      "cannot_violate": [
+        "不能把白以澄写成柔软空谈者",
+        "不能把脆弱浪漫化"
+      ],
+      "exit_hook": "唐见星先录下自己的那一段。"
+    },
+    {
+      "scene_id": "chapter-367-scene-02",
+      "pov": "白以澄",
+      "location": "共同脆弱档录入台",
+      "goal": "让第一批录入显出这份档案的难度。",
+      "obstacle": "每个人都怕公共承认脆弱会变成下一次被攻击的入口。",
+      "emotional_shift": "从担心没人愿意写 -> 看见有人先把门推开一点",
+      "must_include": [
+        "唐见星",
+        "录入台",
+        "脆弱共识"
+      ],
+      "cannot_violate": [
+        "不能写成集体顺滑配合",
+        "不能抹平顾虑"
+      ],
+      "exit_hook": "白以澄把邀请发给沈夜舟。"
+    },
+    {
+      "scene_id": "chapter-367-scene-03",
+      "pov": "白以澄",
+      "location": "低照会谈区",
+      "goal": "说明为什么沈夜舟的回答会成为样本。",
+      "obstacle": "沈夜舟最有理由拒绝把伤口交给公共层。",
+      "emotional_shift": "从怕越线 -> 更谨慎地把选择权交给对方",
+      "must_include": [
+        "沈夜舟",
+        "极慢答复",
+        "不催"
+      ],
+      "cannot_violate": [
+        "不能强迫沈夜舟提供范本",
+        "不能替他总结"
+      ],
+      "exit_hook": "沈夜舟说，他会慢一点给答案。"
+    },
+    {
+      "scene_id": "chapter-367-scene-04",
+      "pov": "白以澄",
+      "location": "共同脆弱档录入台",
+      "goal": "把下一章的慢答悬念立住。",
+      "obstacle": "旁观者又想把慢答理解成拖延或回避。",
+      "emotional_shift": "从等待不安 -> 接受慢答本身就是教育内容",
+      "must_include": [
+        "样本",
+        "慢答",
+        "门先别关"
+      ],
+      "cannot_violate": [
+        "不能用白以澄解释完沈夜舟",
+        "必须把重心交到下一章"
+      ],
+      "exit_hook": "沈夜舟提交了一个空白抬头页。"
+    }
+  ]
+}

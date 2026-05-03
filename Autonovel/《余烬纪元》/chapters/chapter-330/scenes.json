@@ -1,0 +1,80 @@
+{
+  "chapter_id": "chapter-330",
+  "title": "同行不同年",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-330-scene-01",
+      "pov": "阿阙",
+      "location": "低照发言区",
+      "goal": "让阿阙接过顾南巡留下的公共话头。",
+      "obstacle": "旧制度默认同行就该同步，阿阙的话一出口就会刺中很多旧语法。",
+      "emotional_shift": "从旁听克制 -> 决定给出新定义",
+      "must_include": [
+        "同行不同年",
+        "阿阙发言",
+        "低照灯"
+      ],
+      "cannot_violate": [
+        "不能让阿阙过度抒情",
+        "不能稀释其锋利语感"
+      ],
+      "exit_hook": "发言区出现短暂而深的安静。"
+    },
+    {
+      "scene_id": "chapter-330-scene-02",
+      "pov": "阿阙",
+      "location": "远岸平台外沿",
+      "goal": "把同行的新定义落到群像现实里。",
+      "obstacle": "每个人身上的年份差都在提醒他们并不整齐。",
+      "emotional_shift": "从抽象命题 -> 看到并行时间也能接路",
+      "must_include": [
+        "陆鸣",
+        "沈夜舟",
+        "白以澄",
+        "唐见星"
+      ],
+      "cannot_violate": [
+        "不能写成人物大合唱",
+        "不能把差异抹成和谐背景"
+      ],
+      "exit_hook": "顾南巡与霍闻潮谈起议会格式。"
+    },
+    {
+      "scene_id": "chapter-330-scene-03",
+      "pov": "阿阙",
+      "location": "会后空廊",
+      "goal": "让阿阙意识到这一定义需要更大的政治容器。",
+      "obstacle": "没有制度容器，‘同行不同年’会很快退回口号。",
+      "emotional_shift": "从说出一句话 -> 明白它需要被写进会议与法案",
+      "must_include": [
+        "时代并行",
+        "议会",
+        "异步会期"
+      ],
+      "cannot_violate": [
+        "不能让阿阙抢走后续制度主线",
+        "不能把问题解决在一句话里"
+      ],
+      "exit_hook": "霍闻潮展示一版覆盖多年的议会草图。"
+    },
+    {
+      "scene_id": "chapter-330-scene-04",
+      "pov": "阿阙",
+      "location": "平台尽头",
+      "goal": "以阿阙的视角收束第三十七幕，并引向远岸议会。",
+      "obstacle": "旧时间观仍会反扑，要求所有人回到同一分钟里算数。",
+      "emotional_shift": "从个人发言完成 -> 看见更大的异步政治正在开启",
+      "must_include": [
+        "覆盖多年",
+        "远岸议会",
+        "保留位置"
+      ],
+      "cannot_violate": [
+        "不能写成终局总结",
+        "必须打开下一幕"
+      ],
+      "exit_hook": "远岸议会的筹办通知亮起。"
+    }
+  ]
+}

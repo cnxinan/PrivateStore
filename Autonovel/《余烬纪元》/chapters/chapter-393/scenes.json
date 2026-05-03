@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-393",
+  "title": "陆鸣的晚场发言",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-393-scene-01",
+      "pov": "陆鸣",
+      "location": "后台低照区",
+      "goal": "建立晚场发言前的多重期待压力。",
+      "obstacle": "外界希望听见英雄总结、阶段胜利和文明宣言。",
+      "emotional_shift": "从准备说话 -> 更清楚不该说满",
+      "must_include": [
+        "后台低照区",
+        "陆鸣",
+        "晚场压力"
+      ],
+      "cannot_violate": [
+        "不能写成演讲家热身",
+        "必须保留陆鸣的克制"
+      ],
+      "exit_hook": "发言提示灯亮起。"
+    },
+    {
+      "scene_id": "chapter-393-scene-02",
+      "pov": "陆鸣",
+      "location": "公开发言台",
+      "goal": "让陆鸣说出这条路真正修出的东西。",
+      "obstacle": "任何太圆满的句子都会立刻伤到仍在路上的人。",
+      "emotional_shift": "从担心失言 -> 找到‘撑门’而非‘总结’的说法",
+      "must_include": [
+        "路",
+        "修改权",
+        "不替别人说完"
+      ],
+      "cannot_violate": [
+        "不能写成慷慨激昂演说",
+        "不能代替群像发言"
+      ],
+      "exit_hook": "发言台下只有克制的沉默回应。"
+    },
+    {
+      "scene_id": "chapter-393-scene-03",
+      "pov": "陆鸣",
+      "location": "公开发言台",
+      "goal": "让发言落回具体制度与日常成果。",
+      "obstacle": "宏大话语比具体条款和工单更容易被记住。",
+      "emotional_shift": "从抽象表述 -> 主动把话落回门、路、暂住、重议与换班",
+      "must_include": [
+        "暂住证",
+        "重开讨论",
+        "换班"
+      ],
+      "cannot_violate": [
+        "不能空泛总结",
+        "不能把复杂性抹平"
+      ],
+      "exit_hook": "沈夜舟在台下起身。"
+    },
+    {
+      "scene_id": "chapter-393-scene-04",
+      "pov": "陆鸣",
+      "location": "会后缓冲走廊",
+      "goal": "以发言后的余波递向沈夜舟。",
+      "obstacle": "世界仍会要求更有分量的当事者给出最终判断。",
+      "emotional_shift": "从说完 -> 更清楚真正重要的是把位置让出去",
+      "must_include": [
+        "会后沉默",
+        "沈夜舟",
+        "不作结论"
+      ],
+      "cannot_violate": [
+        "不能写成掌声收尾",
+        "必须接到下一章"
+      ],
+      "exit_hook": "沈夜舟说他只准备讲一句。"
+    }
+  ]
+}

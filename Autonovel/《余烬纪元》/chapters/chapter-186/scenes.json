@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-186",
+  "title": "先保全再命名",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-186-scene-01",
+      "pov": "魏合",
+      "location": "临时照护点",
+      "goal": "建立魏合站到一段未命名接入之前的第一反应。",
+      "obstacle": "关停命令带着完整程序授权，而他本人又有过失控前科。",
+      "emotional_shift": "从本能戒备 -> 本能护住",
+      "must_include": [
+        "魏合",
+        "临时照护点",
+        "先别碰它"
+      ],
+      "cannot_violate": [
+        "不能让魏合突然变得温和圆熟",
+        "不能把前线压力写轻"
+      ],
+      "exit_hook": "唐见星试图把现场从对撞拉回沟通。"
+    },
+    {
+      "scene_id": "chapter-186-scene-02",
+      "pov": "魏合",
+      "location": "缓冲走廊",
+      "goal": "让魏合与唐见星形成粗粝但有效的保护配合。",
+      "obstacle": "现场所有人都担心他下一秒会把保护变成更大混乱。",
+      "emotional_shift": "从独自顶住 -> 感到有人愿意接住他的笨拙做法",
+      "must_include": [
+        "唐见星",
+        "缓冲走廊",
+        "粗粝保护"
+      ],
+      "cannot_violate": [
+        "不能让唐见星失去普通人视角",
+        "不能洗白魏合的危险性"
+      ],
+      "exit_hook": "盛野带着封控权限赶到门前。"
+    },
+    {
+      "scene_id": "chapter-186-scene-03",
+      "pov": "魏合",
+      "location": "封控门前",
+      "goal": "把冲突推到是否执行强制关停的当口。",
+      "obstacle": "盛野要对整条节点安全负责，不能只看眼前这一段存在。",
+      "emotional_shift": "从强撑 -> 用最短的话说出核心伦理",
+      "must_include": [
+        "盛野",
+        "封控门",
+        "先保全再命名"
+      ],
+      "cannot_violate": [
+        "不能把盛野写成机械执法者",
+        "不能让冲突靠巧合化解"
+      ],
+      "exit_hook": "盛野要求最低限度人工看护替代关停。"
+    },
+    {
+      "scene_id": "chapter-186-scene-04",
+      "pov": "魏合",
+      "location": "临时照护点",
+      "goal": "用前线守住的一小段时间收束本章。",
+      "obstacle": "外界已经开始把整起事件解读成新秩序失控。",
+      "emotional_shift": "从对撞中的怒 -> 极短促的疲惫和后怕",
+      "must_include": [
+        "人工看护",
+        "舆论反扑",
+        "先别杀"
+      ],
+      "cannot_violate": [
+        "不能写成彻底胜利",
+        "必须导向原则重审"
+      ],
+      "exit_hook": "柏青禾被要求把未命名保护原则写成硬条款。"
+    }
+  ]
+}

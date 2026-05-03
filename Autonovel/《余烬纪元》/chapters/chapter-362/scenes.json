@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-362",
+  "title": "修复不是复原",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-362-scene-01",
+      "pov": "孟回声",
+      "location": "活档修复室",
+      "goal": "展示孟回声如何故意保留档案伤痕。",
+      "obstacle": "系统和公众都偏爱无痕修复。",
+      "emotional_shift": "从例行修档 -> 再次确认缺口必须被保留",
+      "must_include": [
+        "活档修复室",
+        "带痕修补",
+        "裂口标记"
+      ],
+      "cannot_violate": [
+        "不能把孟回声写成浪漫化创伤",
+        "不能让修复停在技术层"
+      ],
+      "exit_hook": "一封迟到很久的道歉进入缓冲架。"
+    },
+    {
+      "scene_id": "chapter-362-scene-02",
+      "pov": "孟回声",
+      "location": "迟到信件缓冲架",
+      "goal": "让一封道歉显出修复与复原的差别。",
+      "obstacle": "很多人希望这类道歉直接完成和解流程。",
+      "emotional_shift": "从职业冷静 -> 对这份迟到仍保持慎重",
+      "must_include": [
+        "迟到的道歉",
+        "缓冲架",
+        "不自动结案"
+      ],
+      "cannot_violate": [
+        "不能让道歉自动换来原谅",
+        "不能让孟回声替当事人决定"
+      ],
+      "exit_hook": "孟回声把信转交给唐见星。"
+    },
+    {
+      "scene_id": "chapter-362-scene-03",
+      "pov": "孟回声",
+      "location": "公共留痕窗口",
+      "goal": "解释为什么修复后仍要保留痕迹。",
+      "obstacle": "留痕会让机构承受更久的难看和追问。",
+      "emotional_shift": "从解释原则 -> 更明确修复的底线",
+      "must_include": [
+        "公共留痕",
+        "不是擦掉",
+        "不再继续伤人"
+      ],
+      "cannot_violate": [
+        "不能把留痕写成纯惩罚",
+        "不能忽略普通人对稳定的需要"
+      ],
+      "exit_hook": "唐见星在窗口外停住脚步。"
+    },
+    {
+      "scene_id": "chapter-362-scene-04",
+      "pov": "孟回声",
+      "location": "活档修复室",
+      "goal": "把迟到道歉的重量交回当事人。",
+      "obstacle": "修复工作者很容易被误当成代为处理情绪的人。",
+      "emotional_shift": "从想再确认一遍 -> 克制地把判断让出去",
+      "must_include": [
+        "唐见星",
+        "转交",
+        "不替别人说完"
+      ],
+      "cannot_violate": [
+        "不能抢走唐见星的主线",
+        "必须把下一章入口落在关系修复上"
+      ],
+      "exit_hook": "唐见星拆开那份迟到已久的信。"
+    }
+  ]
+}

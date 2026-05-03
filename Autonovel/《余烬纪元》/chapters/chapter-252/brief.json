@@ -1,0 +1,61 @@
+{
+  "chapter_id": "chapter-252",
+  "title": "晚到投票",
+  "scene_count": 3,
+  "scenes": [
+    {
+      "scene_id": "chapter-252-scene-01",
+      "pov": "顾南巡",
+      "location": "边境仲裁台",
+      "goal": "建立补时表决的第一轮现场压力。",
+      "obstacle": "中心节点坚持截止即有效，任何晚到都应自动作废。",
+      "emotional_shift": "从推进试点 -> 再次被熟悉的中心程序逻辑顶住",
+      "must_include": [
+        "顾南巡",
+        "晚到投票",
+        "边境仲裁台"
+      ],
+      "cannot_violate": [
+        "不能让顾南巡失去边境现实感",
+        "不能把中心反对写得脸谱化"
+      ],
+      "exit_hook": "霍闻潮证明远岸回票是有效延迟而非程序漏洞。"
+    },
+    {
+      "scene_id": "chapter-252-scene-02",
+      "pov": "顾南巡",
+      "location": "补时表决接口",
+      "goal": "把晚到意见真正接进计票。",
+      "obstacle": "一旦开口子，所有人都担心以后每个结果都要重算。",
+      "emotional_shift": "从维护试点合法性 -> 更坚定把速度特权指出来",
+      "must_include": [
+        "霍闻潮",
+        "补时表决",
+        "远岸回票"
+      ],
+      "cannot_violate": [
+        "不能写成技术一键解决",
+        "不能忽略制度焦虑"
+      ],
+      "exit_hook": "结果因一张晚到票发生偏转。"
+    },
+    {
+      "scene_id": "chapter-252-scene-03",
+      "pov": "顾南巡",
+      "location": "投票复核区",
+      "goal": "完成试点揭示并递出登记争议。",
+      "obstacle": "胜出并不意味着规则被接受，反而带来更复杂的身份认定问题。",
+      "emotional_shift": "从抢下一次结果 -> 看到后续身份制度必须跟上",
+      "must_include": [
+        "投票复核",
+        "程序确定性",
+        "暂居星籍"
+      ],
+      "cannot_violate": [
+        "不能写成简单胜利",
+        "必须接出下一章"
+      ],
+      "exit_hook": "林述尘接手暂居星籍争议。"
+    }
+  ]
+}

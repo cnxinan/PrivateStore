@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-387",
+  "title": "星间暂住证",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-387-scene-01",
+      "pov": "林述尘",
+      "location": "身份过渡窗口",
+      "goal": "建立第一批难以归类的暂住申请。",
+      "obstacle": "系统默认要求申请者尽快绑定最终归属和长期分类。",
+      "emotional_shift": "从程序惯性 -> 意识到分类本身在伤人",
+      "must_include": [
+        "第一批申请",
+        "最终归属提示",
+        "林述尘"
+      ],
+      "cannot_violate": [
+        "不能把制度问题写得太轻",
+        "不能失去林述尘的程序语感"
+      ],
+      "exit_hook": "林述尘手动跳过归属字段。"
+    },
+    {
+      "scene_id": "chapter-387-scene-02",
+      "pov": "林述尘",
+      "location": "审核小会室",
+      "goal": "把暂住从例外操作推进为正式过渡机制。",
+      "obstacle": "反对者担心暂住会制造责任不清和治理灰区。",
+      "emotional_shift": "从为程序找补 -> 开始主动替未定者辩护",
+      "must_include": [
+        "短期共处",
+        "先保障住居和退出权",
+        "顾南巡"
+      ],
+      "cannot_violate": [
+        "不能让讨论只有理念",
+        "不能忽略责任问题"
+      ],
+      "exit_hook": "暂住证样本被允许起草。"
+    },
+    {
+      "scene_id": "chapter-387-scene-03",
+      "pov": "林述尘",
+      "location": "暂住样本打印台",
+      "goal": "让暂住证样本显出新的语言方向。",
+      "obstacle": "旧模板每一栏都在逼人选择永久身份。",
+      "emotional_shift": "从修补旧表 -> 写出过渡性新表",
+      "must_include": [
+        "非永久归属",
+        "照护权",
+        "重议接口"
+      ],
+      "cannot_violate": [
+        "不能把暂住写成无条件自由通行",
+        "必须保留审慎感"
+      ],
+      "exit_hook": "叶持微指出‘后来者还应有先行权’。"
+    },
+    {
+      "scene_id": "chapter-387-scene-04",
+      "pov": "林述尘",
+      "location": "身份过渡窗口",
+      "goal": "用首份打印出的暂住证完成本章。",
+      "obstacle": "一张证件无法立刻改变所有人对归属的焦虑。",
+      "emotional_shift": "从制度疲惫 -> 看见一种较不伤人的承认",
+      "must_include": [
+        "星间暂住证",
+        "不强迫永久归属",
+        "后来者"
+      ],
+      "cannot_violate": [
+        "不能写成彻底解决",
+        "必须递到时间伦理层"
+      ],
+      "exit_hook": "叶持微把新条款摆上桌。"
+    }
+  ]
+}

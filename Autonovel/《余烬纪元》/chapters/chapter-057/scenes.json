@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-057",
+  "title": "远站回滚",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-057-scene-01",
+      "pov": "盛野",
+      "location": "无主仓控制台",
+      "goal": "建立盛野必须立刻处置的现实压力。",
+      "obstacle": "任何拖延都可能让住区供能、接口和航道同步受损。",
+      "emotional_shift": "从提出方案 -> 真正背上后果",
+      "must_include": [
+        "盛野短硬口气",
+        "节点回滚锁",
+        "风险不是抽象威胁"
+      ],
+      "cannot_violate": [
+        "不能把盛野写成享受控制的人",
+        "不能淡化实际危险"
+      ],
+      "exit_hook": "他坚持只锁节点不锁主体。"
+    },
+    {
+      "scene_id": "chapter-057-scene-02",
+      "pov": "盛野",
+      "location": "远站稳压节点",
+      "goal": "让回滚试点的技术与伦理同时发生。",
+      "obstacle": "局部回滚可能抹平刚刚显现的微弱主体信号。",
+      "emotional_shift": "从执行程序 -> 主动压缩伤害范围",
+      "must_include": [
+        "最小范围回滚",
+        "观测窗口保留",
+        "顾南巡监督"
+      ],
+      "cannot_violate": [
+        "不能把回滚写成万能按钮",
+        "不能让旁人完全信服"
+      ],
+      "exit_hook": "回滚后远站暂稳。"
+    },
+    {
+      "scene_id": "chapter-057-scene-03",
+      "pov": "盛野",
+      "location": "轨安署临时风控链路",
+      "goal": "让盛野面对来自各方的不同不满。",
+      "obstacle": "稳定派嫌他让得太多，推动派嫌他还是在用旧药。",
+      "emotional_shift": "从执行完成 -> 更清楚自己站在夹缝里",
+      "must_include": [
+        "盛野不被两边讨好",
+        "边境居民实际顾虑",
+        "安保不是道德豁免"
+      ],
+      "cannot_violate": [
+        "不能写成自怜",
+        "不能把争议写扁"
+      ],
+      "exit_hook": "更多殖民地拒绝接入统一方案。"
+    },
+    {
+      "scene_id": "chapter-057-scene-04",
+      "pov": "盛野",
+      "location": "远站外联屏前",
+      "goal": "把问题扩大到联邦协同层。",
+      "obstacle": "各殖民地用的还是各自拼起来的过渡法，谁都不愿替别人兜底。",
+      "emotional_shift": "从稳住一站 -> 看见整片联邦本来就断续",
+      "must_include": [
+        "跨地回执混乱",
+        "断续联邦前兆",
+        "顾南巡被推上前台"
+      ],
+      "cannot_violate": [
+        "不能写成宏大政治口号",
+        "必须保留执行层视角"
+      ],
+      "exit_hook": "问题已不是一个远站能扛。"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-050",
+  "title": "不属于地球的夜",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-050-scene-01",
+      "pov": "沈夜舟",
+      "location": "夜面居住带",
+      "goal": "建立火星环第一夜的异质感。",
+      "obstacle": "这里不是地球的延长线，连安静都不一样。",
+      "emotional_shift": "从登陆后的忙乱 -> 真正感到自己到了别处",
+      "must_include": [
+        "夜面居住带",
+        "环境差异",
+        "沈夜舟对地球经验失效的感受"
+      ],
+      "cannot_violate": [
+        "不能写成猎奇异星景观",
+        "不能丢掉人物内里"
+      ],
+      "exit_hook": "陆鸣来找他。"
+    },
+    {
+      "scene_id": "chapter-050-scene-02",
+      "pov": "沈夜舟",
+      "location": "长窗前",
+      "goal": "让沈夜舟与陆鸣谈到地球中心之外的共生。",
+      "obstacle": "两人都知道地球那套经验在这里不够用。",
+      "emotional_shift": "从沉默观察 -> 承认故事已被拉大",
+      "must_include": [
+        "陆鸣与沈夜舟短谈",
+        "阿阙带来的分类裂口",
+        "火星环不是延伸场景"
+      ],
+      "cannot_violate": [
+        "不能写成长篇总结",
+        "不能削弱夜的压感"
+      ],
+      "exit_hook": "外港调档邀请抵达。"
+    },
+    {
+      "scene_id": "chapter-050-scene-03",
+      "pov": "沈夜舟",
+      "location": "临时居住单元",
+      "goal": "让远港深层邀请把故事推向下一幕。",
+      "obstacle": "邀请来自更远更黑的地方，意味着他们还没碰到底。",
+      "emotional_shift": "从暂时落脚 -> 被更深问题再度牵走",
+      "must_include": [
+        "远港调档邀请",
+        "外港深层线索",
+        "顾南巡的谨慎意见"
+      ],
+      "cannot_violate": [
+        "不能让邀请显得像冒险任务",
+        "不能失去风险现实"
+      ],
+      "exit_hook": "沈夜舟决定继续往外看。"
+    },
+    {
+      "scene_id": "chapter-050-scene-04",
+      "pov": "沈夜舟",
+      "location": "夜面长窗前",
+      "goal": "以一句足够轻的判断结束第九幕。",
+      "obstacle": "他知道共生一旦出地球，就再也没有熟悉答案。",
+      "emotional_shift": "从异地不适 -> 接受必须在陌生夜里继续活",
+      "must_include": [
+        "不属于地球的夜",
+        "远港线开启",
+        "下一幕远港深层"
+      ],
+      "cannot_violate": [
+        "不能写成浪漫收尾",
+        "必须保留陌生和未稳"
+      ],
+      "exit_hook": "第十幕开始。"
+    }
+  ]
+}

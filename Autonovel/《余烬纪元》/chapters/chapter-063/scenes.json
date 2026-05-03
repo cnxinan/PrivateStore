@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-063",
+  "title": "共同误读",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-063-scene-01",
+      "pov": "柏青禾",
+      "location": "误读样本室",
+      "goal": "让柏青禾把互访后的混乱整理成结构性问题。",
+      "obstacle": "样本越多，越难再把误会归为个体不成熟。",
+      "emotional_shift": "从记录现象 -> 看见伦理层真正裂开",
+      "must_include": [
+        "误读分类",
+        "柏青禾的冷静工作",
+        "唐见星提供现场补充"
+      ],
+      "cannot_violate": [
+        "不能写成纯论文摘要",
+        "不能失去现场感"
+      ],
+      "exit_hook": "柏青禾发现重复模式。"
+    },
+    {
+      "scene_id": "chapter-063-scene-02",
+      "pov": "柏青禾",
+      "location": "分布式证词库",
+      "goal": "提出共同误读不是事故，而是制度必经阶段。",
+      "obstacle": "一旦承认误读常态化，就必须重写访问后的责任边界。",
+      "emotional_shift": "从整理资料 -> 进入规则修订",
+      "must_include": [
+        "沉默被读成冷漠",
+        "疲惫被读成遗弃",
+        "习惯被读成真心"
+      ],
+      "cannot_violate": [
+        "不能把问题说得过于抽象",
+        "不能让柏青禾脱离现实"
+      ],
+      "exit_hook": "一组特殊案例浮出。"
+    },
+    {
+      "scene_id": "chapter-063-scene-03",
+      "pov": "柏青禾",
+      "location": "临时伦理会商区",
+      "goal": "引出反向遗产纠纷。",
+      "obstacle": "互访后的共享痕迹开始触碰关系、财产和身份继承。",
+      "emotional_shift": "从概念裂口 -> 看到现实法律后果已到门口",
+      "must_include": [
+        "旧港维修者遗留片段",
+        "家属争议",
+        "新主体拒绝被说成窃取"
+      ],
+      "cannot_violate": [
+        "不能立刻给出答案",
+        "不能写成煽情亲情戏"
+      ],
+      "exit_hook": "案件转给林述尘。"
+    },
+    {
+      "scene_id": "chapter-063-scene-04",
+      "pov": "柏青禾",
+      "location": "样本室外走廊",
+      "goal": "以柏青禾的判断结束本章。",
+      "obstacle": "他知道再好的框架也不能替现场免去疼痛。",
+      "emotional_shift": "从试图命名 -> 承认命名本身也可能过快",
+      "must_include": [
+        "共同误读成为正式问题",
+        "柏青禾的迟疑",
+        "林述尘即将接手"
+      ],
+      "cannot_violate": [
+        "不能写成学者胜利时刻",
+        "必须保留冷意和未稳"
+      ],
+      "exit_hook": "反向遗产。"
+    }
+  ]
+}

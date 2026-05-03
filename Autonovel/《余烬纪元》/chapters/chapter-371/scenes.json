@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-371",
+  "title": "时间合唱",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-371-scene-01",
+      "pov": "白以澄",
+      "location": "远岸课程厅",
+      "goal": "提出时间合唱的核心设想。",
+      "obstacle": "多数人默认合唱必须整齐、同步、可被即时理解。",
+      "emotional_shift": "从解释概念 -> 更坚定保留错拍",
+      "must_include": [
+        "时间合唱",
+        "白以澄",
+        "不同节律"
+      ],
+      "cannot_violate": [
+        "不能把活动写成庆典秀",
+        "不能丢掉教育伦理"
+      ],
+      "exit_hook": "唐见星问，能不能允许沉默也算一段。"
+    },
+    {
+      "scene_id": "chapter-371-scene-02",
+      "pov": "白以澄",
+      "location": "合唱筹备区",
+      "goal": "把不同代际、不同航段的人接进同一事件。",
+      "obstacle": "每多接入一种节律，活动就更难被包装得整齐。",
+      "emotional_shift": "从担心失控 -> 接受合唱本来就该不整齐",
+      "must_include": [
+        "唐见星",
+        "不同航段",
+        "沉默份额"
+      ],
+      "cannot_violate": [
+        "不能把普通人视角挤掉",
+        "不能把困难轻写"
+      ],
+      "exit_hook": "远端节点开始回传测试延迟。"
+    },
+    {
+      "scene_id": "chapter-371-scene-03",
+      "pov": "白以澄",
+      "location": "错时连线屏",
+      "goal": "让筹备现场直观看见时间错位。",
+      "obstacle": "连线屏自动尝试对齐节拍，破坏实验目标。",
+      "emotional_shift": "从技术焦虑 -> 转而向霍闻潮求助",
+      "must_include": [
+        "错时连线",
+        "自动对齐",
+        "霍闻潮"
+      ],
+      "cannot_violate": [
+        "不能把技术问题写成小故障",
+        "不能让白以澄一人解决所有事"
+      ],
+      "exit_hook": "霍闻潮接手接口调试。"
+    },
+    {
+      "scene_id": "chapter-371-scene-04",
+      "pov": "白以澄",
+      "location": "远岸课程厅",
+      "goal": "用一句话定义这一幕的公共声场。",
+      "obstacle": "大家仍本能地把错拍理解成失误。",
+      "emotional_shift": "从筹备者焦虑 -> 对不重合也能合唱更有把握",
+      "must_include": [
+        "不重合",
+        "仍愿意听见彼此",
+        "错拍发言"
+      ],
+      "cannot_violate": [
+        "不能把合唱说成统一口径",
+        "必须留出下一章技术入口"
+      ],
+      "exit_hook": "霍闻潮说，先别让系统帮你们唱齐。"
+    }
+  ]
+}

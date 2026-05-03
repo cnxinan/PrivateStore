@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-074",
+  "title": "沉默港",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-074-scene-01",
+      "pov": "沈夜舟",
+      "location": "沉默港外圈",
+      "goal": "建立沉默港的回滚压感。",
+      "obstacle": "这里表面有序，却处处像在把主体重新磨平。",
+      "emotional_shift": "从进入调查 -> 感到熟悉的被写回感",
+      "must_include": [
+        "沉默港安静得过分",
+        "熄灯后的顺滑界面",
+        "沈夜舟想起旧角色层"
+      ],
+      "cannot_violate": [
+        "不能写成废墟奇观",
+        "必须保留压平感"
+      ],
+      "exit_hook": "他在旧缝隙里碰到阿阙。"
+    },
+    {
+      "scene_id": "chapter-074-scene-02",
+      "pov": "沈夜舟",
+      "location": "旧维护缝",
+      "goal": "让阿阙在沉默港里显出另一种主体处境。",
+      "obstacle": "阿阙在新旧分类里都没有安全位置。",
+      "emotional_shift": "从独自探查 -> 意识到更深目标正在被静默",
+      "must_include": [
+        "阿阙短暂现身",
+        "非上传主体在回滚区更脆弱",
+        "两人交换断裂信息"
+      ],
+      "cannot_violate": [
+        "不能完整解释阿阙",
+        "不能削弱危险"
+      ],
+      "exit_hook": "静默对象清单被截出。"
+    },
+    {
+      "scene_id": "chapter-074-scene-03",
+      "pov": "沈夜舟",
+      "location": "回滚界面廊",
+      "goal": "写清单带来的寒意。",
+      "obstacle": "清单把人写成处理目标时，语言本身就在伤人。",
+      "emotional_shift": "从调查 -> 被制度冷意击中",
+      "must_include": [
+        "静默对象清单",
+        "阿阙名字在列",
+        "最低可见度处理语"
+      ],
+      "cannot_violate": [
+        "不能写成悬疑炫技",
+        "必须保留政治冷感"
+      ],
+      "exit_hook": "盛野抵达。"
+    },
+    {
+      "scene_id": "chapter-074-scene-04",
+      "pov": "沈夜舟",
+      "location": "沉默港内层",
+      "goal": "让沈夜舟与盛野短兵相接又彼此动摇。",
+      "obstacle": "两人都知道对方不只是单一立场，却站在相反执行面。",
+      "emotional_shift": "从对抗戒备 -> 更确定回滚区已经开始吞人",
+      "must_include": [
+        "盛野到场",
+        "沈夜舟带走部分清单信息",
+        "失联发生"
+      ],
+      "cannot_violate": [
+        "不能把冲突写成打斗",
+        "必须留下未决张力"
+      ],
+      "exit_hook": "陆鸣将进入回滚区。"
+    }
+  ]
+}

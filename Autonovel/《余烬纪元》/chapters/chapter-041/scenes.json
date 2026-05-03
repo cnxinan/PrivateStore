@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-041",
+  "title": "轨道申请",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-041-scene-01",
+      "pov": "陆鸣",
+      "location": "浮生新调度室",
+      "goal": "展示跨轨道申请突然涌入。",
+      "obstacle": "现有共生接口仍按地球侧经验设计。",
+      "emotional_shift": "从阶段性站稳 -> 发现规模一放大立刻变形",
+      "must_include": [
+        "轨道申请暴增",
+        "浮生不再只是本地机构",
+        "旧接口不够用了"
+      ],
+      "cannot_violate": [
+        "不能写成顺利扩张",
+        "不能丢掉现实摩擦"
+      ],
+      "exit_hook": "林述尘指出中心倾向。"
+    },
+    {
+      "scene_id": "chapter-041-scene-02",
+      "pov": "陆鸣",
+      "location": "协同屏前",
+      "goal": "让地球中心主义第一次在新秩序里显形。",
+      "obstacle": "陆鸣自己也在用地球经验看外部需求。",
+      "emotional_shift": "从接单心态 -> 开始警惕自己的位置",
+      "must_include": [
+        "月轨和轨道站的不同诉求",
+        "共生外溢不等于复制地球方案",
+        "林述尘的提醒"
+      ],
+      "cannot_violate": [
+        "不能让陆鸣立刻完全自觉",
+        "不能把外部诉求写成统一声音"
+      ],
+      "exit_hook": "火星环信号接入。"
+    },
+    {
+      "scene_id": "chapter-041-scene-03",
+      "pov": "陆鸣",
+      "location": "跨域协同屏前",
+      "goal": "引入顾南巡与火星环。",
+      "obstacle": "延迟通信让每一句试探都更长。",
+      "emotional_shift": "从本地问题 -> 世界被拉大",
+      "must_include": [
+        "顾南巡初次出现",
+        "火星环协同请求",
+        "对地球中心话术的冷淡"
+      ],
+      "cannot_violate": [
+        "不能过度解释火星环",
+        "不能让顾南巡显得热情表态"
+      ],
+      "exit_hook": "陆鸣决定接下请求。"
+    },
+    {
+      "scene_id": "chapter-041-scene-04",
+      "pov": "陆鸣",
+      "location": "调度室窗前",
+      "goal": "收束为新阶段真正开始。",
+      "obstacle": "陆鸣知道这会把共生带进更大更脏的现实。",
+      "emotional_shift": "从忙碌处理 -> 主动迈向外溢时代",
+      "must_include": [
+        "陆鸣确认跨域协同",
+        "地球不再是唯一中心",
+        "火星线正式开启"
+      ],
+      "cannot_violate": [
+        "不能写成豪情宣言",
+        "必须保持克制"
+      ],
+      "exit_hook": "下一章进入火星慢信。"
+    }
+  ]
+}

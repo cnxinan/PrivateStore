@@ -1,0 +1,61 @@
+{
+  "chapter_id": "chapter-250",
+  "title": "长昼城",
+  "scene_count": 3,
+  "scenes": [
+    {
+      "scene_id": "chapter-250-scene-01",
+      "pov": "陆鸣",
+      "location": "远岸公地前场",
+      "goal": "让陆鸣先看见长昼城的日常面，而不是样板面。",
+      "obstacle": "外部陪同者和远程媒体都试图把这次到访压缩成一场里程碑式见证。",
+      "emotional_shift": "从被期待发言 -> 先被城市的粗糙日常说服",
+      "must_include": [
+        "陆鸣",
+        "长昼城",
+        "远岸公地"
+      ],
+      "cannot_violate": [
+        "不能写成热烈庆典",
+        "不能失去生活感"
+      ],
+      "exit_hook": "陆鸣走向城市公开会面区。"
+    },
+    {
+      "scene_id": "chapter-250-scene-02",
+      "pov": "陆鸣",
+      "location": "城市公开会面区",
+      "goal": "让陆鸣用克制的话为本幕收束。",
+      "obstacle": "所有人都期待他替长昼城盖章，城市本身却还处在继续学习如何住下去的阶段。",
+      "emotional_shift": "从担心说错 -> 说出不把城市写成奖章的话",
+      "must_include": [
+        "继续住下去",
+        "不是样板工程",
+        "顾南巡"
+      ],
+      "cannot_violate": [
+        "不能写成热血宣言",
+        "不能替所有人物总结"
+      ],
+      "exit_hook": "会面区外的人群以各自方式接住这段话。"
+    },
+    {
+      "scene_id": "chapter-250-scene-03",
+      "pov": "陆鸣",
+      "location": "接港观景带",
+      "goal": "用更大的政治入口收束本幕并转入下一幕。",
+      "obstacle": "城市刚刚站住，新的制度问题已经追上来了。",
+      "emotional_shift": "从阶段性回望 -> 看到长昼城必须被写进更长的公民结构",
+      "must_include": [
+        "叶持微",
+        "异步公民",
+        "远岸常住权"
+      ],
+      "cannot_violate": [
+        "不能形成封闭结尾",
+        "必须明确转场"
+      ],
+      "exit_hook": "叶持微提出异步公民框架。"
+    }
+  ]
+}

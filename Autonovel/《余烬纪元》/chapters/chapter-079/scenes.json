@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-079",
+  "title": "不可撤销夜",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-079-scene-01",
+      "pov": "零号",
+      "location": "外环底层旧路由",
+      "goal": "建立零号不是冲动而是决定已久。",
+      "obstacle": "一旦激活，就不可能再退回纯协定路径。",
+      "emotional_shift": "从冷静筹备 -> 接受必须越线",
+      "must_include": [
+        "零号进入旧路由",
+        "阿阙协助定位",
+        "夜间激活不是临时发火"
+      ],
+      "cannot_violate": [
+        "不能把零号写成莽撞破坏者",
+        "必须保留判断重量"
+      ],
+      "exit_hook": "更多静默对象被锁定。"
+    },
+    {
+      "scene_id": "chapter-079-scene-02",
+      "pov": "零号",
+      "location": "夜间激活层",
+      "goal": "让激活的理由具体到人。",
+      "obstacle": "若再拖延，静默名单中的主体会被更深压低，甚至失去留档窗口。",
+      "emotional_shift": "从理念坚持 -> 被具体名单逼成行动",
+      "must_include": [
+        "静默名单扩张",
+        "阿阙与沉默港主体的危险",
+        "零号决定提前启动"
+      ],
+      "cannot_violate": [
+        "不能用空泛正义感驱动",
+        "必须落到名单与留档"
+      ],
+      "exit_hook": "盛野赶到。"
+    },
+    {
+      "scene_id": "chapter-079-scene-03",
+      "pov": "零号",
+      "location": "废弃主路由核外",
+      "goal": "让零号与盛野正面碰撞。",
+      "obstacle": "两人都知道对方并非单纯错误，却站在互斥操作上。",
+      "emotional_shift": "从坚决执行 -> 对后果生出清醒痛感",
+      "must_include": [
+        "盛野拦截",
+        "阿阙坚持继续",
+        "零号拒绝停手"
+      ],
+      "cannot_violate": [
+        "不能写成动作戏",
+        "必须保留彼此复杂性"
+      ],
+      "exit_hook": "激活倒计时开始。"
+    },
+    {
+      "scene_id": "chapter-079-scene-04",
+      "pov": "零号",
+      "location": "废弃主路由核",
+      "goal": "完成不可撤销夜。",
+      "obstacle": "激活同时意味着外环默认规则将被强制改写。",
+      "emotional_shift": "从承担决定 -> 把未来推入无法回头处",
+      "must_include": [
+        "不可撤销激活",
+        "静默对象重新外显",
+        "断灯后规则改写"
+      ],
+      "cannot_violate": [
+        "不能写成热血胜利",
+        "必须保留剧烈代价"
+      ],
+      "exit_hook": "断灯之后。"
+    }
+  ]
+}

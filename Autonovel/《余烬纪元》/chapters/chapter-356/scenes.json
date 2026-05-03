@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-356",
+  "title": "失败留档",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-356-scene-01",
+      "pov": "孟回声",
+      "location": "活档修订室",
+      "goal": "由孟回声设计失败留档的基本格式与边界。",
+      "obstacle": "任何格式都可能再次把现场压成可归纳的体面版本。",
+      "emotional_shift": "从谨慎起稿 -> 决定连自己的犹豫也写进去",
+      "must_include": [
+        "孟回声",
+        "失败留档",
+        "活档修订室"
+      ],
+      "cannot_violate": [
+        "不能把孟回声写成纯记录机器",
+        "不能让档案格式太完美"
+      ],
+      "exit_hook": "柏青禾要求加上‘何处越界’字段。"
+    },
+    {
+      "scene_id": "chapter-356-scene-02",
+      "pov": "孟回声",
+      "location": "失败档案页",
+      "goal": "确定留档必须记录假设、压缩、越界与未决处。",
+      "obstacle": "很多人只愿意记录结论，不愿记录自身当时如何想错。",
+      "emotional_shift": "从整理事实 -> insist保留笨拙过程",
+      "must_include": [
+        "反神话记录",
+        "越界字段",
+        "未决处"
+      ],
+      "cannot_violate": [
+        "不能把档案写成审判书",
+        "不能省略不确定性"
+      ],
+      "exit_hook": "复核旁听区开始担心档案会被政治利用。"
+    },
+    {
+      "scene_id": "chapter-356-scene-03",
+      "pov": "孟回声",
+      "location": "复核旁听区",
+      "goal": "回应‘完整留档会害死前沿’的顾虑。",
+      "obstacle": "回滚派确实可能拿失败当关门理由。",
+      "emotional_shift": "从理解担忧 -> 更坚持不留神话档",
+      "must_include": [
+        "会被利用",
+        "成功样本偏执",
+        "学习能力"
+      ],
+      "cannot_violate": [
+        "不能否认政治风险",
+        "不能把留档说成天然正确"
+      ],
+      "exit_hook": "顾南巡来询问公开措辞。"
+    },
+    {
+      "scene_id": "chapter-356-scene-04",
+      "pov": "孟回声",
+      "location": "活档修订室",
+      "goal": "把章节交给顾南巡去寻找能按住最坏动作的停火词。",
+      "obstacle": "留档解决不了眼下扩散的舆论和边境动作。",
+      "emotional_shift": "从慢记录 -> 意识到还需要一句暂时止火的话",
+      "must_include": [
+        "停火词",
+        "顾南巡",
+        "失败留档"
+      ],
+      "cannot_violate": [
+        "不能提前写出停火词内容",
+        "必须把压力递向下一章"
+      ],
+      "exit_hook": "顾南巡拿走第一版失败档案。"
+    }
+  ]
+}

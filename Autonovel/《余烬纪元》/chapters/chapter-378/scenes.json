@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-378",
+  "title": "合唱接口",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-378-scene-01",
+      "pov": "姜一苇",
+      "location": "公共声场接口井",
+      "goal": "让姜一苇正面面对系统优化冲动。",
+      "obstacle": "系统天然把复杂视作待清理噪音。",
+      "emotional_shift": "从流程接入 -> 主动为复杂性设防",
+      "must_include": [
+        "姜一苇",
+        "合唱接口",
+        "噪音"
+      ],
+      "cannot_violate": [
+        "不能让姜一苇突然拥有完全原创能力",
+        "不能把系统冲动写成邪恶人格"
+      ],
+      "exit_hook": "优化禁令面板被调出来。"
+    },
+    {
+      "scene_id": "chapter-378-scene-02",
+      "pov": "姜一苇",
+      "location": "优化禁令面板",
+      "goal": "写下不对齐优化禁令。",
+      "obstacle": "禁令会让系统运行成本和解释成本都上升。",
+      "emotional_shift": "从权衡效率 -> 接受未来系统要学会变笨一点",
+      "must_include": [
+        "不对齐优化禁令",
+        "过滤重复",
+        "补齐节拍"
+      ],
+      "cannot_violate": [
+        "不能让姜一苇用一句话解决所有矛盾",
+        "不能无视系统代价"
+      ],
+      "exit_hook": "多节律映射层开始加载。"
+    },
+    {
+      "scene_id": "chapter-378-scene-03",
+      "pov": "姜一苇",
+      "location": "多节律映射层",
+      "goal": "让不同节律以共鸣而非统一意义连接。",
+      "obstacle": "系统总会试图推导一个最优总括。",
+      "emotional_shift": "从精确控制 -> 学会留空和容忍重复",
+      "must_include": [
+        "多节律映射",
+        "单一和声",
+        "闻折川"
+      ],
+      "cannot_violate": [
+        "不能把系统写成完全拟人化歌者",
+        "不能抹掉不可译部分"
+      ],
+      "exit_hook": "陆鸣给出公开层最后提醒。"
+    },
+    {
+      "scene_id": "chapter-378-scene-04",
+      "pov": "姜一苇",
+      "location": "公共声场接口井",
+      "goal": "把系统层准备交给公众层收束。",
+      "obstacle": "一旦开放发声，总会有人想唱完整首歌。",
+      "emotional_shift": "从系统自守 -> 把克制交给人来完成",
+      "must_include": [
+        "陆鸣",
+        "每个人只唱一段",
+        "公开层"
+      ],
+      "cannot_violate": [
+        "不能在接口层完成全章闭环",
+        "必须给下一章留出人类收束"
+      ],
+      "exit_hook": "陆鸣说，每个人只唱一段就够了。"
+    }
+  ]
+}

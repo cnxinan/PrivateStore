@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-298",
+  "title": "跨星值守",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-298-scene-01",
+      "pov": "盛野",
+      "location": "轨安署值守室",
+      "goal": "重新审视旧值守表里的默认牺牲顺序。",
+      "obstacle": "旧表运行多年，人人看惯了也用惯了。",
+      "emotional_shift": "从习惯性保稳 -> 看见旧表本身就是风险",
+      "must_include": [
+        "值守旧表",
+        "默认牺牲",
+        "盛野"
+      ],
+      "cannot_violate": [
+        "不能把盛野写成突然温柔",
+        "不能丢掉安保逻辑"
+      ],
+      "exit_hook": "轮值墙上最累的班次被圈了出来。"
+    },
+    {
+      "scene_id": "chapter-298-scene-02",
+      "pov": "盛野",
+      "location": "港区轮值墙",
+      "goal": "面对维护、安保、照护长期被不均匀压给同一批人的事实。",
+      "obstacle": "现实人手有限，重排意味着更多位置都要让权。",
+      "emotional_shift": "从防守思维 -> 接受必须把照护写进防线",
+      "must_include": [
+        "轮值平衡",
+        "黎照临",
+        "照护接口"
+      ],
+      "cannot_violate": [
+        "不能写成轻松协调",
+        "不能弱化人手紧张"
+      ],
+      "exit_hook": "顾南巡要求把共同值守写成正式协议。"
+    },
+    {
+      "scene_id": "chapter-298-scene-03",
+      "pov": "盛野",
+      "location": "共同协议桌",
+      "goal": "把休息阈值、替班权和照护义务压进值守协议。",
+      "obstacle": "一旦写实，很多过去靠默认牺牲撑着的稳定会显得很难看。",
+      "emotional_shift": "从短硬防御 -> 说出少见的让权判断",
+      "must_include": [
+        "替班权",
+        "休息阈值",
+        "共同值守"
+      ],
+      "cannot_violate": [
+        "不能让盛野失去硬度",
+        "不能写成理想化协议"
+      ],
+      "exit_hook": "新协议通过试行。"
+    },
+    {
+      "scene_id": "chapter-298-scene-04",
+      "pov": "盛野",
+      "location": "港外观测线",
+      "goal": "在协议落地后把视线推向更远的新线。",
+      "obstacle": "再好的值守协议也挡不住前方更暗的代价。",
+      "emotional_shift": "从守住当下 -> 看见更远处的黑",
+      "must_include": [
+        "陆鸣",
+        "更暗新线",
+        "前夜"
+      ],
+      "cannot_violate": [
+        "不能写成值守问题彻底解决",
+        "必须把下一章推到前景"
+      ],
+      "exit_hook": "陆鸣在新线前停下。"
+    }
+  ]
+}

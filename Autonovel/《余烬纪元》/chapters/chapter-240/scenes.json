@@ -1,0 +1,80 @@
+{
+  "chapter_id": "chapter-240",
+  "title": "远祖之后",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-240-scene-01",
+      "pov": "陆鸣",
+      "location": "公共接口外沿",
+      "goal": "建立陆鸣面对远祖接口阶段性收束时的谨慎。",
+      "obstacle": "任何收束都可能再次被讲成完整答案。",
+      "emotional_shift": "从被推去兜底 -> 更警惕新的祖辈口吻",
+      "must_include": [
+        "远祖之后",
+        "陆鸣",
+        "阶段收束"
+      ],
+      "cannot_violate": [
+        "不能写成胜利大会",
+        "不能丢掉未完成感"
+      ],
+      "exit_hook": "公众仍在争执请下桌到底算不算冒犯。"
+    },
+    {
+      "scene_id": "chapter-240-scene-02",
+      "pov": "陆鸣",
+      "location": "分代说明屏",
+      "goal": "把祖辈接口争论重新解释成修改权问题。",
+      "obstacle": "社会更容易记住姿态冲突，不容易记住权力位置。",
+      "emotional_shift": "从收拾争论 -> 讲出较能承受的结构说法",
+      "must_include": [
+        "修改权",
+        "不是忘本",
+        "分代说明"
+      ],
+      "cannot_violate": [
+        "不能替年轻人说完全部情绪",
+        "不能替祖辈轻易辩白"
+      ],
+      "exit_hook": "唐见星与白以澄的意见被一并接入。"
+    },
+    {
+      "scene_id": "chapter-240-scene-03",
+      "pov": "陆鸣",
+      "location": "公共接口外沿",
+      "goal": "以群像确认传承成熟不再等于单向服从。",
+      "obstacle": "旧启航庄严感仍会周期性压回今天的辩论。",
+      "emotional_shift": "从解释个案 -> 看见文明习惯又往前挪了一点",
+      "must_include": [
+        "唐见星",
+        "叶持微",
+        "顾南巡",
+        "孟回声"
+      ],
+      "cannot_violate": [
+        "不能让所有人物统一口径",
+        "不能写成终局和解"
+      ],
+      "exit_hook": "黎照临发来一批新的长居申请。"
+    },
+    {
+      "scene_id": "chapter-240-scene-04",
+      "pov": "陆鸣",
+      "location": "长昼城申请转入口",
+      "goal": "用长昼城首批常住申请打开下一幕共同生活议题。",
+      "obstacle": "新的城市想象仍可能复制旧脚本。",
+      "emotional_shift": "从阶段总结 -> 面向新的实际建城问题",
+      "must_include": [
+        "长昼城",
+        "首批常住申请",
+        "黎照临"
+      ],
+      "cannot_violate": [
+        "不能封闭结尾",
+        "必须导向下一幕"
+      ],
+      "exit_hook": "长昼城的申请列表在远处亮起。"
+    }
+  ]
+}

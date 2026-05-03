@@ -1,0 +1,61 @@
+{
+  "chapter_id": "chapter-244",
+  "title": "住居温差",
+  "scene_count": 3,
+  "scenes": [
+    {
+      "scene_id": "chapter-244-scene-01",
+      "pov": "黎照临",
+      "location": "温控分配台",
+      "goal": "建立住居温差故障与紧急调温选择。",
+      "obstacle": "现有系统默认的供热顺序仍偏向中心舱与标准人类作息。",
+      "emotional_shift": "从熟练应急 -> 察觉旧偏置还藏在底层表里",
+      "must_include": [
+        "住居温差",
+        "温控分配台",
+        "黎照临"
+      ],
+      "cannot_violate": [
+        "不能把故障写成纯技术问题",
+        "不能忽略夜班现场"
+      ],
+      "exit_hook": "盛野要求立刻按旧优先级兜底。"
+    },
+    {
+      "scene_id": "chapter-244-scene-02",
+      "pov": "黎照临",
+      "location": "边缘住居带",
+      "goal": "让调温顺序暴露谁被默认更可牺牲。",
+      "obstacle": "时间紧，任何重新排序都可能让另一边先冷下去。",
+      "emotional_shift": "从只想压住事故 -> 变成必须正面改写排序",
+      "must_include": [
+        "阿阙",
+        "边缘住居带",
+        "夜班优先级"
+      ],
+      "cannot_violate": [
+        "不能让阿阙失去锋利感",
+        "不能轻易消解冲突"
+      ],
+      "exit_hook": "阿阙问：为什么你们的夜总是先算人类的夜？"
+    },
+    {
+      "scene_id": "chapter-244-scene-03",
+      "pov": "黎照临",
+      "location": "夜班走廊",
+      "goal": "完成热量重排，写出本章揭示并递出下一章节律问题。",
+      "obstacle": "任何临时重写都只是一夜的解决，还没有动到城市默认时间结构。",
+      "emotional_shift": "从顶住故障 -> 认清更深的时间偏置",
+      "must_include": [
+        "重新配热",
+        "盛野",
+        "白天太长"
+      ],
+      "cannot_violate": [
+        "不能写成彻底解决",
+        "必须把问题递给下一章"
+      ],
+      "exit_hook": "阿阙说：你们的白天太长了。"
+    }
+  ]
+}

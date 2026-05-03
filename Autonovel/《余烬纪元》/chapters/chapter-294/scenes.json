@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-294",
+  "title": "路由公地",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-294-scene-01",
+      "pov": "顾南巡",
+      "location": "边境路由厅",
+      "goal": "提出把关键深空路由改写为分布式公地的条款草案。",
+      "obstacle": "中心、承包方和旧调度端都不愿放开路口控制。",
+      "emotional_shift": "从沉稳起草 -> 更明确准备硬碰硬",
+      "must_include": [
+        "路由公地",
+        "默认资产",
+        "顾南巡"
+      ],
+      "cannot_violate": [
+        "不能写成抽象制度空谈",
+        "不能让反对方毫无现实理由"
+      ],
+      "exit_hook": "沙盘上最关键的交叉节点被标红。"
+    },
+    {
+      "scene_id": "chapter-294-scene-02",
+      "pov": "顾南巡",
+      "location": "分布式调度沙盘",
+      "goal": "证明公地并非无主，而是共同维护与共同限权。",
+      "obstacle": "对方刻意把“公地”等同于失序和无人负责。",
+      "emotional_shift": "从解释 -> 在关键节点上变硬",
+      "must_include": [
+        "轮值调度",
+        "公开日志",
+        "有限占用"
+      ],
+      "cannot_violate": [
+        "不能把公地写成乌托邦",
+        "不能忽略维护责任"
+      ],
+      "exit_hook": "林述尘提出资源与责任怎么一起落地。"
+    },
+    {
+      "scene_id": "chapter-294-scene-03",
+      "pov": "顾南巡",
+      "location": "共同签署窗",
+      "goal": "把资源、维修和仲裁入口一起压进公地条款。",
+      "obstacle": "若只公地化路由，不同步改责任结构，最终仍会回到中心裁定。",
+      "emotional_shift": "从协商克制 -> 做出冷静但硬的让步边界",
+      "must_include": [
+        "分布式调度",
+        "共同仲裁",
+        "林述尘"
+      ],
+      "cannot_violate": [
+        "不能写成立即彻底胜利",
+        "不能抹掉制度摩擦"
+      ],
+      "exit_hook": "条款勉强过会，但现实成本随即被提到桌上。"
+    },
+    {
+      "scene_id": "chapter-294-scene-04",
+      "pov": "顾南巡",
+      "location": "路由厅外廊",
+      "goal": "让理想重新面对劳动与抵达成本。",
+      "obstacle": "再好的条款也不能替任何人走完实际路段。",
+      "emotional_shift": "从制度推进 -> 被一句粗话拉回地面",
+      "must_include": [
+        "魏合",
+        "脚步成本",
+        "路口"
+      ],
+      "cannot_violate": [
+        "不能收束得过于圆满",
+        "必须给下一章留出现实压力"
+      ],
+      "exit_hook": "魏合说：没人替你抵达。"
+    }
+  ]
+}

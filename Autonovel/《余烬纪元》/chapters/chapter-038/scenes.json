@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-038",
+  "title": "未完合同",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-038-scene-01",
+      "pov": "陆鸣",
+      "location": "协议空间",
+      "goal": "开启旧产业退出和新秩序长期条款谈判。",
+      "obstacle": "所有人都带着不同的损失和底线坐下来。",
+      "emotional_shift": "从听证余震 -> 进入更冷的现实结算",
+      "must_include": [
+        "协议空间",
+        "旧产业退出",
+        "主体长期权利"
+      ],
+      "cannot_violate": [
+        "不能写成高概念空谈",
+        "不能失去现实账感"
+      ],
+      "exit_hook": "宋槐提出条件。"
+    },
+    {
+      "scene_id": "chapter-038-scene-02",
+      "pov": "陆鸣",
+      "location": "浮生旧账档前",
+      "goal": "让陆鸣真正面对自己旧生意留下来的账。",
+      "obstacle": "新秩序要前进，不代表旧收益可以被忘掉。",
+      "emotional_shift": "从谈制度 -> 回到自己也负着旧账",
+      "must_include": [
+        "浮生旧账",
+        "陆鸣承认自己并不干净",
+        "补偿与改制压力"
+      ],
+      "cannot_violate": [
+        "不能写成自我赎罪戏",
+        "不能丢掉商业现实"
+      ],
+      "exit_hook": "零号反对新吝啬。"
+    },
+    {
+      "scene_id": "chapter-038-scene-03",
+      "pov": "陆鸣",
+      "location": "协议空间",
+      "goal": "让零号和林述尘把“未完”写进制度。",
+      "obstacle": "制度天然更爱封口，而不是承认长期争夺。",
+      "emotional_shift": "从想尽快定稿 -> 接受必须保留修订口",
+      "must_include": [
+        "零号拒绝假性圆满",
+        "林述尘支持未完条款",
+        "宋槐接受次优退出"
+      ],
+      "cannot_violate": [
+        "不能写成同仇敌忾",
+        "不能让零号显得轻易满意"
+      ],
+      "exit_hook": "白昼缓冲层被提出来。"
+    },
+    {
+      "scene_id": "chapter-038-scene-04",
+      "pov": "陆鸣",
+      "location": "会后空走廊",
+      "goal": "以白昼缓冲层试验获批把故事带进日常共处。",
+      "obstacle": "陆鸣明白，日常共处比任何听证都更难伪装。",
+      "emotional_shift": "从合同文本 -> 准备面对没有脚本的白天",
+      "must_include": [
+        "未完合同达成",
+        "白昼缓冲层试验获批",
+        "下一章进入共居试验"
+      ],
+      "cannot_violate": [
+        "不能写成完结口吻",
+        "必须留出继续燃烧的空间"
+      ],
+      "exit_hook": "白昼缓冲层开启。"
+    }
+  ]
+}

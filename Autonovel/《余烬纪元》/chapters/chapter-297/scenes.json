@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-297",
+  "title": "不封口的港",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-297-scene-01",
+      "pov": "周栖岚",
+      "location": "外沿港主闸区",
+      "goal": "在高风险靠港前阻止系统按旧逻辑自动封口。",
+      "obstacle": "港务安全协议把快速封门视为最稳妥响应。",
+      "emotional_shift": "从预判麻烦 -> 硬把入口留住",
+      "must_include": [
+        "主闸区",
+        "自动封口",
+        "试点"
+      ],
+      "cannot_violate": [
+        "不能忽略风险管理",
+        "不能把周栖岚写成冒失放行"
+      ],
+      "exit_hook": "周栖岚要求启用缓冲泊位。"
+    },
+    {
+      "scene_id": "chapter-297-scene-02",
+      "pov": "周栖岚",
+      "location": "缓冲泊位",
+      "goal": "建立既不封口也不失控的中间响应层。",
+      "obstacle": "缓冲泊位需要额外维护、人手和可公开说明的责任链。",
+      "emotional_shift": "从现场忙乱 -> 更清楚成熟港口该长什么样",
+      "must_include": [
+        "缓冲泊位",
+        "说话窗口",
+        "黎照临"
+      ],
+      "cannot_violate": [
+        "不能把风险轻写",
+        "不能让所有问题都靠胆量解决"
+      ],
+      "exit_hook": "风险响应室要求解释为何不直接封港。"
+    },
+    {
+      "scene_id": "chapter-297-scene-03",
+      "pov": "周栖岚",
+      "location": "风险响应室",
+      "goal": "给“不封口”一个可执行、可追责的治理定义。",
+      "obstacle": "反对方认为留入口就是给失控留门。",
+      "emotional_shift": "从干脆处置 -> 把经验压成规则",
+      "must_include": [
+        "持续入口",
+        "检疫不静默",
+        "最小开放"
+      ],
+      "cannot_violate": [
+        "不能写成纯观念胜利",
+        "不能忽略港务成本"
+      ],
+      "exit_hook": "盛野开始翻值守旧表。"
+    },
+    {
+      "scene_id": "chapter-297-scene-04",
+      "pov": "周栖岚",
+      "location": "港外风廊",
+      "goal": "在险情暂稳后留下新的问题。",
+      "obstacle": "不封口意味着整个值守体系都得跟着重写。",
+      "emotional_shift": "从撑住一场响应 -> 看到更大工程才刚开始",
+      "must_include": [
+        "盛野",
+        "值守重写",
+        "港外风廊"
+      ],
+      "cannot_violate": [
+        "不能收成港口胜利范本",
+        "必须把后续压力交出去"
+      ],
+      "exit_hook": "盛野说要重算跨星值守。"
+    }
+  ]
+}

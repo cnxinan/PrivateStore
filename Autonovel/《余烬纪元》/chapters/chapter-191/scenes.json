@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-191",
+  "title": "前哨白昼",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-191-scene-01",
+      "pov": "黎照临",
+      "location": "外太阳系前哨主舱",
+      "goal": "建立前哨白昼的普通维护现实。",
+      "obstacle": "每一项普通故障都被长时延放大成整段班次的压力。",
+      "emotional_shift": "从熟练排班 -> 看见白昼本身就是艰难成果",
+      "must_include": [
+        "前哨白昼",
+        "值班表",
+        "黎照临"
+      ],
+      "cannot_violate": [
+        "不能把前哨写成浪漫远征",
+        "不能忽略具体维护劳动"
+      ],
+      "exit_hook": "气闸门井报警。"
+    },
+    {
+      "scene_id": "chapter-191-scene-02",
+      "pov": "黎照临",
+      "location": "气闸门井",
+      "goal": "把一次门井故障推成新原则的现实测试。",
+      "obstacle": "门井后方临时安置着一段未命名接入，旧逻辑建议直接转旁路。",
+      "emotional_shift": "从维修判断 -> 必须同时做伦理判断",
+      "must_include": [
+        "气闸门井",
+        "旧逻辑旁路建议",
+        "未命名接入"
+      ],
+      "cannot_violate": [
+        "不能让危机显得夸张失真",
+        "不能把新原则执行写得毫无代价"
+      ],
+      "exit_hook": "周栖岚的补给窗口即将错过。"
+    },
+    {
+      "scene_id": "chapter-191-scene-03",
+      "pov": "黎照临",
+      "location": "共居走廊",
+      "goal": "让前哨用人工轮值和临时挪位替代旁路切断。",
+      "obstacle": "这会压缩整队人的休息与补给安排。",
+      "emotional_shift": "从烦躁兜底 -> 接受白昼就是大家轮流多扛一点",
+      "must_include": [
+        "人工轮值",
+        "共居走廊",
+        "不转旁路"
+      ],
+      "cannot_violate": [
+        "不能写成无私奉献神话",
+        "不能让代价被抹平"
+      ],
+      "exit_hook": "门终于被修好。"
+    },
+    {
+      "scene_id": "chapter-191-scene-04",
+      "pov": "黎照临",
+      "location": "外太阳系前哨主舱",
+      "goal": "以一扇门被修好收束本章。",
+      "obstacle": "谁都知道下一次故障仍会再来。",
+      "emotional_shift": "从压缩白班 -> 对普通白昼生出沉稳珍惜",
+      "must_include": [
+        "修好的门",
+        "白天继续",
+        "文明证据"
+      ],
+      "cannot_violate": [
+        "不能写成终局安宁",
+        "必须导向远向合流"
+      ],
+      "exit_hook": "周栖岚的航线消息抵达前哨。"
+    }
+  ]
+}

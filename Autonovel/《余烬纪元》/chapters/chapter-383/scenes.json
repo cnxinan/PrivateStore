@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-383",
+  "title": "新边界不归谁所有",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-383-scene-01",
+      "pov": "阿阙",
+      "location": "草案审看室",
+      "goal": "让阿阙发现新边界图则中的默认占名问题。",
+      "obstacle": "占名往往藏在说明细节和署名栏里，看起来像程序惯例。",
+      "emotional_shift": "从审看冷静 -> 迅速警觉",
+      "must_include": [
+        "草案署名栏",
+        "阿阙",
+        "默认解释权"
+      ],
+      "cannot_violate": [
+        "不能把问题写成简单恶意",
+        "不能弱化阿阙对词的敏感"
+      ],
+      "exit_hook": "阿阙要求暂停发布。"
+    },
+    {
+      "scene_id": "chapter-383-scene-02",
+      "pov": "阿阙",
+      "location": "命名权限界面",
+      "goal": "正面拆解“先画图者即主人”的旧习惯。",
+      "obstacle": "许多人习惯把命名当作中性技术动作，而不是权力分配。",
+      "emotional_shift": "从不信任 -> 把问题逼到台前",
+      "must_include": [
+        "占名禁止",
+        "柏青禾",
+        "顾南巡"
+      ],
+      "cannot_violate": [
+        "不能让阿阙忽然温顺",
+        "不能让争论失去制度质感"
+      ],
+      "exit_hook": "柏青禾开始补写禁止条款。"
+    },
+    {
+      "scene_id": "chapter-383-scene-03",
+      "pov": "阿阙",
+      "location": "边界图则走廊",
+      "goal": "让阿阙确认不归谁所有不是拒绝责任。",
+      "obstacle": "反对者会把‘不归谁所有’歪解成无人负责和混乱。",
+      "emotional_shift": "从锋利抗拒 -> 更精确地收紧表达",
+      "must_include": [
+        "不归谁所有",
+        "不是没人负责",
+        "不能先说成自己的续篇"
+      ],
+      "cannot_violate": [
+        "不能把阿阙写成只会反对",
+        "必须保留其概念锋利度"
+      ],
+      "exit_hook": "新的轮值通知在走廊尽头亮起。"
+    },
+    {
+      "scene_id": "chapter-383-scene-04",
+      "pov": "阿阙",
+      "location": "草案审看室",
+      "goal": "用轮值现实把伦理问题落回前沿劳动。",
+      "obstacle": "所有抽象争论最终都要有人在更远处承担后果。",
+      "emotional_shift": "从命名对抗 -> 看见实际承担者",
+      "must_include": [
+        "黎照临",
+        "更远轮值",
+        "前沿后果"
+      ],
+      "cannot_violate": [
+        "不能让争论悬空结束",
+        "必须把问题递到下一章"
+      ],
+      "exit_hook": "黎照临确认接班。"
+    }
+  ]
+}

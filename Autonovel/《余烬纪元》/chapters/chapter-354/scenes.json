@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-354",
+  "title": "暂停接近",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-354-scene-01",
+      "pov": "顾南巡",
+      "location": "边境应对会议室",
+      "goal": "建立暂停接近提案的政治与边境现实压力。",
+      "obstacle": "一方要求全面后撤，另一方要求重启接触证明控制力。",
+      "emotional_shift": "从协调各方 -> 决定用最不讨好的方案止损",
+      "must_include": [
+        "顾南巡",
+        "暂停接近",
+        "边境会议"
+      ],
+      "cannot_violate": [
+        "不能让顾南巡显得犹豫无能",
+        "不能脱离安全风险"
+      ],
+      "exit_hook": "盛野要求确认最坏情况下的处置线。"
+    },
+    {
+      "scene_id": "chapter-354-scene-02",
+      "pov": "顾南巡",
+      "location": "缓冲海总控台",
+      "goal": "把暂停接近落实成工程与权限调整，而非抽象口号。",
+      "obstacle": "前线怕一退就被理解成全面失守。",
+      "emotional_shift": "从策略语言 -> 变成具体撤步规则",
+      "must_include": [
+        "非敌对撤步",
+        "缓冲海",
+        "总控台"
+      ],
+      "cannot_violate": [
+        "不能脸谱化盛野的担忧",
+        "不能让撤步等同关门"
+      ],
+      "exit_hook": "公开策略接口要求配套说明。"
+    },
+    {
+      "scene_id": "chapter-354-scene-03",
+      "pov": "顾南巡",
+      "location": "公开策略接口",
+      "goal": "让顾南巡试图向公众解释暂停不是否认门外存在。",
+      "obstacle": "公众只习惯两种动作：靠近或封锁。",
+      "emotional_shift": "从硬性执行 -> 感到语言本身已接近失效",
+      "must_include": [
+        "暂停存在",
+        "不先动手",
+        "不先占领"
+      ],
+      "cannot_violate": [
+        "不能让解释轻易奏效",
+        "不能跳过舆论压力"
+      ],
+      "exit_hook": "阿阙突然切入接口。"
+    },
+    {
+      "scene_id": "chapter-354-scene-04",
+      "pov": "顾南巡",
+      "location": "边境应对会议室",
+      "goal": "把章节收束到阿阙更尖锐的提醒：现在别再解释。",
+      "obstacle": "制度最自然的动作就是继续生成更多说明覆盖损伤。",
+      "emotional_shift": "从试图说明清楚 -> 被迫承认说明也可能继续伤人",
+      "must_include": [
+        "阿阙",
+        "语言止损前夜",
+        "暂停接近"
+      ],
+      "cannot_violate": [
+        "不能让顾南巡彻底失语",
+        "必须把止损话题递出"
+      ],
+      "exit_hook": "阿阙说：现在最重要的是不继续解释。"
+    }
+  ]
+}

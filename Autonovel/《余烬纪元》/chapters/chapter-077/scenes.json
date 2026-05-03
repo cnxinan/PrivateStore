@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-077",
+  "title": "极夜协定",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-077-scene-01",
+      "pov": "林述尘",
+      "location": "临时法域厅",
+      "goal": "让林述尘看到法理如何被逼到过渡状态。",
+      "obstacle": "旧法与新主体现实都不足以完整支撑这份协定。",
+      "emotional_shift": "从程序性审议 -> 承认法也只能先止血",
+      "must_include": [
+        "临时法域成立",
+        "林述尘主持审议",
+        "协定的过渡性"
+      ],
+      "cannot_violate": [
+        "不能写成庄严宣判",
+        "必须保留仓促感"
+      ],
+      "exit_hook": "条款公开。"
+    },
+    {
+      "scene_id": "chapter-077-scene-02",
+      "pov": "林述尘",
+      "location": "条款光幕前",
+      "goal": "把协定的矛盾公开给所有人看。",
+      "obstacle": "每一条保留与限制都同时惹怒不同的人。",
+      "emotional_shift": "从主持者冷静 -> 明白没有中性文本",
+      "must_include": [
+        "临时发声保留条款",
+        "局部封控仍存",
+        "各方不满同时爆发"
+      ],
+      "cannot_violate": [
+        "不能靠口号堆砌冲突",
+        "不能失去法律冷感"
+      ],
+      "exit_hook": "零号当场质疑。"
+    },
+    {
+      "scene_id": "chapter-077-scene-03",
+      "pov": "林述尘",
+      "location": "静默保留区",
+      "goal": "让零号与陆鸣的裂口首次公开显形。",
+      "obstacle": "两人都想保住共生，却开始不再信同一种路径。",
+      "emotional_shift": "从观察立场冲突 -> 意识到同路人也会分叉",
+      "must_include": [
+        "零号反对协定",
+        "陆鸣选择暂时接受",
+        "林述尘见证裂口"
+      ],
+      "cannot_violate": [
+        "不能把零号写成纯激进",
+        "不能让陆鸣显得轻易妥协"
+      ],
+      "exit_hook": "协定被临时通过。"
+    },
+    {
+      "scene_id": "chapter-077-scene-04",
+      "pov": "林述尘",
+      "location": "法域出口廊",
+      "goal": "以通过后的沉重而非胜利感结束。",
+      "obstacle": "文本已经生效，但所有关键伤口都还在。",
+      "emotional_shift": "从做成程序 -> 明白程序并不等于解决",
+      "must_include": [
+        "极夜协定生效",
+        "法域厅外没有欢呼",
+        "陆鸣与零号分开离场"
+      ],
+      "cannot_violate": [
+        "不能写成阶段凯旋",
+        "必须保留后续撕裂"
+      ],
+      "exit_hook": "双重叛离开始。"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-072",
+  "title": "隔离航线",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-072-scene-01",
+      "pov": "周栖岚",
+      "location": "外环港分流坪",
+      "goal": "建立隔离航线把人重新分成不同路的现场。",
+      "obstacle": "新分类一旦落地，很多刚得到的承认会在运输表里缩回去。",
+      "emotional_shift": "从调度熟练 -> 对名单语言生出厌恶",
+      "must_include": [
+        "分路运输牌",
+        "主体与档案介质分线",
+        "周栖岚看到旧货运逻辑回潮"
+      ],
+      "cannot_violate": [
+        "不能把运输写成纯背景",
+        "不能失去分类暴力"
+      ],
+      "exit_hook": "阮停云被要求改走样本线。"
+    },
+    {
+      "scene_id": "chapter-072-scene-02",
+      "pov": "周栖岚",
+      "location": "调度舱门前",
+      "goal": "让分类伤害具体落到人身上。",
+      "obstacle": "制度说这是临时措施，却已经让很多人重新站回被看待的位置。",
+      "emotional_shift": "从忍耐执行 -> 决定偷偷偏移规则",
+      "must_include": [
+        "阮停云的路线争议",
+        "唐见星现场抗议",
+        "周栖岚改写调度标记"
+      ],
+      "cannot_violate": [
+        "不能让反抗过于热闹",
+        "必须保持紧迫"
+      ],
+      "exit_hook": "灰质住区传来求援。"
+    },
+    {
+      "scene_id": "chapter-072-scene-03",
+      "pov": "周栖岚",
+      "location": "隔离航线调度舱",
+      "goal": "写周栖岚如何在运输细节里抵抗旧分类。",
+      "obstacle": "任何改动都可能被视为干预封锁秩序。",
+      "emotional_shift": "从局部周旋 -> 明白自己也在选边",
+      "must_include": [
+        "货运清单重写",
+        "把人从附属物位置挪开",
+        "周栖岚承担风险"
+      ],
+      "cannot_violate": [
+        "不能神化周栖岚",
+        "不能写成轻松黑客动作"
+      ],
+      "exit_hook": "灰质住区一批人被卡住。"
+    },
+    {
+      "scene_id": "chapter-072-scene-04",
+      "pov": "周栖岚",
+      "location": "灰质住区接驳口",
+      "goal": "把章节推向未授权救援。",
+      "obstacle": "官方救援要等审批，灰质住区等不起。",
+      "emotional_shift": "从运输调度 -> 转向实际救人",
+      "must_include": [
+        "灰质住区接驳口",
+        "未获批撤离申请",
+        "唐见星决定另起救援线"
+      ],
+      "cannot_violate": [
+        "不能写成英雄动员",
+        "必须保留封锁压感"
+      ],
+      "exit_hook": "未授权救援出发。"
+    }
+  ]
+}

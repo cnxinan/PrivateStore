@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-296",
+  "title": "远岸补给法",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-296-scene-01",
+      "pov": "林述尘",
+      "location": "听证厅",
+      "goal": "面对把补给回流写成理性选择的旧逻辑。",
+      "obstacle": "近处优先的说法更容易被多数人理解和接受。",
+      "emotional_shift": "从程序性进入 -> 更清楚自己不能再只做中立记录",
+      "must_include": [
+        "远岸补给法",
+        "回流优先",
+        "听证"
+      ],
+      "cannot_violate": [
+        "不能把林述尘写成煽动者",
+        "不能脱离制度语言"
+      ],
+      "exit_hook": "一线账单被调上屏幕。"
+    },
+    {
+      "scene_id": "chapter-296-scene-02",
+      "pov": "林述尘",
+      "location": "分配模型室",
+      "goal": "看见模型里那一点点偏向中心的默认权重。",
+      "obstacle": "偏置藏得很小，正因如此更容易被说成可接受。",
+      "emotional_shift": "从分析 -> 迟到地承认问题的严重",
+      "must_include": [
+        "默认权重",
+        "周栖岚账单",
+        "远端保底"
+      ],
+      "cannot_violate": [
+        "不能把问题写成单一坏人造成",
+        "不能忽略模型细节"
+      ],
+      "exit_hook": "林述尘决定改掉回流默认项。"
+    },
+    {
+      "scene_id": "chapter-296-scene-03",
+      "pov": "林述尘",
+      "location": "法务修订台",
+      "goal": "写下反回流分配、远端保底和白班基线。",
+      "obstacle": "任何新增保底都会触碰近处既得舒适。",
+      "emotional_shift": "从审慎斟酌 -> 说出更诚实的话",
+      "must_include": [
+        "反回流分配",
+        "白班基线",
+        "道德重心"
+      ],
+      "cannot_violate": [
+        "不能突然变得热血",
+        "不能写成毫无代价的修法"
+      ],
+      "exit_hook": "草案通过试行，但港口治理随即暴露新问题。"
+    },
+    {
+      "scene_id": "chapter-296-scene-04",
+      "pov": "林述尘",
+      "location": "听证厅外侧",
+      "goal": "把补给法与下一步港口模型衔接起来。",
+      "obstacle": "就算物资规则改了，港口仍可能在风险中一封了之。",
+      "emotional_shift": "从修法完成感 -> 立刻看见新的缺口",
+      "must_include": [
+        "周栖岚",
+        "不封口的港",
+        "试点申请"
+      ],
+      "cannot_violate": [
+        "不能把本章写成制度圆满",
+        "必须保留前线压力"
+      ],
+      "exit_hook": "周栖岚递交‘港口不封口’试点。"
+    }
+  ]
+}

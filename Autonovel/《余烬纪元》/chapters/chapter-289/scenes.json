@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-289",
+  "title": "把定义放慢",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-289-scene-01",
+      "pov": "沈夜舟",
+      "location": "旧模板回放室",
+      "goal": "面对自己仍被旧系统标作K-422的模板记录。",
+      "obstacle": "过去被快速定义的经验会被公众重新当作说明材料消费。",
+      "emotional_shift": "从疲惫回望 -> 决定把伤口用作清楚的警告",
+      "must_include": [
+        "K-422",
+        "模板回放",
+        "快速定义的代价"
+      ],
+      "cannot_violate": [
+        "不能把沈夜舟写成沉湎创伤",
+        "不能煽情"
+      ],
+      "exit_hook": "他走向证词台。"
+    },
+    {
+      "scene_id": "chapter-289-scene-02",
+      "pov": "沈夜舟",
+      "location": "公共证词台",
+      "goal": "说明为什么定义要慢，保护却要快。",
+      "obstacle": "提问者不断把慢定义和宽纵风险画等号。",
+      "emotional_shift": "从克制作证 -> 把原则说成可执行次序",
+      "must_include": [
+        "保护先行",
+        "定义放慢",
+        "次序"
+      ],
+      "cannot_violate": [
+        "不能写成高亢演说",
+        "必须保持沈夜舟的疲惫精确"
+      ],
+      "exit_hook": "柏青禾在台下补充法条承接。"
+    },
+    {
+      "scene_id": "chapter-289-scene-03",
+      "pov": "沈夜舟",
+      "location": "公共证词台",
+      "goal": "用自己的历史说明“被迅速说清”如何变成对象化。",
+      "obstacle": "公众更想要可复制的结论，而不是难受的具体过程。",
+      "emotional_shift": "从提供见证 -> 逼众人面对快捷秩序的伤口",
+      "must_include": [
+        "对象化",
+        "快速说清",
+        "不是结论"
+      ],
+      "cannot_violate": [
+        "不能让沈夜舟代替所有人发言",
+        "不能把复杂问题完全个人化"
+      ],
+      "exit_hook": "陆鸣在会后接住这套次序。"
+    },
+    {
+      "scene_id": "chapter-289-scene-04",
+      "pov": "沈夜舟",
+      "location": "接口外沿会后走道",
+      "goal": "把原则交给陆鸣进入更大的现实实施层。",
+      "obstacle": "工程体系更看重统一、速度和可扩展。",
+      "emotional_shift": "从证词结束 -> 把话留给更远处的路",
+      "must_include": [
+        "陆鸣",
+        "工程阶段",
+        "词典之外"
+      ],
+      "cannot_violate": [
+        "不能在此章直接进入下一幕",
+        "必须留下转承"
+      ],
+      "exit_hook": "陆鸣说：那就先别等词典写完。"
+    }
+  ]
+}

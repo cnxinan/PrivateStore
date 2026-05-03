@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-295",
+  "title": "没人替你抵达",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-295-scene-01",
+      "pov": "魏合",
+      "location": "外沿粗装码头",
+      "goal": "让魏合亲眼看见“共同抵达”背后的粗重劳动。",
+      "obstacle": "现场仍有人把最累的环节默认为别人去扛。",
+      "emotional_shift": "从旁观烦躁 -> 更直白地厌恶漂亮说法",
+      "must_include": [
+        "粗装码头",
+        "人工装卸",
+        "脚步成本"
+      ],
+      "cannot_violate": [
+        "不能把魏合洗成温柔观察者",
+        "不能失去粗粝感"
+      ],
+      "exit_hook": "魏合被拉去走一段人工步行联段。"
+    },
+    {
+      "scene_id": "chapter-295-scene-02",
+      "pov": "魏合",
+      "location": "人工步行联段",
+      "goal": "让身体成本本身成为本章核心现实。",
+      "obstacle": "联段路面差、负重重、替代路径尚未修完。",
+      "emotional_shift": "从硬扛 -> 对“被代表抵达”产生更明确反感",
+      "must_include": [
+        "负重",
+        "真空门",
+        "周栖岚"
+      ],
+      "cannot_violate": [
+        "不能写成极限运动式浪漫",
+        "不能弱化疲劳"
+      ],
+      "exit_hook": "抵达后有人把这段劳动轻描淡写成流程。"
+    },
+    {
+      "scene_id": "chapter-295-scene-03",
+      "pov": "魏合",
+      "location": "轮值餐厅",
+      "goal": "把魏合那句“没人替你抵达”说透到群体面前。",
+      "obstacle": "制度语言仍试图替劳动擦掉粗砺边缘。",
+      "emotional_shift": "从憋着火 -> 粗暴但准确地掀桌",
+      "must_include": [
+        "轮值餐厅",
+        "没人替你抵达",
+        "盛野"
+      ],
+      "cannot_violate": [
+        "不能把魏合写成演说家",
+        "不能让现实变轻"
+      ],
+      "exit_hook": "墙上的听证公告亮起。"
+    },
+    {
+      "scene_id": "chapter-295-scene-04",
+      "pov": "魏合",
+      "location": "码头公告墙",
+      "goal": "把下一章的制度争论接回劳动现实。",
+      "obstacle": "补给法若偏一点，所有脚步成本都会继续往远处压。",
+      "emotional_shift": "从发完火 -> 冷下来看到问题还没完",
+      "must_include": [
+        "远岸补给法",
+        "林述尘",
+        "公告墙"
+      ],
+      "cannot_violate": [
+        "不能收成励志感",
+        "必须保留结构性压力"
+      ],
+      "exit_hook": "林述尘接到远岸补给法听证通知。"
+    }
+  ]
+}

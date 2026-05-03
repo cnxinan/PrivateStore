@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-317",
+  "title": "世代共读",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-317-scene-01",
+      "pov": "孟回声",
+      "location": "活档共读室",
+      "goal": "启动多代人同读一份材料的试行。",
+      "obstacle": "每一代都默认自己更接近正确语境。",
+      "emotional_shift": "从谨慎组织 -> 接受误读也要被保留",
+      "must_include": [
+        "世代共读",
+        "多注释留档",
+        "同一文本"
+      ],
+      "cannot_violate": [
+        "不能把共读写成整齐讨论会",
+        "不能抹去代际冲突"
+      ],
+      "exit_hook": "第一轮批注就彼此撞上。"
+    },
+    {
+      "scene_id": "chapter-317-scene-02",
+      "pov": "孟回声",
+      "location": "多注释留档台",
+      "goal": "决定如何让互相矛盾的理解并列存在。",
+      "obstacle": "总有人要求给出主注、正注和最终版。",
+      "emotional_shift": "从想维持秩序 -> 更坚定地拒绝单一注释权",
+      "must_include": [
+        "主注争夺",
+        "并列批注",
+        "活档"
+      ],
+      "cannot_violate": [
+        "不能让孟回声浪漫化混乱",
+        "不能轻易取消结构"
+      ],
+      "exit_hook": "姜一苇要求索引规则。"
+    },
+    {
+      "scene_id": "chapter-317-scene-03",
+      "pov": "孟回声",
+      "location": "多注释留档台",
+      "goal": "和姜一苇协商让矛盾注释可检索而不互相覆盖。",
+      "obstacle": "系统偏好归并同类意见，难以接受‘诚实误读’作为合法内容。",
+      "emotional_shift": "从技术协商 -> 重新确认多声部也是档案价值",
+      "must_include": [
+        "姜一苇",
+        "诚实的误读",
+        "索引规则"
+      ],
+      "cannot_violate": [
+        "不能让系统一键兼容一切",
+        "不能让误读等同胡说"
+      ],
+      "exit_hook": "远岸留言廊出现新问题。"
+    },
+    {
+      "scene_id": "chapter-317-scene-04",
+      "pov": "孟回声",
+      "location": "远岸留言廊",
+      "goal": "接受新一代将带着不同语感读旧问题。",
+      "obstacle": "老一代容易把陌生口音当成偏离主题。",
+      "emotional_shift": "从守档案边界 -> 主动迎接语言变化",
+      "must_include": [
+        "阿阙",
+        "新口音",
+        "旧问题"
+      ],
+      "cannot_violate": [
+        "不能提前展开下一章中心",
+        "必须把问题递出去"
+      ],
+      "exit_hook": "阿阙带来一份带着陌生口音的新问题。"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-382",
+  "title": "不再单数的前沿",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-382-scene-01",
+      "pov": "顾南巡",
+      "location": "边境调停室",
+      "goal": "建立顾南巡要拆掉单线前沿图的动机。",
+      "obstacle": "旧图简单、稳定、方便管理，许多人本能地舍不得它。",
+      "emotional_shift": "从会前压抑 -> 决定把图拆开",
+      "must_include": [
+        "顾南巡",
+        "单线前沿图",
+        "边境定义会"
+      ],
+      "cannot_violate": [
+        "不能把争论写得过于抽象",
+        "不能失去边境现实感"
+      ],
+      "exit_hook": "多节点投影被调成复数模式。"
+    },
+    {
+      "scene_id": "chapter-382-scene-02",
+      "pov": "顾南巡",
+      "location": "多节点投影台",
+      "goal": "用具体日志和时间差证明前沿不是单一路线。",
+      "obstacle": "有人坚持唯一主航路和唯一归档口更高效、更安全。",
+      "emotional_shift": "从解释压力 -> 找回边境经验的硬度",
+      "must_include": [
+        "错时抵达日志",
+        "不同节律",
+        "林述尘"
+      ],
+      "cannot_violate": [
+        "不能让顾南巡只靠口才取胜",
+        "不能回避制度便利性的诱惑"
+      ],
+      "exit_hook": "会场开始争论‘复数前沿’的命名权。"
+    },
+    {
+      "scene_id": "chapter-382-scene-03",
+      "pov": "顾南巡",
+      "location": "档案修订屏",
+      "goal": "让复数前沿正式进入修订文本。",
+      "obstacle": "一旦写进文本，就意味着中心不再能天然占据唯一视角。",
+      "emotional_shift": "从审慎斡旋 -> 更清楚必须改写",
+      "must_include": [
+        "多方向扩展",
+        "修订文本",
+        "不再单数"
+      ],
+      "cannot_violate": [
+        "不能写成所有人立即支持",
+        "不能丢掉现实阻力"
+      ],
+      "exit_hook": "阿阙开口问：谁来保证新边界不再被占名？"
+    },
+    {
+      "scene_id": "chapter-382-scene-04",
+      "pov": "顾南巡",
+      "location": "边境调停室",
+      "goal": "把复数前沿的收束转成下一章的边界伦理问题。",
+      "obstacle": "复数并不自动带来公平，仍可能被新的主位悄悄接管。",
+      "emotional_shift": "从阶段性推进 -> 再次被提醒不能自满",
+      "must_include": [
+        "阿阙",
+        "占名",
+        "新边界"
+      ],
+      "cannot_violate": [
+        "不能把复数写成万能答案",
+        "必须留下紧张感"
+      ],
+      "exit_hook": "顾南巡把草案转给阿阙审看。"
+    }
+  ]
+}

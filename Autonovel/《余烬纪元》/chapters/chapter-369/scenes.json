@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-369",
+  "title": "零号不开口的一次会议",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-369-scene-01",
+      "pov": "零号",
+      "location": "系统底层旁听廊",
+      "goal": "说明零号为何决定在这次会上不开口。",
+      "obstacle": "他的资历和历史重量足以轻易盖过其他人。",
+      "emotional_shift": "从想提供方向 -> 决定退后式守门",
+      "must_include": [
+        "零号",
+        "不开口",
+        "旁听廊"
+      ],
+      "cannot_violate": [
+        "不能削弱零号的分量",
+        "不能把沉默写成无作为"
+      ],
+      "exit_hook": "会议开始，众人都等他先说。"
+    },
+    {
+      "scene_id": "chapter-369-scene-02",
+      "pov": "零号",
+      "location": "长时和解协调会",
+      "goal": "展示零号沉默如何逼出他人自己的语言。",
+      "obstacle": "大家习惯了在重大节点等一个更高位置的人定调。",
+      "emotional_shift": "从被期待发言 -> 看见空间慢慢让出来",
+      "must_include": [
+        "顾南巡",
+        "陆鸣",
+        "沈夜舟的慢答"
+      ],
+      "cannot_violate": [
+        "不能让零号抢回中心",
+        "不能让其他人失去主体性"
+      ],
+      "exit_hook": "静默记录页上只留下零号的出席标记。"
+    },
+    {
+      "scene_id": "chapter-369-scene-03",
+      "pov": "零号",
+      "location": "静默记录页",
+      "goal": "让零号理解沉默也是一种领导动作。",
+      "obstacle": "沉默容易被误读成退场、冷淡或怯懦。",
+      "emotional_shift": "从自我克制 -> 更确认该把路让给后来者",
+      "must_include": [
+        "静默记录",
+        "退后式守门",
+        "后来者"
+      ],
+      "cannot_violate": [
+        "不能把零号写成伤感自怜",
+        "不能过度神化沉默"
+      ],
+      "exit_hook": "陆鸣在会后被推到收束位置。"
+    },
+    {
+      "scene_id": "chapter-369-scene-04",
+      "pov": "零号",
+      "location": "系统底层旁听廊",
+      "goal": "把会议余波交给陆鸣继续收束。",
+      "obstacle": "世界仍然想要一个更像终局的说法。",
+      "emotional_shift": "从旁听 -> 安心把下一句交出去",
+      "must_include": [
+        "和解只是开始",
+        "陆鸣",
+        "阶段收束"
+      ],
+      "cannot_violate": [
+        "不能形成封闭结尾",
+        "必须为下一章搭桥"
+      ],
+      "exit_hook": "陆鸣走向慢修复接口外沿。"
+    }
+  ]
+}

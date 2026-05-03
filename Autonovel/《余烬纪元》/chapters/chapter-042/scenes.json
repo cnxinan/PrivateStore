@@ -1,0 +1,79 @@
+{
+  "chapter_id": "chapter-042",
+  "title": "火星慢信",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-042-scene-01",
+      "pov": "顾南巡",
+      "location": "火星环仲裁室",
+      "goal": "建立火星环的现实压力。",
+      "obstacle": "这里接不到地球那种可以边试边修的舒缓空间。",
+      "emotional_shift": "从边境常态 -> 共生问题真正压近",
+      "must_include": [
+        "火星环自治诉求",
+        "顾南巡的调停位置",
+        "对地球方案的警惕"
+      ],
+      "cannot_violate": [
+        "不能把火星环写成单一反对面",
+        "不能让顾南巡显得抽象"
+      ],
+      "exit_hook": "地球协同方案到达。"
+    },
+    {
+      "scene_id": "chapter-042-scene-02",
+      "pov": "顾南巡",
+      "location": "延迟通信走廊",
+      "goal": "突出距离造成的现实感。",
+      "obstacle": "每一次答复都比地球慢，也更难靠情绪和气势推进。",
+      "emotional_shift": "从阅读文件 -> 更确认边境必须自己定义顺序",
+      "must_include": [
+        "延迟通信",
+        "顾南巡的审慎",
+        "边境不想只收道德尾款"
+      ],
+      "cannot_violate": [
+        "不能过度科幻化通信细节",
+        "不能丢掉对话张力"
+      ],
+      "exit_hook": "运输线告警。"
+    },
+    {
+      "scene_id": "chapter-042-scene-03",
+      "pov": "顾南巡",
+      "location": "边境调停台",
+      "goal": "让运输链与主体问题并上来。",
+      "obstacle": "未登记主体正在接近火星环，而本地接口尚未准备好。",
+      "emotional_shift": "从制度布局 -> 现实压力提前逼近",
+      "must_include": [
+        "未登记主体运输线",
+        "火星环港口准备不足",
+        "顾南巡决定先接人再争论"
+      ],
+      "cannot_violate": [
+        "不能写成轻松接纳",
+        "不能让顾南巡逃回程序里"
+      ],
+      "exit_hook": "周栖岚的货运船进入视野。"
+    },
+    {
+      "scene_id": "chapter-042-scene-04",
+      "pov": "顾南巡",
+      "location": "仲裁室长窗前",
+      "goal": "以边境视角把外溢时代落稳。",
+      "obstacle": "顾南巡知道自己会在理想和现实之间被两边同时责怪。",
+      "emotional_shift": "从接收问题 -> 决定扛下这轮协同",
+      "must_include": [
+        "顾南巡接下跨域调停",
+        "火星环不是地球延长线",
+        "下一章转到载荷名单"
+      ],
+      "cannot_violate": [
+        "不能写成领袖宣言",
+        "必须保留孤独感"
+      ],
+      "exit_hook": "远轨货船抵近。"
+    }
+  ]
+}

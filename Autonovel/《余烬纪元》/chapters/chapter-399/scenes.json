@@ -1,0 +1,81 @@
+{
+  "chapter_id": "chapter-399",
+  "title": "四百章前夜",
+  "scene_count": 4,
+  "scenes": [
+    {
+      "scene_id": "chapter-399-scene-01",
+      "pov": "陆鸣",
+      "location": "夜面平台",
+      "goal": "建立四百章前夜的再聚气氛：同行但未完成。",
+      "obstacle": "节点前夜天然会诱发终局感和阶段总结冲动。",
+      "emotional_shift": "从等待众人到齐 -> 再次看见每个人都带着未竟工作而来",
+      "must_include": [
+        "夜面平台",
+        "四百章前夜",
+        "陆鸣"
+      ],
+      "cannot_violate": [
+        "不能写成庆功会",
+        "不能把群像写整齐"
+      ],
+      "exit_hook": "低照会谈区里各人开始短暂交谈。"
+    },
+    {
+      "scene_id": "chapter-399-scene-02",
+      "pov": "陆鸣",
+      "location": "低照会谈区",
+      "goal": "让主要人物分别确认自己不愿被写成对方的结论。",
+      "obstacle": "外界总想从他们之间寻找统一版本。",
+      "emotional_shift": "从想找一句合适的话 -> 接受合适的话本来就不会只有一句",
+      "must_include": [
+        "沈夜舟",
+        "姜一苇",
+        "顾南巡",
+        "阿阙",
+        "闻折川"
+      ],
+      "cannot_violate": [
+        "不能让人物统一口径",
+        "不能失去生活气"
+      ],
+      "exit_hook": "外沿施工灯短暂闪了一下。"
+    },
+    {
+      "scene_id": "chapter-399-scene-03",
+      "pov": "陆鸣",
+      "location": "外沿栏杆边",
+      "goal": "让陆鸣意识到这一路最珍贵的是彼此保留速度与方向。",
+      "obstacle": "节点时刻最容易想把不同节律压成共同步调。",
+      "emotional_shift": "从发言余波 -> 更理解何为同行",
+      "must_include": [
+        "不同速度",
+        "未完成接口",
+        "夜色"
+      ],
+      "cannot_violate": [
+        "不能提早进入终章总结",
+        "必须保持夜面开放性"
+      ],
+      "exit_hook": "清晨前的换班提示亮起。"
+    },
+    {
+      "scene_id": "chapter-399-scene-04",
+      "pov": "陆鸣",
+      "location": "夜面平台",
+      "goal": "把第四百章递给‘之后’而非‘完成’。",
+      "obstacle": "任何百章节点都诱惑人写句号。",
+      "emotional_shift": "从前夜沉思 -> 认定明天只能说之后",
+      "must_include": [
+        "之后",
+        "不写完成",
+        "四百章入口"
+      ],
+      "cannot_violate": [
+        "不能封口",
+        "必须把光递到下一章"
+      ],
+      "exit_hook": "更远接口外沿的清晨开始泛白。"
+    }
+  ]
+}
