@@ -1,0 +1,9 @@
+{
+  "id": "monster.fast_wolf",
+  "name": "迅捷狼",
+  "maxHealth": 20,
+  "contactDamage": 5,
+  "moveSpeed": 140,
+  "lootTableId": "loot.training_slime",
+  "behavior": "Chase"
+}

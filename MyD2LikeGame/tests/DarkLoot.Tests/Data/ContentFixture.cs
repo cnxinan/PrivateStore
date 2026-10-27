@@ -37,6 +37,36 @@ internal static class ContentFixture
                 """);
     }
 
+    public static string CreateWithAdditionalDefinitions(
+        IEnumerable<string>? monsterJsons = null,
+        string? encounterJson = null)
+    {
+        var root = Create(
+            itemJson: ValidItemJson,
+            monsterJson: ValidMonsterJson,
+            lootTableJson: ValidLootTableJson);
+
+        if (monsterJsons is not null)
+        {
+            var index = 0;
+            foreach (var monsterJson in monsterJsons)
+            {
+                WriteDefinition(
+                    root,
+                    "monsters",
+                    $"additional-monster-{index++}.json",
+                    monsterJson);
+            }
+        }
+
+        if (encounterJson is not null)
+        {
+            WriteDefinition(root, "encounters", "training-arena.json", encounterJson);
+        }
+
+        return root;
+    }
+
     public static string CreateMalformedItem()
     {
         return Create(

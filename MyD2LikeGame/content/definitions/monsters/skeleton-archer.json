@@ -1,0 +1,16 @@
+{
+  "id": "monster.skeleton_archer",
+  "name": "骷髅弓手",
+  "maxHealth": 20,
+  "contactDamage": 0,
+  "moveSpeed": 70,
+  "lootTableId": "loot.training_slime",
+  "behavior": "Archer",
+  "rangedAttack": {
+    "range": 260,
+    "projectileSpeed": 240,
+    "fireInterval": 1.5,
+    "windupSeconds": 0.3,
+    "damage": 5
+  }
+}

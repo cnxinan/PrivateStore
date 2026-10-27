@@ -47,14 +47,20 @@ public static class GameContentLoader
             "loot-tables",
             definition => definition.Id,
             ValidateLootTable);
+        var encounters = LoadDefinitions<EncounterDefinition>(
+            definitionsRoot,
+            "encounters",
+            definition => definition.Id,
+            ValidateEncounter);
 
-        ValidateReferences(items, affixes, monsters, lootTables);
+        ValidateReferences(items, affixes, monsters, lootTables, encounters);
 
         return new GameContent(
             AsReadOnly(items),
             AsReadOnly(monsters),
             AsReadOnly(lootTables),
-            AsReadOnly(affixes));
+            AsReadOnly(affixes),
+            AsReadOnly(encounters));
     }
 
     private static Dictionary<string, LoadedDefinition<T>> LoadDefinitions<T>(
@@ -208,6 +214,93 @@ public static class GameContentLoader
         {
             throw Invalid(path, $"{nameof(definition.MoveSpeed)} must be positive and finite.");
         }
+
+        if (!Enum.IsDefined(typeof(MonsterBehavior), definition.Behavior))
+        {
+            throw Invalid(path, $"{nameof(definition.Behavior)} is not supported.");
+        }
+
+        if (definition.Behavior == MonsterBehavior.Archer)
+        {
+            if (definition.RangedAttack is null)
+            {
+                throw Invalid(
+                    path,
+                    $"{nameof(definition.RangedAttack)} is required for {nameof(MonsterBehavior.Archer)}.");
+            }
+
+            ValidateRangedAttack(definition.RangedAttack, path);
+        }
+        else if (definition.RangedAttack is not null)
+        {
+            throw Invalid(
+                path,
+                $"{nameof(definition.RangedAttack)} is only supported for {nameof(MonsterBehavior.Archer)}.");
+        }
+    }
+
+    private static void ValidateRangedAttack(RangedAttackDefinition attack, string path)
+    {
+        if (!float.IsFinite(attack.Range) || attack.Range <= 0)
+        {
+            throw Invalid(path, $"{nameof(attack.Range)} must be positive and finite.");
+        }
+
+        if (!float.IsFinite(attack.ProjectileSpeed) || attack.ProjectileSpeed <= 0)
+        {
+            throw Invalid(path, $"{nameof(attack.ProjectileSpeed)} must be positive and finite.");
+        }
+
+        if (!float.IsFinite(attack.FireInterval) || attack.FireInterval <= 0)
+        {
+            throw Invalid(path, $"{nameof(attack.FireInterval)} must be positive and finite.");
+        }
+
+        if (!float.IsFinite(attack.WindupSeconds) || attack.WindupSeconds <= 0)
+        {
+            throw Invalid(path, $"{nameof(attack.WindupSeconds)} must be positive and finite.");
+        }
+
+        if (attack.WindupSeconds > attack.FireInterval)
+        {
+            throw Invalid(path, $"{nameof(attack.WindupSeconds)} must not exceed {nameof(attack.FireInterval)}.");
+        }
+
+        if (attack.Damage < 0)
+        {
+            throw Invalid(path, $"{nameof(attack.Damage)} must not be negative.");
+        }
+    }
+
+    private static void ValidateEncounter(EncounterDefinition definition, string path)
+    {
+        RequireText(definition.Id, path, nameof(definition.Id));
+        if (definition.Spawns is null || definition.Spawns.Count == 0)
+        {
+            throw Invalid(path, $"{nameof(definition.Spawns)} must contain at least one spawn.");
+        }
+
+        var instanceIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var spawn in definition.Spawns)
+        {
+            if (spawn is null)
+            {
+                throw Invalid(path, $"{nameof(definition.Spawns)} must not contain null values.");
+            }
+
+            RequireText(spawn.InstanceId, path, nameof(spawn.InstanceId));
+            RequireText(spawn.MonsterId, path, nameof(spawn.MonsterId));
+            if (!instanceIds.Add(spawn.InstanceId))
+            {
+                throw Invalid(path, $"Duplicate spawn instance ID '{spawn.InstanceId}'.");
+            }
+
+            if (!float.IsFinite(spawn.X) || spawn.X < 0 || spawn.X > 960 ||
+                !float.IsFinite(spawn.Y) || spawn.Y < 0 || spawn.Y > 540)
+            {
+                throw Invalid(path, $"Spawn '{spawn.InstanceId}' must be within x=0..960 and y=0..540.");
+            }
+        }
     }
 
     private static void ValidateLootTable(
@@ -302,7 +395,8 @@ public static class GameContentLoader
         IReadOnlyDictionary<string, LoadedDefinition<ItemDefinition>> items,
         IReadOnlyDictionary<string, LoadedDefinition<AffixDefinition>> affixes,
         IReadOnlyDictionary<string, LoadedDefinition<MonsterDefinition>> monsters,
-        IReadOnlyDictionary<string, LoadedDefinition<LootTableDefinition>> lootTables)
+        IReadOnlyDictionary<string, LoadedDefinition<LootTableDefinition>> lootTables,
+        IReadOnlyDictionary<string, LoadedDefinition<EncounterDefinition>> encounters)
     {
         foreach (var loadedMonster in monsters.Values)
         {
@@ -356,6 +450,20 @@ public static class GameContentLoader
                                 $"but only {count} eligible affixes exist; {requiredAffixes} are required.");
                         }
                     }
+                }
+            }
+        }
+
+        foreach (var loadedEncounter in encounters.Values)
+        {
+            foreach (var spawn in loadedEncounter.Definition.Spawns)
+            {
+                if (!monsters.ContainsKey(spawn.MonsterId))
+                {
+                    throw Invalid(
+                        loadedEncounter.SourcePath,
+                        $"Encounter '{loadedEncounter.Definition.Id}' references missing monster " +
+                        $"'{spawn.MonsterId}'.");
                 }
             }
         }

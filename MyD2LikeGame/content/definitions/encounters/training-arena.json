@@ -1,0 +1,11 @@
+{
+  "id": "encounter.training_arena",
+  "spawns": [
+    { "instanceId": "slime.1", "monsterId": "monster.training_slime", "x": 480, "y": 150 },
+    { "instanceId": "slime.2", "monsterId": "monster.training_slime", "x": 480, "y": 390 },
+    { "instanceId": "wolf.1", "monsterId": "monster.fast_wolf", "x": 650, "y": 180 },
+    { "instanceId": "wolf.2", "monsterId": "monster.fast_wolf", "x": 650, "y": 360 },
+    { "instanceId": "archer.1", "monsterId": "monster.skeleton_archer", "x": 820, "y": 150 },
+    { "instanceId": "archer.2", "monsterId": "monster.skeleton_archer", "x": 820, "y": 390 }
+  ]
+}

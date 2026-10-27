@@ -6,4 +6,6 @@ public sealed record MonsterDefinition(
     int MaxHealth,
     int ContactDamage,
     float MoveSpeed,
-    string LootTableId);
+    string LootTableId,
+    MonsterBehavior Behavior = MonsterBehavior.Chase,
+    RangedAttackDefinition? RangedAttack = null);
