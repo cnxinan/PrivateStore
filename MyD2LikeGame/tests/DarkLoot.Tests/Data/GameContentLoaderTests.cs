@@ -52,6 +52,48 @@ public sealed class GameContentLoaderTests
         }
     }
 
+    [Theory]
+    [InlineData(1_000_001)]
+    [InlineData(int.MaxValue)]
+    public void LoadDirectory_OversizedAttackBonus_ReportsSourcePathAndField(int attackBonus)
+    {
+        var root = ContentFixture.CreateItemWithAttackBonus(attackBonus);
+        var itemPath = Path.Combine(root, "items", "training-sword.json");
+
+        try
+        {
+            var error = Assert.Throws<ContentLoadException>(
+                () => GameContentLoader.LoadDirectory(root));
+
+            Assert.Contains(itemPath, error.Message);
+            Assert.Contains("AttackBonus", error.Message);
+            Assert.Contains("1000000", error.Message);
+        }
+        finally
+        {
+            ContentFixture.Delete(root);
+        }
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1_000_000)]
+    public void LoadDirectory_SupportedAttackBonus_IsValid(int attackBonus)
+    {
+        var root = ContentFixture.CreateItemWithAttackBonus(attackBonus);
+
+        try
+        {
+            var content = GameContentLoader.LoadDirectory(root);
+
+            Assert.Equal(attackBonus, content.Items["item.training_sword"].AttackBonus);
+        }
+        finally
+        {
+            ContentFixture.Delete(root);
+        }
+    }
+
     [Fact]
     public void LoadDirectory_MissingRequiredProperty_ReportsOffendingPath()
     {

@@ -32,6 +32,11 @@ Definitions and the compiled Arial 14-point bitmap SpriteFont are copied on buil
 Runtime paths resolve from `AppContext.BaseDirectory`, independent of the working directory.
 MonoGame framework, pipeline and tools are pinned to 3.8.6. Building the font requires installed Arial.
 
+Item `attackBonus` must be between 0 and 1,000,000 inclusive (`ItemDefinition.MaxAttackBonus`).
+The loader reports invalid values with their source path and field; equipment also rejects invalid
+in-memory definitions. Attack damage remains an `int`: a base damage whose sum with the equipped bonus
+exceeds `Int32.MaxValue` is rejected with `ArgumentOutOfRangeException` for `baseDamage`.
+
 ## Automated window smoke
 
 ```powershell

@@ -45,6 +45,20 @@ internal static class ContentFixture
             lootTableJson: ValidLootTableJson);
     }
 
+    public static string CreateItemWithAttackBonus(int attackBonus)
+    {
+        return Create(
+            itemJson: $$"""
+                {
+                  "id": "item.training_sword",
+                  "name": "Training Sword",
+                  "attackBonus": {{attackBonus}}
+                }
+                """,
+            monsterJson: ValidMonsterJson,
+            lootTableJson: ValidLootTableJson);
+    }
+
     public static string CreateItemMissingAttackBonus()
     {
         return Create(

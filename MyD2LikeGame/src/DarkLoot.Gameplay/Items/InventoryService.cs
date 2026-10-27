@@ -63,6 +63,13 @@ public sealed class InventoryService
         }
 
         var definition = ResolveItemDefinition(content, equippedWeapon.DefinitionId);
+        if (baseDamage > int.MaxValue - definition.AttackBonus)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(baseDamage),
+                "Base damage plus the equipped item's AttackBonus must not exceed Int32.MaxValue.");
+        }
+
         return checked(baseDamage + definition.AttackBonus);
     }
 
@@ -87,6 +94,14 @@ public sealed class InventoryService
         {
             throw new ArgumentException(
                 $"Item definition '{definitionId}' was not found in game content.",
+                nameof(content));
+        }
+
+        if (definition.AttackBonus < 0 || definition.AttackBonus > ItemDefinition.MaxAttackBonus)
+        {
+            throw new ArgumentException(
+                $"Item definition '{definitionId}' AttackBonus must be between 0 and " +
+                $"{ItemDefinition.MaxAttackBonus}.",
                 nameof(content));
         }
 

@@ -1,10 +1,12 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Windows.Forms;
 
 var smokeTest = args.Contains("--smoke-test", StringComparer.Ordinal);
 try
 {
+    ApplicationConfiguration.Initialize();
     using var game = new DarkLoot.Game.DarkLootGame(smokeTest);
     game.Run();
 }

@@ -121,6 +121,13 @@ public static class GameContentLoader
         {
             throw Invalid(path, $"{nameof(definition.AttackBonus)} must not be negative.");
         }
+
+        if (definition.AttackBonus > ItemDefinition.MaxAttackBonus)
+        {
+            throw Invalid(
+                path,
+                $"{nameof(definition.AttackBonus)} must not exceed {ItemDefinition.MaxAttackBonus}.");
+        }
     }
 
     private static void ValidateMonster(MonsterDefinition definition, string path)
