@@ -33,6 +33,7 @@ public sealed class ArenaSimulation
     private readonly List<GroundItem> _groundItems = [];
     private readonly ReadOnlyCollection<GroundItem> _readOnlyGroundItems;
     private readonly MonsterBehaviorSystem _monsterBehaviorSystem = new();
+    private readonly ProjectileSystem _projectileSystem = new();
     private float _attackCooldown;
     private float _monsterContactCooldown;
 
@@ -125,6 +126,8 @@ public sealed class ArenaSimulation
 
     public IReadOnlyList<GroundItem> GroundItems => _readOnlyGroundItems;
 
+    public IReadOnlyList<ProjectileState> Projectiles => _projectileSystem.Projectiles;
+
     public bool TryEquip(Guid instanceId) => Player.TryEquip(instanceId);
 
     public void Update(PlayerIntent intent, float elapsedSeconds)
@@ -144,9 +147,18 @@ public sealed class ArenaSimulation
         UpdateFacing(intent.AimWorldPosition);
         TryAttack(intent.AttackPressed);
 
+        if (_projectileSystem.Update(elapsedSeconds, Player.Position, ApplyProjectileDamage))
+        {
+            return;
+        }
+
         foreach (var monster in _monsters)
         {
-            _monsterBehaviorSystem.Update(monster, Player.Position, elapsedSeconds);
+            _monsterBehaviorSystem.Update(
+                monster,
+                Player.Position,
+                elapsedSeconds,
+                _projectileSystem.Spawn);
         }
 
         if (TryMonsterContactDamage())
@@ -238,6 +250,7 @@ public sealed class ArenaSimulation
             if (monster.IsDefeated && !monster.DeathResolved)
             {
                 monster.DeathResolved = true;
+                monster.CancelWindup();
                 GenerateMonsterLoot(monster);
             }
         }
@@ -321,13 +334,27 @@ public sealed class ArenaSimulation
         _attackCooldown = 0;
     }
 
+    private bool ApplyProjectileDamage(int damage)
+    {
+        Player.Health = Math.Max(0, Player.Health - damage);
+        if (Player.Health == 0)
+        {
+            RespawnAfterDeath();
+            return true;
+        }
+
+        return false;
+    }
+
     private void ResetMonsters()
     {
+        _projectileSystem.Clear();
         foreach (var monster in _monsters)
         {
             monster.Position = monster.SpawnPosition;
             monster.Health = monster.MaxHealth;
             monster.DeathResolved = false;
+            monster.ResetBehaviorTimers();
         }
 
         _monsterContactCooldown = 0;

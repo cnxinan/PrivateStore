@@ -17,6 +17,7 @@ public sealed class MonsterState
         Behavior = definition.Behavior;
         Position = SpawnPosition;
         Health = definition.MaxHealth;
+        LockedAimDirection = Vector2.UnitX;
     }
 
     public string InstanceId { get; }
@@ -37,9 +38,36 @@ public sealed class MonsterState
 
     public bool IsDefeated => Health <= 0;
 
+    public bool IsWindingUp { get; internal set; }
+
+    public float WindupRemaining { get; internal set; }
+
+    public Vector2 LockedAimDirection { get; internal set; }
+
     internal MonsterDefinition Definition { get; }
 
     internal Vector2 SpawnPosition { get; }
 
     internal bool DeathResolved { get; set; }
+
+    internal float RemainingUntilNextLaunch { get; set; }
+
+    internal bool HasLaunched { get; set; }
+
+    internal bool WasInRangedAttackRange { get; set; }
+
+    internal void CancelWindup()
+    {
+        IsWindingUp = false;
+        WindupRemaining = 0;
+        LockedAimDirection = Vector2.UnitX;
+    }
+
+    internal void ResetBehaviorTimers()
+    {
+        CancelWindup();
+        RemainingUntilNextLaunch = 0;
+        HasLaunched = false;
+        WasInRangedAttackRange = false;
+    }
 }
