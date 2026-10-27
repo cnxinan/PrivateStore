@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using DarkLoot.Data.Definitions;
 
 namespace DarkLoot.Gameplay.Items;
 
@@ -16,6 +17,8 @@ public sealed class Inventory
 
     public ItemInstance? EquippedWeapon { get; private set; }
 
+    public ItemInstance? EquippedArmor { get; private set; }
+
     internal bool TryAdd(ItemInstance item)
     {
         if (_items.Any(existing => existing.InstanceId == item.InstanceId))
@@ -32,8 +35,18 @@ public sealed class Inventory
         return _items.FirstOrDefault(item => item.InstanceId == instanceId);
     }
 
-    internal void EquipWeapon(ItemInstance item)
+    internal void Equip(ItemSlot slot, ItemInstance item)
     {
-        EquippedWeapon = item;
+        switch (slot)
+        {
+            case ItemSlot.Weapon:
+                EquippedWeapon = item;
+                break;
+            case ItemSlot.Armor:
+                EquippedArmor = item;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(slot), slot, "Unknown equipment slot.");
+        }
     }
 }

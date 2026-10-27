@@ -1,5 +1,6 @@
 {
   "id": "weapon.training_blade",
   "name": "Training Blade",
-  "attackBonus": 5
+  "attackBonus": 5,
+  "slot": "Weapon"
 }

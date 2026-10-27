@@ -17,6 +17,7 @@ public sealed class GameContentLoaderTests
             Assert.Equal("item.training_sword", item.Id);
             Assert.Equal("Training Sword", item.Name);
             Assert.Equal(3, item.AttackBonus);
+            Assert.Equal(DarkLoot.Data.Definitions.ItemSlot.Weapon, item.Slot);
 
             var monster = Assert.Single(content.Monsters).Value;
             Assert.Equal("monster.training_slime", monster.Id);
@@ -26,6 +27,7 @@ public sealed class GameContentLoaderTests
             var lootTable = Assert.Single(content.LootTables).Value;
             Assert.Equal("loot.training_slime", lootTable.Id);
             Assert.Equal("item.training_sword", Assert.Single(lootTable.Entries).ItemId);
+            Assert.Null(lootTable.RarityWeights);
         }
         finally
         {

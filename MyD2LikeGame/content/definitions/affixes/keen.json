@@ -1,0 +1,8 @@
+{
+  "id": "affix.keen",
+  "name": "Keen",
+  "stat": "Attack",
+  "minValue": 2,
+  "maxValue": 5,
+  "slots": ["Weapon"]
+}

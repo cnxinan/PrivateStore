@@ -78,6 +78,7 @@ public sealed class ArenaSimulation
             _inventoryService,
             PlayerSpawn,
             PlayerMaxHealth,
+            PlayerMaxHealth,
             PlayerBaseAttackDamage);
         Monster = new MonsterState(monsterDefinition, MonsterSpawn);
     }
@@ -87,6 +88,8 @@ public sealed class ArenaSimulation
     public MonsterState Monster { get; }
 
     public IReadOnlyList<GroundItem> GroundItems => _readOnlyGroundItems;
+
+    public bool TryEquip(Guid instanceId) => Player.TryEquip(instanceId);
 
     public void Update(PlayerIntent intent, float elapsedSeconds)
     {
@@ -121,6 +124,8 @@ public sealed class ArenaSimulation
     {
         ResetMonster();
         _attackCooldown = 0;
+        Player.LastHitDamage = 0;
+        Player.LastHitWasCritical = false;
     }
 
     private void MovePlayer(Vector2 direction, float elapsedSeconds)
@@ -155,6 +160,8 @@ public sealed class ArenaSimulation
             return;
         }
 
+        Player.LastHitDamage = 0;
+        Player.LastHitWasCritical = false;
         if (!CombatRules.IsInMeleeRange(
                 Player.Position,
                 Player.Facing,
@@ -166,7 +173,19 @@ public sealed class ArenaSimulation
         }
 
         _attackCooldown = AttackCooldownSeconds;
-        Monster.Health = Math.Max(0, Monster.Health - Player.AttackDamage);
+        var critical = Player.CriticalChance switch
+        {
+            0 => false,
+            100 => true,
+            var chance => _random.Next(100) < chance
+        };
+        var damage = critical
+            ? (int)Math.Min((long)Player.AttackDamage * 2, int.MaxValue)
+            : Player.AttackDamage;
+        var appliedDamage = Math.Min(damage, Monster.Health);
+        Monster.Health -= appliedDamage;
+        Player.LastHitDamage = appliedDamage;
+        Player.LastHitWasCritical = critical;
         if (Monster.IsDefeated && !_lootGenerated)
         {
             GenerateMonsterLoot();
@@ -256,7 +275,9 @@ public sealed class ArenaSimulation
     private void RespawnAfterDeath()
     {
         Player.Position = PlayerSpawn;
-        Player.Health = PlayerMaxHealth;
+        Player.Health = Player.MaximumHealth;
+        Player.LastHitDamage = 0;
+        Player.LastHitWasCritical = false;
         Player.Facing = Vector2.UnitX;
         _groundItems.Clear();
         _monsterContactCooldown = 0;

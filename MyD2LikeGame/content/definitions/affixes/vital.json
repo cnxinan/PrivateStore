@@ -1,0 +1,8 @@
+{
+  "id": "affix.vital",
+  "name": "Vital",
+  "stat": "MaximumHealth",
+  "minValue": 10,
+  "maxValue": 30,
+  "slots": ["Armor"]
+}

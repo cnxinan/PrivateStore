@@ -1,5 +1,6 @@
 using DarkLoot.Data;
 using DarkLoot.Data.Definitions;
+using DarkLoot.Gameplay.Items;
 using DarkLoot.Gameplay.Loot;
 
 namespace DarkLoot.Tests.Gameplay;
@@ -27,6 +28,11 @@ public sealed class LootGeneratorTests
             first.Select(item => item.DefinitionId),
             second.Select(item => item.DefinitionId));
         Assert.All(first, item => Assert.Contains(item.DefinitionId, content.Items.Keys));
+        Assert.All(first, item =>
+        {
+            Assert.Equal(ItemRarity.Common, item.Rarity);
+            Assert.Empty(item.Rolls);
+        });
     }
 
     [Theory]
@@ -85,6 +91,185 @@ public sealed class LootGeneratorTests
 
         Assert.Contains("item.missing", error.Message);
         Assert.Contains("loot.broken", error.Message);
+    }
+
+    [Fact]
+    public void Generate_WithSeededRarityWeights_RollsStableDistinctAffixes()
+    {
+        var content = new GameContent(
+            new Dictionary<string, ItemDefinition>
+            {
+                ["weapon.blade"] = new("weapon.blade", "Blade", 0)
+                { Slot = ItemSlot.Weapon }
+            },
+            new Dictionary<string, MonsterDefinition>(),
+            new Dictionary<string, LootTableDefinition>(),
+            new Dictionary<string, AffixDefinition>
+            {
+                ["affix.attack"] = new("affix.attack", "Keen", ItemStat.Attack, 1, 3, [ItemSlot.Weapon]),
+                ["affix.health"] = new("affix.health", "Vital", ItemStat.MaximumHealth, 2, 4, [ItemSlot.Weapon]),
+                ["affix.crit"] = new("affix.crit", "Lucky", ItemStat.CriticalChance, 1, 5, [ItemSlot.Weapon])
+            });
+        var table = new LootTableDefinition(
+            "loot.test",
+            1,
+            1,
+            [new LootEntryDefinition("weapon.blade", 1)],
+            [new RarityWeightDefinition(ItemRarity.Rare, 1)]);
+
+        var first = Assert.Single(new LootGenerator().Generate(table, content, new Random(81)));
+        var second = Assert.Single(new LootGenerator().Generate(table, content, new Random(81)));
+
+        Assert.Equal(ItemRarity.Rare, first.Rarity);
+        Assert.Equal(first.Rolls, second.Rolls);
+        Assert.Equal(2, first.Rolls.Count);
+        Assert.Equal(2, first.Rolls.Select(roll => roll.AffixId).Distinct().Count());
+        Assert.All(first.Rolls, roll => Assert.InRange(roll.Value,
+            content.Affixes[roll.AffixId].MinValue,
+            content.Affixes[roll.AffixId].MaxValue));
+    }
+
+    [Fact]
+    public void Generate_WhenSelectableRarityHasTooFewEligibleAffixes_RejectsTable()
+    {
+        var content = new GameContent(
+            new Dictionary<string, ItemDefinition>
+            {
+                ["weapon.blade"] = new("weapon.blade", "Blade", 0)
+                { Slot = ItemSlot.Weapon }
+            },
+            new Dictionary<string, MonsterDefinition>(),
+            new Dictionary<string, LootTableDefinition>(),
+            new Dictionary<string, AffixDefinition>
+            {
+                ["affix.attack"] = new("affix.attack", "Keen", ItemStat.Attack, 1, 3, [ItemSlot.Weapon])
+            });
+        var table = new LootTableDefinition(
+            "loot.test",
+            1,
+            1,
+            [new LootEntryDefinition("weapon.blade", 1)],
+            [new RarityWeightDefinition(ItemRarity.Rare, 1)]);
+
+        var error = Assert.Throws<ArgumentException>(
+            () => new LootGenerator().Generate(table, content, new Random(81)));
+
+        Assert.Contains("Rare", error.Message);
+        Assert.Contains("affix", error.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void Generate_IncludesGuaranteedEntriesForEachEncounter()
+    {
+        var content = new GameContent(
+            new Dictionary<string, ItemDefinition>
+            {
+                ["weapon.blade"] = new("weapon.blade", "Blade", 0),
+                ["armor.vest"] = new("armor.vest", "Vest", 0) { Slot = ItemSlot.Armor }
+            },
+            new Dictionary<string, MonsterDefinition>(),
+            new Dictionary<string, LootTableDefinition>());
+        var table = new LootTableDefinition(
+            "loot.test",
+            2,
+            2,
+            [
+                new LootEntryDefinition("weapon.blade", 1) { Guaranteed = true },
+                new LootEntryDefinition("armor.vest", 1) { Guaranteed = true }
+            ]);
+
+        var items = new LootGenerator().Generate(table, content, new Random(81));
+
+        Assert.Equal(
+            new[] { "weapon.blade", "armor.vest" },
+            items.Select(item => item.DefinitionId));
+        Assert.All(items, item => Assert.Equal(ItemRarity.Common, item.Rarity));
+    }
+
+    [Theory]
+    [InlineData(9, 1d)]
+    [InlineData(1, double.NaN)]
+    [InlineData(1, 0d)]
+    public void Generate_RejectsInvalidRarityEnumsAndWeights(int rarity, double weight)
+    {
+        var content = new GameContent(
+            new Dictionary<string, ItemDefinition>
+            {
+                ["weapon.blade"] = new("weapon.blade", "Blade", 0)
+            },
+            new Dictionary<string, MonsterDefinition>(),
+            new Dictionary<string, LootTableDefinition>());
+        var table = new LootTableDefinition(
+            "loot.test",
+            1,
+            1,
+            [new LootEntryDefinition("weapon.blade", 1)],
+            [new RarityWeightDefinition((ItemRarity)rarity, weight)]);
+
+        Assert.Throws<ArgumentException>(() =>
+            new LootGenerator().Generate(table, content, new Random(81)));
+    }
+
+    [Fact]
+    public void Generate_RejectsAffixRangesOutsideSupportedBounds()
+    {
+        var content = new GameContent(
+            new Dictionary<string, ItemDefinition>
+            {
+                ["weapon.blade"] = new("weapon.blade", "Blade", 0)
+            },
+            new Dictionary<string, MonsterDefinition>(),
+            new Dictionary<string, LootTableDefinition>(),
+            new Dictionary<string, AffixDefinition>
+            {
+                ["affix.broken"] = new(
+                    "affix.broken", "Broken", ItemStat.Attack, 2, 1, [ItemSlot.Weapon])
+            });
+        var table = new LootTableDefinition(
+            "loot.test",
+            1,
+            1,
+            [new LootEntryDefinition("weapon.blade", 1)],
+            [new RarityWeightDefinition(ItemRarity.Magic, 1)]);
+
+        Assert.Throws<ArgumentException>(() =>
+            new LootGenerator().Generate(table, content, new Random(81)));
+    }
+
+    [Theory]
+    [InlineData(ItemRarity.Common, 0)]
+    [InlineData(ItemRarity.Magic, 1)]
+    [InlineData(ItemRarity.Rare, 2)]
+    public void Generate_ProducesConfiguredExactAffixCount(ItemRarity rarity, int expectedCount)
+    {
+        var content = new GameContent(
+            new Dictionary<string, ItemDefinition>
+            {
+                ["weapon.blade"] = new("weapon.blade", "Blade", 0)
+            },
+            new Dictionary<string, MonsterDefinition>(),
+            new Dictionary<string, LootTableDefinition>(),
+            new Dictionary<string, AffixDefinition>
+            {
+                ["affix.attack"] = new("affix.attack", "Keen", ItemStat.Attack, 1, 3, [ItemSlot.Weapon]),
+                ["affix.health"] = new("affix.health", "Vital", ItemStat.MaximumHealth, 2, 4, [ItemSlot.Weapon]),
+                ["affix.crit"] = new("affix.crit", "Lucky", ItemStat.CriticalChance, 1, 5, [ItemSlot.Weapon])
+            });
+        var table = new LootTableDefinition(
+            "loot.test",
+            1,
+            1,
+            [new LootEntryDefinition("weapon.blade", 1)],
+            [new RarityWeightDefinition(rarity, 1)]);
+
+        var item = Assert.Single(new LootGenerator().Generate(table, content, new Random(81)));
+
+        Assert.Equal(rarity, item.Rarity);
+        Assert.Equal(expectedCount, item.Rolls.Count);
+        Assert.Equal(expectedCount, item.Rolls.Select(roll => roll.AffixId).Distinct().Count());
+        var immutableRolls = Assert.IsAssignableFrom<IList<AffixRoll>>(item.Rolls);
+        Assert.Throws<NotSupportedException>(() =>
+            immutableRolls.Add(new AffixRoll("affix.fake", ItemStat.Attack, 1)));
     }
 
     private static GameContent CreateContent()

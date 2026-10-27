@@ -5,4 +5,12 @@ namespace DarkLoot.Data;
 public sealed record GameContent(
     IReadOnlyDictionary<string, ItemDefinition> Items,
     IReadOnlyDictionary<string, MonsterDefinition> Monsters,
-    IReadOnlyDictionary<string, LootTableDefinition> LootTables);
+    IReadOnlyDictionary<string, LootTableDefinition> LootTables,
+    IReadOnlyDictionary<string, AffixDefinition>? AffixDefinitions = null)
+{
+    private static readonly IReadOnlyDictionary<string, AffixDefinition> EmptyAffixes =
+        new Dictionary<string, AffixDefinition>();
+
+    public IReadOnlyDictionary<string, AffixDefinition> Affixes =>
+        AffixDefinitions ?? EmptyAffixes;
+}

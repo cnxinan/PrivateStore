@@ -90,6 +90,158 @@ public sealed class InventoryServiceTests
         Assert.Single(inventory.Items);
     }
 
+    [Fact]
+    public void TryEquip_WeaponAndArmorContributeToSharedTotalsAndReplacementPreview()
+    {
+        var content = new GameContent(
+            new Dictionary<string, ItemDefinition>
+            {
+                ["item.weapon"] = new("item.weapon", "Weapon", 2) { Slot = ItemSlot.Weapon },
+                ["item.armor"] = new("item.armor", "Armor", 0) { Slot = ItemSlot.Armor }
+            },
+            new Dictionary<string, MonsterDefinition>(),
+            new Dictionary<string, LootTableDefinition>(),
+            new Dictionary<string, AffixDefinition>
+            {
+                ["attack"] = new("attack", "Keen", ItemStat.Attack, 3, 3, [ItemSlot.Weapon]),
+                ["health"] = new("health", "Vital", ItemStat.MaximumHealth, 20, 20, [ItemSlot.Armor]),
+                ["crit"] = new("crit", "Lucky", ItemStat.CriticalChance, 15, 15, [ItemSlot.Armor])
+            });
+        var weapon = new ItemInstance(
+            Guid.NewGuid(), "item.weapon", ItemRarity.Magic,
+            [new AffixRoll("attack", ItemStat.Attack, 3)]);
+        var armor = new ItemInstance(
+            Guid.NewGuid(), "item.armor", ItemRarity.Magic,
+            [new AffixRoll("health", ItemStat.MaximumHealth, 20)]);
+        var replacement = new ItemInstance(
+            Guid.NewGuid(), "item.armor", ItemRarity.Magic,
+            [new AffixRoll("crit", ItemStat.CriticalChance, 15)]);
+        var inventory = new Inventory();
+        var service = new InventoryService();
+        Assert.True(service.TryPickUp(inventory, weapon));
+        Assert.True(service.TryPickUp(inventory, armor));
+        Assert.True(service.TryPickUp(inventory, replacement));
+        Assert.True(service.TryEquip(inventory, weapon.InstanceId, content));
+        Assert.True(service.TryEquip(inventory, armor.InstanceId, content));
+
+        var current = service.GetTotals(10, 100, inventory, content);
+        var preview = service.GetTotalsWithReplacement(
+            10, 100, inventory, content, ItemSlot.Armor, replacement);
+
+        Assert.Equal(new PlayerStatTotals(15, 120, 0), current);
+        Assert.Equal(new PlayerStatTotals(15, 100, 15), preview);
+        Assert.Equal(armor, inventory.EquippedArmor);
+        Assert.Equal(weapon, inventory.EquippedWeapon);
+        Assert.Equal(3, Assert.Single(weapon.Rolls).Value);
+    }
+
+    [Fact]
+    public void TryEquip_RejectsItemInDifferentSlotWithoutChangingEitherSlot()
+    {
+        var content = new GameContent(
+            new Dictionary<string, ItemDefinition>
+            {
+                ["item.armor"] = new("item.armor", "Armor", 0) { Slot = ItemSlot.Armor }
+            },
+            new Dictionary<string, MonsterDefinition>(),
+            new Dictionary<string, LootTableDefinition>());
+        var inventory = new Inventory();
+        var item = new ItemInstance(Guid.NewGuid(), "item.armor");
+        var service = new InventoryService();
+        Assert.True(service.TryPickUp(inventory, item));
+
+        Assert.Throws<ArgumentException>(() =>
+            service.TryEquip(inventory, item.InstanceId, content, ItemSlot.Weapon));
+
+        Assert.Null(inventory.EquippedWeapon);
+        Assert.Null(inventory.EquippedArmor);
+    }
+
+    [Fact]
+    public void TryEquip_RejectsRollThatReferencesMissingAffix()
+    {
+        var content = new GameContent(
+            new Dictionary<string, ItemDefinition>
+            {
+                ["item.weapon"] = new("item.weapon", "Weapon", 0)
+            },
+            new Dictionary<string, MonsterDefinition>(),
+            new Dictionary<string, LootTableDefinition>());
+        var inventory = new Inventory();
+        var item = new ItemInstance(
+            Guid.NewGuid(), "item.weapon", ItemRarity.Magic,
+            [new AffixRoll("affix.missing", ItemStat.Attack, 1)]);
+        var service = new InventoryService();
+        Assert.True(service.TryPickUp(inventory, item));
+
+        var error = Assert.Throws<ArgumentException>(() =>
+            service.TryEquip(inventory, item.InstanceId, content));
+
+        Assert.Contains("affix.missing", error.Message);
+        Assert.Null(inventory.EquippedWeapon);
+    }
+
+    [Fact]
+    public void GetTotals_ClampsCriticalChanceAfterCombiningBothSlots()
+    {
+        var content = new GameContent(
+            new Dictionary<string, ItemDefinition>
+            {
+                ["item.weapon"] = new("item.weapon", "Weapon", 0),
+                ["item.armor"] = new("item.armor", "Armor", 0) { Slot = ItemSlot.Armor }
+            },
+            new Dictionary<string, MonsterDefinition>(),
+            new Dictionary<string, LootTableDefinition>(),
+            new Dictionary<string, AffixDefinition>
+            {
+                ["crit.weapon"] = new("crit.weapon", "Lucky", ItemStat.CriticalChance, 80, 80, [ItemSlot.Weapon]),
+                ["crit.armor"] = new("crit.armor", "Fortunate", ItemStat.CriticalChance, 80, 80, [ItemSlot.Armor])
+            });
+        var inventory = new Inventory();
+        var service = new InventoryService();
+        var weapon = new ItemInstance(
+            Guid.NewGuid(), "item.weapon", ItemRarity.Magic,
+            [new AffixRoll("crit.weapon", ItemStat.CriticalChance, 80)]);
+        var armor = new ItemInstance(
+            Guid.NewGuid(), "item.armor", ItemRarity.Magic,
+            [new AffixRoll("crit.armor", ItemStat.CriticalChance, 80)]);
+        Assert.True(service.TryPickUp(inventory, weapon));
+        Assert.True(service.TryPickUp(inventory, armor));
+        Assert.True(service.TryEquip(inventory, weapon.InstanceId, content));
+        Assert.True(service.TryEquip(inventory, armor.InstanceId, content));
+
+        Assert.Equal(100, service.GetTotals(10, 100, inventory, content).CriticalChance);
+    }
+
+    [Fact]
+    public void ItemNameFormatter_ComposesPrefixAndSuffixAffixes()
+    {
+        var item = new ItemInstance(
+            Guid.NewGuid(),
+            "item.blade",
+            ItemRarity.Rare,
+            [
+                new AffixRoll("keen", ItemStat.Attack, 3),
+                new AffixRoll("fortune", ItemStat.CriticalChance, 5)
+            ]);
+        var definition = new ItemDefinition("item.blade", "Blade", 0);
+        var content = new GameContent(
+            new Dictionary<string, ItemDefinition> { ["item.blade"] = definition },
+            new Dictionary<string, MonsterDefinition>(),
+            new Dictionary<string, LootTableDefinition>(),
+            new Dictionary<string, AffixDefinition>
+            {
+                ["keen"] = new("keen", "Keen", ItemStat.Attack, 1, 3, [ItemSlot.Weapon])
+                { NameKind = AffixNameKind.Prefix },
+                ["fortune"] = new(
+                    "fortune", "of Fortune", ItemStat.CriticalChance, 1, 5, [ItemSlot.Weapon])
+                { NameKind = AffixNameKind.Suffix }
+            });
+
+        Assert.Equal("Keen Blade of Fortune",
+            ItemNameFormatter.GetDisplayName(item, definition, content));
+    }
+
     [Theory]
     [InlineData(-1)]
     [InlineData(1_000_001)]

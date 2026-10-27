@@ -14,12 +14,14 @@ public sealed class PlayerState
         InventoryService inventoryService,
         Vector2 position,
         int health,
+        int baseMaximumHealth,
         int baseAttackDamage)
     {
         _content = content;
         _inventoryService = inventoryService;
         Position = position;
         Health = health;
+        BaseMaximumHealth = baseMaximumHealth;
         BaseAttackDamage = baseAttackDamage;
         Inventory = new Inventory();
     }
@@ -30,10 +32,38 @@ public sealed class PlayerState
 
     public int BaseAttackDamage { get; }
 
-    public int AttackDamage =>
-        _inventoryService.GetAttackDamage(BaseAttackDamage, Inventory, _content);
+    public int BaseMaximumHealth { get; }
+
+    public PlayerStatTotals Stats =>
+        _inventoryService.GetTotals(BaseAttackDamage, BaseMaximumHealth, Inventory, _content);
+
+    public int AttackDamage => Stats.AttackDamage;
+
+    public int MaximumHealth => Stats.MaximumHealth;
+
+    public int CriticalChance => Stats.CriticalChance;
+
+    public int LastHitDamage { get; internal set; }
+
+    public bool LastHitWasCritical { get; internal set; }
 
     public Inventory Inventory { get; }
+
+    public bool TryEquip(Guid instanceId)
+    {
+        if (!_inventoryService.TryEquip(
+                Inventory,
+                instanceId,
+                _content,
+                BaseAttackDamage,
+                BaseMaximumHealth))
+        {
+            return false;
+        }
+
+        Health = Math.Min(Health, MaximumHealth);
+        return true;
+    }
 
     internal Vector2 Facing { get; set; } = Vector2.UnitX;
 }

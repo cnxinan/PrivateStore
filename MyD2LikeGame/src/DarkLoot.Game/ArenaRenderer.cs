@@ -1,7 +1,10 @@
 using System;
+using DarkLoot.Data;
+using DarkLoot.Data.Definitions;
 using DarkLoot.Engine.Camera;
 using DarkLoot.Engine.Rendering;
 using DarkLoot.Gameplay.Combat;
+using DarkLoot.Gameplay.Items;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using NumericsVector = System.Numerics.Vector2;
@@ -11,7 +14,8 @@ namespace DarkLoot.Game;
 public sealed class ArenaRenderer
 {
     public void Draw(SpriteBatch batch, ShapeRenderer shapes, SpriteFont font,
-        ArenaSimulation arena, Camera2D camera, NumericsVector aim, float attackFlash, bool hit)
+        ArenaSimulation arena, GameContent content, Camera2D camera, NumericsVector aim,
+        float attackFlash, bool hit, bool critical, int hitDamage)
     {
         var origin = camera.WorldToScreen(NumericsVector.Zero);
         var bounds = new Rectangle((int)origin.X - 18, (int)origin.Y - 18, 996, 576);
@@ -29,9 +33,14 @@ public sealed class ArenaRenderer
         foreach (var drop in arena.GroundItems)
         {
             var position = camera.WorldToScreen(drop.Position);
-            shapes.Circle(batch, position, 13, new Color(104, 79, 24));
-            shapes.Line(batch, position - new Vector2(7, 7), position + new Vector2(7, 7), Color.Gold, 5);
-            batch.DrawString(font, "E: pick up Training Blade", position + new Vector2(16, 8), Color.Gold);
+            var definition = content.Items[drop.Item.DefinitionId];
+            var color = InventoryPanel.RarityColor(drop.Item.Rarity);
+            shapes.Circle(batch, position, 13, new Color(52, 48, 36));
+            shapes.Line(batch, position - new Vector2(7, 7), position + new Vector2(7, 7), color, 5);
+            batch.DrawString(font,
+                $"E: {drop.Item.Rarity} {ItemNameFormatter.GetDisplayName(drop.Item, definition, content)}",
+                position + new Vector2(16, 8),
+                color);
         }
 
         if (!arena.Monster.IsDefeated)
@@ -60,7 +69,7 @@ public sealed class ArenaRenderer
         var facing = new Vector2(direction.X, direction.Y);
         shapes.Line(batch, playerPosition, playerPosition + facing * 24, Color.LightCyan, 4);
         DrawHealthBar(batch, shapes, playerPosition + new Vector2(-24, 23), 48,
-            arena.Player.Health / 100f, Color.Crimson);
+            (float)arena.Player.Health / arena.Player.MaximumHealth, Color.Crimson);
 
         if (attackFlash > 0)
         {
@@ -70,11 +79,16 @@ public sealed class ArenaRenderer
             {
                 var arcAngle = angle - MathF.PI / 4 + segment * MathF.PI / 24;
                 var next = playerPosition + new Vector2(MathF.Cos(arcAngle), MathF.Sin(arcAngle)) * 48;
-                shapes.Line(batch, previous, next, hit ? Color.Gold : Color.LightCyan, 5);
+                shapes.Line(batch, previous, next, hit
+                    ? critical ? Color.OrangeRed : Color.Gold
+                    : Color.LightCyan, 5);
                 previous = next;
             }
-            batch.DrawString(font, hit ? "HIT!" : "SWING", playerPosition + new Vector2(-20, -64),
-                hit ? Color.Gold : Color.LightCyan);
+            var message = hit
+                ? critical ? $"CRITICAL! -{hitDamage}" : $"HIT -{hitDamage}"
+                : "SWING";
+            batch.DrawString(font, message, playerPosition + new Vector2(-30, -64),
+                critical ? Color.OrangeRed : hit ? Color.Gold : Color.LightCyan);
         }
     }
 

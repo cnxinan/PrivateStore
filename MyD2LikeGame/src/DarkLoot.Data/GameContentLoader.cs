@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using DarkLoot.Data.Definitions;
 
 namespace DarkLoot.Data;
@@ -9,7 +10,8 @@ public static class GameContentLoader
     private static readonly JsonSerializerOptions SerializerOptions = new()
     {
         PropertyNameCaseInsensitive = true,
-        RespectRequiredConstructorParameters = true
+        RespectRequiredConstructorParameters = true,
+        Converters = { new JsonStringEnumConverter() }
     };
 
     public static GameContent LoadDirectory(string definitionsRoot)
@@ -30,6 +32,11 @@ public static class GameContentLoader
             "items",
             definition => definition.Id,
             ValidateItem);
+        var affixes = LoadDefinitions<AffixDefinition>(
+            definitionsRoot,
+            "affixes",
+            definition => definition.Id,
+            ValidateAffix);
         var monsters = LoadDefinitions<MonsterDefinition>(
             definitionsRoot,
             "monsters",
@@ -41,12 +48,13 @@ public static class GameContentLoader
             definition => definition.Id,
             ValidateLootTable);
 
-        ValidateReferences(items, monsters, lootTables);
+        ValidateReferences(items, affixes, monsters, lootTables);
 
         return new GameContent(
             AsReadOnly(items),
             AsReadOnly(monsters),
-            AsReadOnly(lootTables));
+            AsReadOnly(lootTables),
+            AsReadOnly(affixes));
     }
 
     private static Dictionary<string, LoadedDefinition<T>> LoadDefinitions<T>(
@@ -128,6 +136,54 @@ public static class GameContentLoader
                 path,
                 $"{nameof(definition.AttackBonus)} must not exceed {ItemDefinition.MaxAttackBonus}.");
         }
+
+        if (definition.Slot is not (ItemSlot.Weapon or ItemSlot.Armor))
+        {
+            throw Invalid(path, $"{nameof(definition.Slot)} is not a supported equipment slot.");
+        }
+    }
+
+    private static void ValidateAffix(AffixDefinition definition, string path)
+    {
+        RequireText(definition.Id, path, nameof(definition.Id));
+        RequireText(definition.Name, path, nameof(definition.Name));
+
+        if (definition.Stat is not (ItemStat.Attack or ItemStat.MaximumHealth or ItemStat.CriticalChance))
+        {
+            throw Invalid(path, $"{nameof(definition.Stat)} is not a supported item stat.");
+        }
+
+        if (definition.NameKind is not (AffixNameKind.Prefix or AffixNameKind.Suffix))
+        {
+            throw Invalid(path, $"{nameof(definition.NameKind)} is not supported.");
+        }
+
+        if (definition.Slots is null || definition.Slots.Count == 0)
+        {
+            throw Invalid(path, $"{nameof(definition.Slots)} must contain at least one slot.");
+        }
+
+        if (definition.Slots.Any(slot => slot is not (ItemSlot.Weapon or ItemSlot.Armor)) ||
+            definition.Slots.Distinct().Count() != definition.Slots.Count)
+        {
+            throw Invalid(path, $"{nameof(definition.Slots)} contains an invalid or duplicate slot.");
+        }
+
+        if (definition.MinValue > definition.MaxValue ||
+            Math.Abs((long)definition.MinValue) > AffixDefinition.MaxMagnitude ||
+            Math.Abs((long)definition.MaxValue) > AffixDefinition.MaxMagnitude)
+        {
+            throw Invalid(
+                path,
+                $"{nameof(definition.MinValue)} and {nameof(definition.MaxValue)} must be ordered " +
+                $"within +/-{AffixDefinition.MaxMagnitude}.");
+        }
+
+        if (definition.Stat == ItemStat.CriticalChance &&
+            (definition.MinValue < -100 || definition.MaxValue > 100))
+        {
+            throw Invalid(path, "CriticalChance affix values must be between -100 and 100.");
+        }
     }
 
     private static void ValidateMonster(MonsterDefinition definition, string path)
@@ -173,6 +229,34 @@ public static class GameContentLoader
             throw Invalid(path, $"{nameof(definition.Entries)} is required.");
         }
 
+        if (definition.RarityWeights is not null)
+        {
+            if (definition.RarityWeights.Count == 0)
+            {
+                throw Invalid(path, $"{nameof(definition.RarityWeights)} must not be empty.");
+            }
+
+            var seenRarities = new HashSet<ItemRarity>();
+            double totalWeight = 0;
+            foreach (var rarityWeight in definition.RarityWeights)
+            {
+                if (rarityWeight is null ||
+                    rarityWeight.Rarity is not (ItemRarity.Common or ItemRarity.Magic or ItemRarity.Rare) ||
+                    !double.IsFinite(rarityWeight.Weight) ||
+                    rarityWeight.Weight <= 0 ||
+                    !seenRarities.Add(rarityWeight.Rarity))
+                {
+                    throw Invalid(path, "RarityWeights must contain unique rarities and finite positive weights.");
+                }
+
+                totalWeight += rarityWeight.Weight;
+                if (!double.IsFinite(totalWeight))
+                {
+                    throw Invalid(path, "RarityWeights exceed the supported numeric range.");
+                }
+            }
+        }
+
         if (definition.MaxDrops > 0 && definition.Entries.Count == 0)
         {
             throw Invalid(
@@ -195,10 +279,28 @@ public static class GameContentLoader
                 throw Invalid(path, $"{nameof(entry.Weight)} must be positive.");
             }
         }
+
+        var guaranteedCount = definition.Entries.Count(entry => entry.Guaranteed);
+        if (guaranteedCount > definition.MinDrops)
+        {
+            throw Invalid(
+                path,
+                $"{guaranteedCount} guaranteed entries exceed {nameof(definition.MinDrops)} " +
+                $"({definition.MinDrops}).");
+        }
+
+        if (guaranteedCount < definition.MaxDrops &&
+            definition.Entries.All(entry => entry.Guaranteed))
+        {
+            throw Invalid(
+                path,
+                $"{nameof(definition.MaxDrops)} exceeds guaranteed entries, but no random entries exist.");
+        }
     }
 
     private static void ValidateReferences(
         IReadOnlyDictionary<string, LoadedDefinition<ItemDefinition>> items,
+        IReadOnlyDictionary<string, LoadedDefinition<AffixDefinition>> affixes,
         IReadOnlyDictionary<string, LoadedDefinition<MonsterDefinition>> monsters,
         IReadOnlyDictionary<string, LoadedDefinition<LootTableDefinition>> lootTables)
     {
@@ -216,14 +318,44 @@ public static class GameContentLoader
 
         foreach (var loadedLootTable in lootTables.Values)
         {
-            foreach (var entry in loadedLootTable.Definition.Entries)
+            var table = loadedLootTable.Definition;
+            var slots = new HashSet<ItemSlot>();
+            foreach (var entry in table.Entries)
             {
-                if (!items.ContainsKey(entry.ItemId))
+                if (!items.TryGetValue(entry.ItemId, out var item))
                 {
                     throw Invalid(
                         loadedLootTable.SourcePath,
                         $"Loot table '{loadedLootTable.Definition.Id}' references missing item " +
                         $"'{entry.ItemId}'.");
+                }
+
+                slots.Add(item.Definition.Slot);
+            }
+
+            if (table.RarityWeights is not null)
+            {
+                foreach (var rarityWeight in table.RarityWeights)
+                {
+                    var requiredAffixes = rarityWeight.Rarity switch
+                    {
+                        ItemRarity.Common => 0,
+                        ItemRarity.Magic => 1,
+                        ItemRarity.Rare => 2,
+                        _ => throw new InvalidOperationException("Validated rarity was not supported.")
+                    };
+                    foreach (var slot in slots)
+                    {
+                        var count = affixes.Values.Count(loaded =>
+                            loaded.Definition.Slots.Contains(slot));
+                        if (count < requiredAffixes)
+                        {
+                            throw Invalid(
+                                loadedLootTable.SourcePath,
+                                $"Loot table '{table.Id}' can generate {rarityWeight.Rarity} {slot} items, " +
+                                $"but only {count} eligible affixes exist; {requiredAffixes} are required.");
+                        }
+                    }
                 }
             }
         }

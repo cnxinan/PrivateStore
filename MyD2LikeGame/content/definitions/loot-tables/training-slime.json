@@ -1,8 +1,14 @@
 {
   "id": "loot.training_slime",
-  "minDrops": 1,
-  "maxDrops": 1,
+  "minDrops": 2,
+  "maxDrops": 2,
   "entries": [
-    { "itemId": "weapon.training_blade", "weight": 1 }
+    { "itemId": "weapon.training_blade", "weight": 1, "guaranteed": true },
+    { "itemId": "armor.training_vest", "weight": 1, "guaranteed": true }
+  ],
+  "rarityWeights": [
+    { "rarity": "Common", "weight": 1 },
+    { "rarity": "Magic", "weight": 4 },
+    { "rarity": "Rare", "weight": 2 }
   ]
 }

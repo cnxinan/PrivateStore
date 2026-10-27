@@ -37,7 +37,8 @@ public sealed class ArenaSimulationTests
     [Fact]
     public void Update_AttacksOnlyWhenMonsterIsInRangeAndFacingArc()
     {
-        var simulation = new ArenaSimulation(CreateContent(), new Random(17));
+        var random = new CountingRandom();
+        var simulation = new ArenaSimulation(CreateContent(), random);
 
         simulation.Update(
             new PlayerIntent(Vector2.UnitX, new Vector2(480, 350), true, false),
@@ -49,6 +50,8 @@ public sealed class ArenaSimulationTests
             0.27f);
 
         Assert.Equal(2, simulation.Monster.Health);
+        Assert.False(simulation.Player.LastHitWasCritical);
+        Assert.Equal(0, random.CriticalRolls);
     }
 
     [Fact]
@@ -219,6 +222,118 @@ public sealed class ArenaSimulationTests
     }
 
     [Fact]
+    public void TryEquip_ClampsHealthImmediatelyAndNeverHealsWhenMaximumChanges()
+    {
+        var content = CreateGearContent();
+        var simulation = new ArenaSimulation(content, new Random(17));
+        var service = new InventoryService();
+        var highArmor = new ItemInstance(
+            Guid.NewGuid(), "item.armor_high", ItemRarity.Magic,
+            [new AffixRoll("health.high", ItemStat.MaximumHealth, 50)]);
+        var lowArmor = new ItemInstance(
+            Guid.NewGuid(), "item.armor_low", ItemRarity.Magic,
+            [new AffixRoll("health.low", ItemStat.MaximumHealth, -50)]);
+        Assert.True(service.TryPickUp(simulation.Player.Inventory, highArmor));
+        Assert.True(service.TryPickUp(simulation.Player.Inventory, lowArmor));
+        Assert.True(simulation.TryEquip(highArmor.InstanceId));
+
+        simulation.Update(new PlayerIntent(Vector2.Zero, simulation.Monster.Position, false, false), 3f);
+        Assert.Equal(90, simulation.Player.Health);
+        Assert.Equal(150, simulation.Player.MaximumHealth);
+
+        Assert.True(simulation.TryEquip(lowArmor.InstanceId));
+        Assert.Equal(50, simulation.Player.Health);
+        Assert.Equal(50, simulation.Player.MaximumHealth);
+        Assert.True(simulation.TryEquip(highArmor.InstanceId));
+        Assert.Equal(50, simulation.Player.Health);
+        Assert.Equal(150, simulation.Player.MaximumHealth);
+    }
+
+    [Fact]
+    public void TryEquip_RejectsHealthOverflowBeforeChangingEquipment()
+    {
+        var baseContent = CreateGearContent();
+        var items = baseContent.Items.ToDictionary(pair => pair.Key, pair => pair.Value);
+        items["item.armor_dead"] = new("item.armor_dead", "Deadly Armor", 0)
+        { Slot = ItemSlot.Armor };
+        var affixes = baseContent.Affixes.ToDictionary(pair => pair.Key, pair => pair.Value);
+        affixes["health.dead"] = new(
+            "health.dead", "Deadly", ItemStat.MaximumHealth, -200, -200, [ItemSlot.Armor]);
+        var content = new GameContent(items, baseContent.Monsters, baseContent.LootTables, affixes);
+        var simulation = new ArenaSimulation(content, new Random(17));
+        var item = new ItemInstance(
+            Guid.NewGuid(), "item.armor_dead", ItemRarity.Magic,
+            [new AffixRoll("health.dead", ItemStat.MaximumHealth, -200)]);
+        Assert.True(new InventoryService().TryPickUp(simulation.Player.Inventory, item));
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => simulation.TryEquip(item.InstanceId));
+
+        Assert.Null(simulation.Player.Inventory.EquippedArmor);
+        Assert.Equal(100, simulation.Player.Health);
+    }
+
+    [Fact]
+    public void Update_GuaranteedCriticalDoublesSuccessfulHitAndExposesActualDamage()
+    {
+        var content = CreateGearContent();
+        var random = new CountingRandom();
+        var simulation = new ArenaSimulation(content, random);
+        var service = new InventoryService();
+        var weapon = new ItemInstance(
+            Guid.NewGuid(), "item.crit_weapon", ItemRarity.Magic,
+            [new AffixRoll("crit.max", ItemStat.CriticalChance, 100)]);
+        Assert.True(service.TryPickUp(simulation.Player.Inventory, weapon));
+        Assert.True(simulation.TryEquip(weapon.InstanceId));
+
+        for (var index = 0; index < 20 && simulation.Player.LastHitDamage == 0; index++)
+        {
+            simulation.Update(
+                new PlayerIntent(Vector2.UnitX, simulation.Monster.Position, true, false),
+                0.2f);
+        }
+
+        Assert.True(simulation.Player.LastHitWasCritical);
+        Assert.Equal(20, simulation.Player.LastHitDamage);
+        Assert.Equal(80, simulation.Monster.Health);
+        Assert.Equal(0, random.CriticalRolls);
+    }
+
+    [Fact]
+    public void Update_RollsCriticalRandomnessOnlyAfterSuccessfulMeleeHit()
+    {
+        var content = CreateGearContent();
+        var random = new CountingRandom();
+        var simulation = new ArenaSimulation(content, random);
+        var service = new InventoryService();
+        var weapon = new ItemInstance(
+            Guid.NewGuid(), "item.crit_weapon", ItemRarity.Magic,
+            [new AffixRoll("crit.mid", ItemStat.CriticalChance, 50)]);
+        Assert.True(service.TryPickUp(simulation.Player.Inventory, weapon));
+        Assert.True(simulation.TryEquip(weapon.InstanceId));
+
+        simulation.Update(
+            new PlayerIntent(Vector2.Zero, simulation.Monster.Position, true, false),
+            0.1f);
+        Assert.Equal(0, random.CriticalRolls);
+
+        for (var index = 0; index < 30 &&
+             Vector2.Distance(simulation.Player.Position, simulation.Monster.Position) > 48;
+             index++)
+        {
+            simulation.Update(
+                new PlayerIntent(Vector2.UnitX, simulation.Monster.Position, false, false),
+                0.05f);
+        }
+
+        simulation.Update(
+            new PlayerIntent(Vector2.Zero, simulation.Monster.Position, true, false),
+            0f);
+
+        Assert.Equal(1, random.CriticalRolls);
+        Assert.True(simulation.Player.LastHitDamage > 0);
+    }
+
+    [Fact]
     public void Constructor_ReportsMissingTrainingMonsterId()
     {
         var content = new GameContent(
@@ -311,5 +426,47 @@ public sealed class ArenaSimulationTests
         };
 
         return new GameContent(items, monsters, lootTables);
+    }
+
+    private static GameContent CreateGearContent()
+    {
+        var items = new Dictionary<string, ItemDefinition>
+        {
+            ["item.training_sword"] = new("item.training_sword", "Training Sword", 3),
+            ["item.armor_high"] = new("item.armor_high", "High Armor", 0) { Slot = ItemSlot.Armor },
+            ["item.armor_low"] = new("item.armor_low", "Low Armor", 0) { Slot = ItemSlot.Armor },
+            ["item.crit_weapon"] = new("item.crit_weapon", "Crit Weapon", 0) { Slot = ItemSlot.Weapon }
+        };
+        var monsters = new Dictionary<string, MonsterDefinition>
+        {
+            ["monster.training_slime"] = new(
+                "monster.training_slime", "Training Slime", 100, 10, 100,
+                "loot.training_slime")
+        };
+        var lootTables = new Dictionary<string, LootTableDefinition>
+        {
+            ["loot.training_slime"] = new(
+                "loot.training_slime", 1, 1,
+                [new LootEntryDefinition("item.training_sword", 1)])
+        };
+        var affixes = new Dictionary<string, AffixDefinition>
+        {
+            ["health.high"] = new("health.high", "Vital", ItemStat.MaximumHealth, 50, 50, [ItemSlot.Armor]),
+            ["health.low"] = new("health.low", "Frailty", ItemStat.MaximumHealth, -50, -50, [ItemSlot.Armor]),
+            ["crit.max"] = new("crit.max", "Lucky", ItemStat.CriticalChance, 100, 100, [ItemSlot.Weapon]),
+            ["crit.mid"] = new("crit.mid", "Fortunate", ItemStat.CriticalChance, 50, 50, [ItemSlot.Weapon])
+        };
+        return new GameContent(items, monsters, lootTables, affixes);
+    }
+
+    private sealed class CountingRandom : Random
+    {
+        public int CriticalRolls { get; private set; }
+
+        public override int Next(int maxValue)
+        {
+            CriticalRolls++;
+            return 0;
+        }
     }
 }
