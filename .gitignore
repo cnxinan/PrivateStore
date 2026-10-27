@@ -289,7 +289,6 @@ __pycache__/
 
 # Track the game project in the otherwise ignored workspace directory.
 !MyD2LikeGame/
-!MyD2LikeGame/**
 
 # Keep isolated Git worktrees out of the parent repository.
 .worktrees/
