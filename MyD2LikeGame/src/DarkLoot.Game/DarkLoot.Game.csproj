@@ -17,6 +17,14 @@
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.6" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\..\content\definitions\**\*.json">
+      <Link>Definitions\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <MonoGameContentReference Include="Content\Content.mgcb" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\DarkLoot.Engine\DarkLoot.Engine.csproj" />
     <ProjectReference Include="..\DarkLoot.Gameplay\DarkLoot.Gameplay.csproj" />
     <ProjectReference Include="..\DarkLoot.Data\DarkLoot.Data.csproj" />

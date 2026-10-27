@@ -1,0 +1,8 @@
+{
+  "id": "monster.training_slime",
+  "name": "Training Slime",
+  "maxHealth": 20,
+  "contactDamage": 3,
+  "moveSpeed": 55,
+  "lootTableId": "loot.training_slime"
+}
