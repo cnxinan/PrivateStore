@@ -122,11 +122,26 @@ public sealed class MixedEncounterTests
             MixedEncounterFixture.CreateEncounter(
                 new MonsterSpawnDefinition("first", "monster.training_slime", 160, 270),
                 new MonsterSpawnDefinition("second", "monster.fast_wolf", 160, 270)));
+        var weapon = new ItemInstance(Guid.NewGuid(), "weapon.training_blade");
+        var armor = new ItemInstance(
+            Guid.NewGuid(),
+            "armor.training_vest",
+            ItemRarity.Magic,
+            [new AffixRoll("affix.vital", ItemStat.MaximumHealth, 30)]);
+        var inventoryService = new InventoryService();
+        Assert.True(inventoryService.TryPickUp(arena.Player.Inventory, weapon));
+        Assert.True(inventoryService.TryPickUp(arena.Player.Inventory, armor));
+        Assert.True(arena.TryEquip(weapon.InstanceId));
+        Assert.True(arena.TryEquip(armor.InstanceId));
 
         arena.Update(new PlayerIntent(Vector2.Zero, new Vector2(300, 270), false, true), 0);
 
-        Assert.Equal(100, arena.Player.Health);
-        Assert.Empty(arena.Player.Inventory.Items);
+        Assert.Equal(arena.Player.MaximumHealth, arena.Player.Health);
+        Assert.Equal(130, arena.Player.MaximumHealth);
+        Assert.Equal(new Vector2(160, 270), arena.Player.Position);
+        Assert.Equal(new[] { weapon, armor }, arena.Player.Inventory.Items);
+        Assert.Same(weapon, arena.Player.Inventory.EquippedWeapon);
+        Assert.Same(armor, arena.Player.Inventory.EquippedArmor);
         Assert.All(arena.Monsters, monster => Assert.Equal(100, monster.Health));
         Assert.Equal(new[] { new Vector2(160, 270), new Vector2(160, 270) },
             arena.Monsters.Select(monster => monster.Position));
@@ -188,6 +203,113 @@ public sealed class MixedEncounterTests
         Assert.False(arena.IsCleared);
         Assert.Equal(new[] { 100, 100 }, arena.Monsters.Select(monster => monster.Health));
         Assert.Empty(arena.LastSwingHits);
+    }
+
+    [Fact]
+    public void ResetEncounter_ClearsGroundLootAndArrowsWhilePreservingPlayerStateAndGear()
+    {
+        var fixtureContent = MixedEncounterFixture.CreateContent(contactDamage: 2);
+        var monsters = fixtureContent.Monsters.ToDictionary(pair => pair.Key, pair => pair.Value);
+        monsters["monster.training_slime"] = monsters["monster.training_slime"] with
+        {
+            MaxHealth = 10
+        };
+        monsters["monster.skeleton_archer"] = monsters["monster.skeleton_archer"] with
+        {
+            RangedAttack = monsters["monster.skeleton_archer"].RangedAttack! with
+            {
+                Range = 500
+            }
+        };
+        monsters["monster.fast_wolf"] = monsters["monster.fast_wolf"] with
+        {
+            ContactDamage = 2
+        };
+        var content = new DarkLoot.Data.GameContent(
+            fixtureContent.Items,
+            monsters,
+            new Dictionary<string, LootTableDefinition>
+            {
+                ["loot.training_empty"] = new(
+                    "loot.training_empty",
+                    1,
+                    1,
+                    [new LootEntryDefinition("weapon.training_blade", 1) { Guaranteed = true }])
+            },
+            fixtureContent.Affixes);
+        var arena = new ArenaSimulation(
+            content,
+            new Random(17),
+            MixedEncounterFixture.CreateEncounter(
+                new MonsterSpawnDefinition("slime", "monster.training_slime", 180, 270),
+                new MonsterSpawnDefinition("archer", "monster.skeleton_archer", 500, 270),
+                new MonsterSpawnDefinition("contact", "monster.fast_wolf", 160, 270)));
+        var weapon = new ItemInstance(Guid.NewGuid(), "weapon.training_blade");
+        Assert.True(new InventoryService().TryPickUp(arena.Player.Inventory, weapon));
+        Assert.True(arena.TryEquip(weapon.InstanceId));
+
+        arena.Update(new PlayerIntent(Vector2.Zero, new Vector2(300, 270), true, false), .3f);
+        arena.Update(new PlayerIntent(Vector2.UnitY, new Vector2(300, 270), false, false), .1f);
+
+        Assert.Single(arena.GroundItems);
+        Assert.Single(arena.Projectiles);
+        var playerPosition = arena.Player.Position;
+        var playerHealth = arena.Player.Health;
+        var equippedWeapon = arena.Player.Inventory.EquippedWeapon;
+        Assert.NotEqual(new Vector2(160, 270), playerPosition);
+        Assert.NotEqual(arena.Player.MaximumHealth, playerHealth);
+
+        arena.ResetEncounter();
+
+        Assert.Empty(arena.GroundItems);
+        Assert.Empty(arena.Projectiles);
+        Assert.Equal(arena.Monsters.Count, arena.RemainingMonsters);
+        Assert.Equal(playerPosition, arena.Player.Position);
+        Assert.Equal(playerHealth, arena.Player.Health);
+        Assert.Same(equippedWeapon, arena.Player.Inventory.EquippedWeapon);
+        Assert.Empty(arena.LastSwingHits);
+        Assert.All(arena.Monsters, monster => Assert.False(monster.IsWindingUp));
+    }
+
+    [Fact]
+    public void Update_ThreeDefeatedInstancesEachDropOneDistinctItemExactlyOnce()
+    {
+        var fixtureContent = MixedEncounterFixture.CreateContent();
+        var monsters = fixtureContent.Monsters.ToDictionary(pair => pair.Key, pair => pair.Value);
+        monsters["monster.training_slime"] = monsters["monster.training_slime"] with
+        {
+            MaxHealth = 10
+        };
+        var content = new DarkLoot.Data.GameContent(
+            fixtureContent.Items,
+            monsters,
+            new Dictionary<string, LootTableDefinition>
+            {
+                ["loot.training_empty"] = new(
+                    "loot.training_empty",
+                    1,
+                    1,
+                    [new LootEntryDefinition("weapon.training_blade", 1) { Guaranteed = true }])
+            },
+            fixtureContent.Affixes);
+        var arena = new ArenaSimulation(
+            content,
+            new Random(17),
+            MixedEncounterFixture.CreateEncounter(
+                new MonsterSpawnDefinition("slime.1", "monster.training_slime", 190, 265),
+                new MonsterSpawnDefinition("slime.2", "monster.training_slime", 190, 270),
+                new MonsterSpawnDefinition("slime.3", "monster.training_slime", 190, 275)));
+
+        for (var swing = 0; swing < 8; swing++)
+        {
+            arena.Update(new PlayerIntent(Vector2.Zero, new Vector2(300, 270), true, false), .35f);
+        }
+
+        Assert.Equal(0, arena.RemainingMonsters);
+        Assert.Equal(3, arena.GroundItems.Count);
+        Assert.Equal(3, arena.GroundItems.Select(item => item.Item.InstanceId).Distinct().Count());
+        Assert.All(arena.GroundItems, item =>
+            Assert.Equal("weapon.training_blade", item.Item.DefinitionId));
     }
 
     [Fact]

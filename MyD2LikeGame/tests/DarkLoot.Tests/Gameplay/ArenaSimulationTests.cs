@@ -160,6 +160,7 @@ public sealed class ArenaSimulationTests
         Assert.Equal(13, simulation.Player.AttackDamage);
 
         simulation.ResetEncounter();
+        Assert.Empty(simulation.GroundItems);
         Assert.Equal(12, simulation.Monsters[0].Health);
         Assert.False(simulation.Monsters[0].IsDefeated);
         Assert.Same(weapon, simulation.Player.Inventory.EquippedWeapon);
@@ -186,7 +187,7 @@ public sealed class ArenaSimulationTests
         AdvanceUntilDefeated(simulation);
         Assert.Single(simulation.GroundItems);
         simulation.ResetEncounter();
-        Assert.Single(simulation.GroundItems);
+        Assert.Empty(simulation.GroundItems);
 
         var tookDamage = false;
         for (var index = 0; index < 1000; index++)

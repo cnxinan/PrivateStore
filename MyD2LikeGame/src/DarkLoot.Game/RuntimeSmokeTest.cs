@@ -312,8 +312,10 @@ internal sealed class RuntimeSmokeTest
             case 7 when !panel.IsOpen:
                 Check(arena.Monsters[0].Health == arena.Monsters[0].MaxHealth &&
                       arena.Player.Inventory.EquippedWeapon?.InstanceId == _weapon &&
-                      arena.Player.Inventory.EquippedArmor?.InstanceId == _armor,
-                    "R reset restored slime and preserved both equipped slots");
+                      arena.Player.Inventory.EquippedArmor?.InstanceId == _armor &&
+                      arena.GroundItems.Count == 0 &&
+                      arena.Projectiles.Count == 0,
+                    "R reset restored slime, cleared ground loot and arrows, and preserved both equipped slots");
                 _stage = 8;
                 break;
             case 9 when arena.Player.LastHitWasCritical && arena.Player.LastHitDamage > 0:

@@ -174,6 +174,7 @@ public sealed class ArenaSimulation
 
     public void ResetEncounter()
     {
+        _groundItems.Clear();
         ResetMonsters();
         _attackCooldown = 0;
     }
@@ -329,9 +330,7 @@ public sealed class ArenaSimulation
         Player.Position = PlayerSpawn;
         Player.Health = Player.MaximumHealth;
         Player.Facing = Vector2.UnitX;
-        _groundItems.Clear();
-        ResetMonsters();
-        _attackCooldown = 0;
+        ResetEncounter();
     }
 
     private bool ApplyProjectileDamage(int damage)

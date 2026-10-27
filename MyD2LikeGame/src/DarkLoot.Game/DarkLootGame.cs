@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using DarkLoot.Data;
 using DarkLoot.Data.Definitions;
 using DarkLoot.Engine.Camera;
@@ -54,6 +55,23 @@ public sealed class DarkLootGame : MonoGameGame
     protected override void Initialize()
     {
         _content = GameContentLoader.LoadDirectory(Path.Combine(AppContext.BaseDirectory, "Definitions"));
+        if (_smoke is not null)
+        {
+            var lootTables = _content.LootTables.ToDictionary(pair => pair.Key, pair => pair.Value);
+            var productionTable = lootTables["loot.training_slime"];
+            lootTables[productionTable.Id] = productionTable with
+            {
+                MinDrops = 2,
+                MaxDrops = 2,
+                Entries =
+                [
+                    new LootEntryDefinition("weapon.training_blade", 1) { Guaranteed = true },
+                    new LootEntryDefinition("armor.training_vest", 1) { Guaranteed = true }
+                ]
+            };
+            _content = _content with { LootTables = lootTables };
+        }
+
         var encounter = _smoke is null
             ? _content.Encounters["encounter.training_arena"]
             : new EncounterDefinition(
