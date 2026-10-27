@@ -8,6 +8,25 @@ namespace DarkLoot.Tests.Gameplay;
 public sealed class MixedEncounterTests
 {
     [Fact]
+    public void Update_FullHealthLethalContactSignalsResetForPresentationEvenAfterSwing()
+    {
+        var arena = new ArenaSimulation(
+            MixedEncounterFixture.CreateContent(contactDamage: 100),
+            new Random(17),
+            MixedEncounterFixture.CreateEncounter(
+                new MonsterSpawnDefinition("contact", "monster.training_slime", 160, 270)));
+
+        arena.Update(new PlayerIntent(Vector2.Zero, new Vector2(300, 270), true, false), 0);
+
+        Assert.Equal(100, arena.Player.Health);
+        Assert.Equal(1, arena.Player.AttackSequence);
+        Assert.Empty(arena.LastSwingHits);
+        Assert.Equal(1, arena.ResetSequence);
+        arena.ResetEncounter();
+        Assert.Equal(2, arena.ResetSequence);
+    }
+
+    [Fact]
     public void Update_AreaMeleeHitsEachFrontTargetOnceInSpawnOrder()
     {
         var content = MixedEncounterFixture.CreateContent();

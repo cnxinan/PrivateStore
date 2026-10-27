@@ -20,8 +20,10 @@ public sealed class HudRenderer
         GameText.Draw(batch, font, GameText.Controls,
             new Vector2(20, 63), Color.LightCyan, width - 40);
         shapes.Rectangle(batch, new Rectangle(0, height - 38, width, 38), new Color(15, 20, 29));
+        GameText.Draw(batch, font, string.Format(GameText.Enemies, arena.RemainingMonsters, arena.Monsters.Count),
+            new Vector2(20, 96), Color.White, 240);
         var status = arena.IsCleared
-            ? GameText.Victory
+            ? GameText.Cleared
             : GameText.Objective;
         GameText.Draw(batch, font, status, new Vector2(20, height - 29), Color.Gold, width - 40);
     }

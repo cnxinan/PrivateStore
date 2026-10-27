@@ -9,6 +9,13 @@
     <CharacterRegions>
       <CharacterRegion><Start>&#32;</Start><End>&#126;</End></CharacterRegion>
       <!-- Exact Chinese repertoire from GameText and definition names; smoke checks the loaded atlas. -->
+      <CharacterRegion><Start>&#20313;</Start><End>&#20313;</End></CharacterRegion>
+      <CharacterRegion><Start>&#21097;</Start><End>&#21097;</End></CharacterRegion>
+      <CharacterRegion><Start>&#22320;</Start><End>&#22320;</End></CharacterRegion>
+      <CharacterRegion><Start>&#24320;</Start><End>&#24320;</End></CharacterRegion>
+      <CharacterRegion><Start>&#24618;</Start><End>&#24618;</End></CharacterRegion>
+      <CharacterRegion><Start>&#28165;</Start><End>&#28165;</End></CharacterRegion>
+      <CharacterRegion><Start>&#38754;</Start><End>&#38754;</End></CharacterRegion>
       <CharacterRegion><Start>&#12290;</Start><End>&#12290;</End></CharacterRegion>
       <CharacterRegion><Start>&#19978;</Start><End>&#19978;</End></CharacterRegion>
       <CharacterRegion><Start>&#20013;</Start><End>&#20013;</End></CharacterRegion>

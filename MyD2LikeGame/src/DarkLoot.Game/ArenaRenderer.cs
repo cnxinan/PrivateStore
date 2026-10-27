@@ -34,7 +34,7 @@ public sealed class ArenaRenderer
 
         var lootRows = new List<Rectangle>(arena.GroundItems.Count);
         var viewport = batch.GraphicsDevice.Viewport;
-        var lootBounds = new Rectangle(8, 96, viewport.Width - 16, viewport.Height - 104);
+        var lootBounds = new Rectangle(8, 124, viewport.Width - 16, viewport.Height - 170);
         foreach (var drop in arena.GroundItems)
         {
             var position = camera.WorldToScreen(drop.Position);
@@ -59,16 +59,24 @@ public sealed class ArenaRenderer
 
         foreach (var monster in arena.Monsters)
         {
+            var monsterPosition = camera.WorldToScreen(monster.Position);
+            var swingHit = arena.LastSwingHits.FirstOrDefault(
+                hit => hit.MonsterInstanceId == monster.InstanceId);
+            var hitThisSwing = swingHit is not null && attackFlash > 0;
+            if (hitThisSwing)
+            {
+                var hitMessage = string.Format(
+                    swingHit!.WasCritical ? GameText.CriticalHit : GameText.Hit, swingHit.Damage);
+                GameText.Draw(batch, font, hitMessage,
+                    monsterPosition + new Vector2(-30, -78),
+                    swingHit.WasCritical ? Color.OrangeRed : Color.Gold, 200);
+            }
             if (monster.IsDefeated)
             {
                 continue;
             }
 
-            var swingHit = arena.LastSwingHits.FirstOrDefault(
-                hit => hit.MonsterInstanceId == monster.InstanceId);
-            var hitThisSwing = swingHit is not null && attackFlash > 0;
-            var monsterPosition = camera.WorldToScreen(monster.Position);
-            shapes.Circle(batch, monsterPosition, 18, hitThisSwing ? Color.White : new Color(121, 205, 87));
+            DrawMonster(batch, shapes, monster, monsterPosition, hitThisSwing);
             shapes.Circle(batch, monsterPosition + new Vector2(-6, -4), 3, Color.Black);
             shapes.Circle(batch, monsterPosition + new Vector2(6, -4), 3, Color.Black);
             DrawHealthBar(batch, shapes, monsterPosition + new Vector2(-24, -31), 48,
@@ -80,16 +88,21 @@ public sealed class ArenaRenderer
                 batch.GraphicsDevice.Viewport.Width - labelWidth - 8);
             GameText.Draw(batch, font, label,
                 new Vector2(labelX, monsterPosition.Y - 57), Color.White, labelWidth);
-            if (hitThisSwing)
+            if (monster.IsWindingUp)
             {
-                var hitMessage = string.Format(
-                    swingHit!.WasCritical ? GameText.CriticalHit : GameText.Hit,
-                    swingHit.Damage);
-                GameText.Draw(batch, font, hitMessage,
-                    new Vector2(labelX, monsterPosition.Y - 78),
-                    swingHit.WasCritical ? Color.OrangeRed : Color.Gold,
-                    Math.Min(200, font.MeasureString(hitMessage).X));
+                var locked = monster.LockedAimDirection;
+                shapes.Line(batch, monsterPosition,
+                    monsterPosition + new Vector2(locked.X, locked.Y) * 90, Color.Orange, 2);
             }
+        }
+        foreach (var arrow in arena.Projectiles)
+        {
+            var tip = camera.WorldToScreen(arrow.Position);
+            var arrowDirection = new Vector2(arrow.Direction.X, arrow.Direction.Y);
+            var side = new Vector2(-arrowDirection.Y, arrowDirection.X);
+            shapes.Line(batch, tip - arrowDirection * 16, tip, Color.BurlyWood, 3);
+            shapes.Line(batch, tip, tip - arrowDirection * 6 + side * 4, Color.White, 2);
+            shapes.Line(batch, tip, tip - arrowDirection * 6 - side * 4, Color.White, 2);
         }
 
         var playerPosition = camera.WorldToScreen(arena.Player.Position);
@@ -128,6 +141,38 @@ public sealed class ArenaRenderer
                 GameText.Draw(batch, font, GameText.Swing,
                     playerPosition + new Vector2(-30, -64), Color.LightCyan, 200);
             }
+        }
+    }
+
+    private static void DrawMonster(SpriteBatch batch, ShapeRenderer shapes, MonsterState monster,
+        Vector2 position, bool hit)
+    {
+        var color = hit ? Color.White : monster.Behavior == MonsterBehavior.Archer
+            ? Color.LightGray : monster.Id == "monster.fast_wolf" ? Color.SandyBrown : Color.YellowGreen;
+        if (monster.Behavior == MonsterBehavior.Archer)
+        {
+            shapes.Circle(batch, position + new Vector2(0, -9), 10, color);
+            shapes.Line(batch, position, position + new Vector2(0, 17), color, 3);
+            shapes.Line(batch, position + new Vector2(-10, 4), position + new Vector2(10, 4), color, 3);
+            shapes.Line(batch, position + new Vector2(0, 12), position + new Vector2(-9, 22), color, 3);
+            shapes.Line(batch, position + new Vector2(0, 12), position + new Vector2(9, 22), color, 3);
+            shapes.Line(batch, position + new Vector2(18, -14), position + new Vector2(25, 2), Color.BurlyWood, 3);
+            shapes.Line(batch, position + new Vector2(25, 2), position + new Vector2(18, 18), Color.BurlyWood, 3);
+            shapes.Line(batch, position + new Vector2(18, -14), position + new Vector2(18, 18), Color.Wheat, 1);
+        }
+        else if (monster.Id == "monster.fast_wolf")
+        {
+            shapes.Rectangle(batch, new Rectangle((int)position.X - 23, (int)position.Y - 9, 40, 20), color);
+            shapes.Circle(batch, position + new Vector2(17, -4), 12, color);
+            shapes.Line(batch, position + new Vector2(9, -10), position + new Vector2(7, -23), color, 7);
+            shapes.Line(batch, position + new Vector2(21, -10), position + new Vector2(23, -23), color, 7);
+            shapes.Line(batch, position + new Vector2(-20, 0), position + new Vector2(-32, -12), color, 5);
+            shapes.Line(batch, position + new Vector2(-13, 8), position + new Vector2(-13, 18), color, 5);
+            shapes.Line(batch, position + new Vector2(10, 8), position + new Vector2(10, 18), color, 5);
+        }
+        else
+        {
+            shapes.Circle(batch, position, 18, color);
         }
     }
 

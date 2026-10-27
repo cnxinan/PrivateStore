@@ -1,9 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using DarkLoot.Data;
-using DarkLoot.Data.Definitions;
 using DarkLoot.Engine.Camera;
 using DarkLoot.Engine.Diagnostics;
 using DarkLoot.Engine.Input;
@@ -31,6 +29,7 @@ public sealed class DarkLootGame : MonoGameGame
     private ShapeRenderer _shapes = null!;
     private SpriteFont _font = null!;
     private GameContent _content = null!;
+    private GameContent _productionContent = null!;
     private ArenaSimulation _arena = null!;
     private NumericsVector _aim;
     private float _attackFlash;
@@ -55,31 +54,15 @@ public sealed class DarkLootGame : MonoGameGame
     protected override void Initialize()
     {
         _content = GameContentLoader.LoadDirectory(Path.Combine(AppContext.BaseDirectory, "Definitions"));
+        _productionContent = _content;
+        var encounter = _content.Encounters["encounter.training_arena"];
         if (_smoke is not null)
         {
-            var lootTables = _content.LootTables.ToDictionary(pair => pair.Key, pair => pair.Value);
-            var productionTable = lootTables["loot.training_slime"];
-            lootTables[productionTable.Id] = productionTable with
-            {
-                MinDrops = 2,
-                MaxDrops = 2,
-                Entries =
-                [
-                    new LootEntryDefinition("weapon.training_blade", 1) { Guaranteed = true },
-                    new LootEntryDefinition("armor.training_vest", 1) { Guaranteed = true }
-                ]
-            };
-            _content = _content with { LootTables = lootTables };
+            (_content, encounter) = _smoke.CreateFixture(_content);
         }
-
-        var encounter = _smoke is null
-            ? _content.Encounters["encounter.training_arena"]
-            : new EncounterDefinition(
-                "encounter.smoke",
-                [new MonsterSpawnDefinition("smoke.slime", "monster.training_slime", 480, 270)]);
         _arena = new ArenaSimulation(
             _content,
-            new Random(_smoke is null ? 42 : 17),
+            _smoke?.CreateRandom() ?? new Random(42),
             encounter);
         FollowPlayer();
         base.Initialize();
@@ -90,7 +73,11 @@ public sealed class DarkLootGame : MonoGameGame
         _batch = new SpriteBatch(GraphicsDevice);
         _shapes = new ShapeRenderer(GraphicsDevice);
         _font = Content.Load<SpriteFont>("Fonts/UIFont");
-        _smoke?.ValidatePresentation(_font, _content);
+        _smoke?.ValidatePresentation(_font, _productionContent);
+        if (_smoke is not null)
+        {
+            _smoke.ValidatePresentation(_font, _content);
+        }
     }
 
     protected override void Update(GameTime gameTime)
@@ -123,6 +110,7 @@ public sealed class DarkLootGame : MonoGameGame
     {
         _aim = input.AimWorldPosition;
         _inventory.Update(input, _arena.Player, _content, GraphicsDevice.Viewport.Width);
+        var previousResetSequence = _arena.ResetSequence;
         if (input.RestartPressed)
         {
             _arena.ResetEncounter();
@@ -138,6 +126,10 @@ public sealed class DarkLootGame : MonoGameGame
         if (_arena.Player.AttackSequence != previousAttackSequence)
         {
             _attackFlash = .18f;
+        }
+        if (_arena.ResetSequence != previousResetSequence)
+        {
+            _attackFlash = 0;
         }
         FollowPlayer();
     }
@@ -164,7 +156,7 @@ public sealed class DarkLootGame : MonoGameGame
         _inventory.Draw(_batch, _shapes, _font, _arena.Player, _content, GraphicsDevice.Viewport.Width);
         _batch.End();
         base.Draw(gameTime);
-        if (_smoke?.AfterDraw(_frameRate.FramesPerSecond) == true)
+        if (_smoke?.AfterDraw(_arena, _attackFlash, _frameRate.FramesPerSecond) == true)
         {
             Exit();
         }

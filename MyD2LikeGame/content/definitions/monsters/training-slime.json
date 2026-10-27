@@ -1,7 +1,7 @@
 {
   "id": "monster.training_slime",
   "name": "训练史莱姆",
-  "maxHealth": 100,
+  "maxHealth": 10,
   "contactDamage": 3,
   "moveSpeed": 55,
   "lootTableId": "loot.training_slime"

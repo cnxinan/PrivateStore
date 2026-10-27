@@ -124,6 +124,8 @@ public sealed class ArenaSimulation
 
     public bool IsCleared => RemainingMonsters == 0;
 
+    public long ResetSequence { get; private set; }
+
     public IReadOnlyList<GroundItem> GroundItems => _readOnlyGroundItems;
 
     public IReadOnlyList<ProjectileState> Projectiles => _projectileSystem.Projectiles;
@@ -174,6 +176,7 @@ public sealed class ArenaSimulation
 
     public void ResetEncounter()
     {
+        ResetSequence++;
         _groundItems.Clear();
         ResetMonsters();
         _attackCooldown = 0;

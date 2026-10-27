@@ -27,6 +27,11 @@ dotnet publish src\DarkLoot.Game --configuration Release --output artifacts\publ
 武器和护甲共同提供攻击、生命上限和暴击率，背包显示随机属性及换装后的属性变化。
 提高生命上限不会立即回血；死亡后恢复当前生命上限，并保留所有装备。
 蓝色代表玩家，战利品按品质着色，暴击使用橙红色闪光反馈。
+绿色圆形是史莱姆，长身、尖耳和尾巴的是迅捷狼，灰色骷髅与弓是骷髅弓手；
+每只存活怪物独立显示名称和生命条，群体挥击在各目标旁独立显示伤害和暴击。
+弓手进入射程后停步，每箭先以橙色方向线锁定瞄准 0.3 秒，发射间隔至少 1.5 秒；
+箭不会追踪，横向移动可以躲避，杀死弓手不会消除已发射的箭。
+左上显示剩余怪物数量，击败六只后显示清场提示；按 R 重开会清空地面装备。
 
 ## Architecture
 
@@ -65,9 +70,18 @@ This opens a real graphics window and injects deterministic input snapshots thro
 path. It first verifies actual loaded `SpriteFont.Characters` against all presentation strings, enum
 labels, content names, and all legal zero/one/two-affix display combinations at roll endpoints.
 It checks `MeasureString` layout bounds (including extreme stat comparisons), with no silent font
-fallback. It exercises guaranteed weapon/armor drops, pickup, both equipment slots, comparison totals, stable
-rolls on re-equip, restart, critical damage feedback, pause, contact damage and death restoration, then exits.
-It uses accelerated simulation time, is bounded to 1,200 updates and returns nonzero on failure. Physical
+fallback. Production content is checked unmodified, including its six configured spawns and full legal
+affix repertoire. Only smoke uses copied definitions/spawns: slow enemies, lethal wolf contact, fixed
+50% critical gear and guaranteed two-slot fixture loot; production keeps the shared 50% zero/one drop table.
+Named stages are Approach, MultiHit, DodgeArrow, TakeArrow, Pickup, Equip, ClearEncounter,
+PauseWithArrow, RestartCleanup, DeathRespawn and Complete. Assertions require real multi-kills,
+independent critical/normal target rolls, locked non-homing arrows that miss and hit, both picked/equipped
+slots with original identities/rolls, and six kills with a completion Draw while arrows remain in flight.
+The real inventory freezes all monsters, an active windup, in-flight arrows and player health for 20 updates;
+closing it resumes motion while retaining the pre-pause swing cooldown. R must clear nonempty arrows/loot
+without losing gear, and actual lethal contact must respawn at the equipped maximum health with six monsters.
+It uses accelerated simulation time, bounds each named stage to 450 updates and the run to 2,400 updates,
+and returns nonzero with the stage/phase on failure (no success fallback). Physical
 keyboard/mouse input and human visual review remain unverified. Startup errors are written beside the
 executable to `startup-error.log` (smoke failures to `smoke-test.log`).
 Run `.\artifacts\publish\DarkLoot.Game.exe --smoke-test` after publishing to validate the copied atlas
