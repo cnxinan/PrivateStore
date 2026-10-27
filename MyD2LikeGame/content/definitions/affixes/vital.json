@@ -1,6 +1,6 @@
 {
   "id": "affix.vital",
-  "name": "Vital",
+  "name": "强健",
   "stat": "MaximumHealth",
   "minValue": 10,
   "maxValue": 30,

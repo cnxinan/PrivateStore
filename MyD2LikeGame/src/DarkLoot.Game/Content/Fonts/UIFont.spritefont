@@ -1,14 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
 <XnaContent xmlns:Graphics="Microsoft.Xna.Framework.Content.Pipeline.Graphics">
   <Asset Type="Graphics:FontDescription">
-    <FontName>Arial</FontName>
-    <Size>14</Size>
+    <FontName>Microsoft YaHei</FontName>
+    <Size>12</Size>
     <Spacing>0</Spacing>
     <UseKerning>true</UseKerning>
     <Style>Regular</Style>
-    <DefaultCharacter>?</DefaultCharacter>
     <CharacterRegions>
       <CharacterRegion><Start>&#32;</Start><End>&#126;</End></CharacterRegion>
+      <!-- Exact Chinese repertoire from GameText and definition names; smoke checks the loaded atlas. -->
+      <CharacterRegion><Start>&#12290;</Start><End>&#12290;</End></CharacterRegion>
+      <CharacterRegion><Start>&#19978;</Start><End>&#19978;</End></CharacterRegion>
+      <CharacterRegion><Start>&#20013;</Start><End>&#20013;</End></CharacterRegion>
+      <CharacterRegion><Start>&#20026;</Start><End>&#20026;</End></CharacterRegion>
+      <CharacterRegion><Start>&#20043;</Start><End>&#20043;</End></CharacterRegion>
+      <CharacterRegion><Start>&#20129;</Start><End>&#20129;</End></CharacterRegion>
+      <CharacterRegion><Start>&#20445;</Start><End>&#20445;</End></CharacterRegion>
+      <CharacterRegion><Start>&#20572;</Start><End>&#20572;</End></CharacterRegion>
+      <CharacterRegion><Start>&#20581;</Start><End>&#20581;</End></CharacterRegion>
+      <CharacterRegion><Start>&#20851;</Start><End>&#20851;</End></CharacterRegion>
+      <CharacterRegion><Start>&#20877;</Start><End>&#20877;</End></CharacterRegion>
+      <CharacterRegion><Start>&#20934;</Start><End>&#20934;</End></CharacterRegion>
+      <CharacterRegion><Start>&#20986;</Start><End>&#20987;</End></CharacterRegion>
+      <CharacterRegion><Start>&#20995;</Start><End>&#20995;</End></CharacterRegion>
+      <CharacterRegion><Start>&#21033;</Start><End>&#21033;</End></CharacterRegion>
+      <CharacterRegion><Start>&#21069;</Start><End>&#21069;</End></CharacterRegion>
+      <CharacterRegion><Start>&#21160;</Start><End>&#21160;</End></CharacterRegion>
+      <CharacterRegion><Start>&#21253;</Start><End>&#21253;</End></CharacterRegion>
+      <CharacterRegion><Start>&#21462;</Start><End>&#21462;</End></CharacterRegion>
+      <CharacterRegion><Start>&#21487;</Start><End>&#21487;</End></CharacterRegion>
+      <CharacterRegion><Start>&#21490;</Start><End>&#21490;</End></CharacterRegion>
+      <CharacterRegion><Start>&#21518;</Start><End>&#21518;</End></CharacterRegion>
+      <CharacterRegion><Start>&#21629;</Start><End>&#21629;</End></CharacterRegion>
+      <CharacterRegion><Start>&#21644;</Start><End>&#21644;</End></CharacterRegion>
+      <CharacterRegion><Start>&#21697;</Start><End>&#21697;</End></CharacterRegion>
+      <CharacterRegion><Start>&#22120;</Start><End>&#22120;</End></CharacterRegion>
+      <CharacterRegion><Start>&#22330;</Start><End>&#22330;</End></CharacterRegion>
+      <CharacterRegion><Start>&#22791;</Start><End>&#22791;</End></CharacterRegion>
+      <CharacterRegion><Start>&#22797;</Start><End>&#22797;</End></CharacterRegion>
+      <CharacterRegion><Start>&#22982;</Start><End>&#22982;</End></CharacterRegion>
+      <CharacterRegion><Start>&#24038;</Start><End>&#24038;</End></CharacterRegion>
+      <CharacterRegion><Start>&#24050;</Start><End>&#24050;</End></CharacterRegion>
+      <CharacterRegion><Start>&#24182;</Start><End>&#24182;</End></CharacterRegion>
+      <CharacterRegion><Start>&#24184;</Start><End>&#24184;</End></CharacterRegion>
+      <CharacterRegion><Start>&#24378;</Start><End>&#24378;</End></CharacterRegion>
+      <CharacterRegion><Start>&#24403;</Start><End>&#24403;</End></CharacterRegion>
+      <CharacterRegion><Start>&#24471;</Start><End>&#24471;</End></CharacterRegion>
+      <CharacterRegion><Start>&#24635;</Start><End>&#24635;</End></CharacterRegion>
+      <CharacterRegion><Start>&#24674;</Start><End>&#24674;</End></CharacterRegion>
+      <CharacterRegion><Start>&#25112;</Start><End>&#25112;</End></CharacterRegion>
+      <CharacterRegion><Start>&#25252;</Start><End>&#25252;</End></CharacterRegion>
+      <CharacterRegion><Start>&#25342;</Start><End>&#25342;</End></CharacterRegion>
+      <CharacterRegion><Start>&#25353;</Start><End>&#25353;</End></CharacterRegion>
+      <CharacterRegion><Start>&#25381;</Start><End>&#25381;</End></CharacterRegion>
+      <CharacterRegion><Start>&#25915;</Start><End>&#25915;</End></CharacterRegion>
+      <CharacterRegion><Start>&#26080;</Start><End>&#26080;</End></CharacterRegion>
+      <CharacterRegion><Start>&#26222;</Start><End>&#26222;</End></CharacterRegion>
+      <CharacterRegion><Start>&#26242;</Start><End>&#26242;</End></CharacterRegion>
+      <CharacterRegion><Start>&#26263;</Start><End>&#26263;</End></CharacterRegion>
+      <CharacterRegion><Start>&#26292;</Start><End>&#26292;</End></CharacterRegion>
+      <CharacterRegion><Start>&#26377;</Start><End>&#26377;</End></CharacterRegion>
+      <CharacterRegion><Start>&#26631;</Start><End>&#26631;</End></CharacterRegion>
+      <CharacterRegion><Start>&#27494;</Start><End>&#27494;</End></CharacterRegion>
+      <CharacterRegion><Start>&#27515;</Start><End>&#27515;</End></CharacterRegion>
+      <CharacterRegion><Start>&#27604;</Start><End>&#27604;</End></CharacterRegion>
+      <CharacterRegion><Start>&#27861;</Start><End>&#27861;</End></CharacterRegion>
+      <CharacterRegion><Start>&#28378;</Start><End>&#28378;</End></CharacterRegion>
+      <CharacterRegion><Start>&#28857;</Start><End>&#28857;</End></CharacterRegion>
+      <CharacterRegion><Start>&#29289;</Start><End>&#29289;</End></CharacterRegion>
+      <CharacterRegion><Start>&#29983;</Start><End>&#29983;</End></CharacterRegion>
+      <CharacterRegion><Start>&#30002;</Start><End>&#30002;</End></CharacterRegion>
+      <CharacterRegion><Start>&#30041;</Start><End>&#30041;</End></CharacterRegion>
+      <CharacterRegion><Start>&#30596;</Start><End>&#30596;</End></CharacterRegion>
+      <CharacterRegion><Start>&#31227;</Start><End>&#31227;</End></CharacterRegion>
+      <CharacterRegion><Start>&#31232;</Start><End>&#31232;</End></CharacterRegion>
+      <CharacterRegion><Start>&#31354;</Start><End>&#31354;</End></CharacterRegion>
+      <CharacterRegion><Start>&#32451;</Start><End>&#32451;</End></CharacterRegion>
+      <CharacterRegion><Start>&#32512;</Start><End>&#32512;</End></CharacterRegion>
+      <CharacterRegion><Start>&#32622;</Start><End>&#32622;</End></CharacterRegion>
+      <CharacterRegion><Start>&#32763;</Start><End>&#32763;</End></CharacterRegion>
+      <CharacterRegion><Start>&#32972;</Start><End>&#32972;</End></CharacterRegion>
+      <CharacterRegion><Start>&#33713;</Start><End>&#33713;</End></CharacterRegion>
+      <CharacterRegion><Start>&#33719;</Start><End>&#33719;</End></CharacterRegion>
+      <CharacterRegion><Start>&#35013;</Start><End>&#35013;</End></CharacterRegion>
+      <CharacterRegion><Start>&#35745;</Start><End>&#35745;</End></CharacterRegion>
+      <CharacterRegion><Start>&#35757;</Start><End>&#35757;</End></CharacterRegion>
+      <CharacterRegion><Start>&#35789;</Start><End>&#35789;</End></CharacterRegion>
+      <CharacterRegion><Start>&#36133;</Start><End>&#36133;</End></CharacterRegion>
+      <CharacterRegion><Start>&#36718;</Start><End>&#36718;</End></CharacterRegion>
+      <CharacterRegion><Start>&#36739;</Start><End>&#36739;</End></CharacterRegion>
+      <CharacterRegion><Start>&#36816;</Start><End>&#36817;</End></CharacterRegion>
+      <CharacterRegion><Start>&#36864;</Start><End>&#36864;</End></CharacterRegion>
+      <CharacterRegion><Start>&#36890;</Start><End>&#36890;</End></CharacterRegion>
+      <CharacterRegion><Start>&#37325;</Start><End>&#37325;</End></CharacterRegion>
+      <CharacterRegion><Start>&#38155;</Start><End>&#38155;</End></CharacterRegion>
+      <CharacterRegion><Start>&#38160;</Start><End>&#38160;</End></CharacterRegion>
+      <CharacterRegion><Start>&#38190;</Start><End>&#38190;</End></CharacterRegion>
+      <CharacterRegion><Start>&#38381;</Start><End>&#38381;</End></CharacterRegion>
+      <CharacterRegion><Start>&#38480;</Start><End>&#38480;</End></CharacterRegion>
+      <CharacterRegion><Start>&#38752;</Start><End>&#38752;</End></CharacterRegion>
+      <CharacterRegion><Start>&#39029;</Start><End>&#39029;</End></CharacterRegion>
+      <CharacterRegion><Start>&#39764;</Start><End>&#39764;</End></CharacterRegion>
+      <CharacterRegion><Start>&#40657;</Start><End>&#40657;</End></CharacterRegion>
+      <CharacterRegion><Start>&#40736;</Start><End>&#40736;</End></CharacterRegion>
+      <CharacterRegion><Start>&#65281;</Start><End>&#65281;</End></CharacterRegion>
+      <CharacterRegion><Start>&#65288;</Start><End>&#65289;</End></CharacterRegion>
+      <CharacterRegion><Start>&#65292;</Start><End>&#65292;</End></CharacterRegion>
+      <CharacterRegion><Start>&#65306;</Start><End>&#65306;</End></CharacterRegion>
     </CharacterRegions>
   </Asset>
 </XnaContent>

@@ -74,23 +74,23 @@ public sealed class InventoryPanel
         var inventory = player.Inventory;
         var bounds = Bounds(width);
         shapes.Rectangle(batch, bounds, new Color(28, 33, 48));
-        batch.DrawString(font, "INVENTORY - click an item to compare / equip",
-            new Vector2(bounds.X + 12, 108), Color.White);
-        batch.DrawString(font, $"WEAPON  {EquippedName(inventory.EquippedWeapon, content)}",
-            new Vector2(bounds.X + 12, 139), Color.LightCyan);
-        batch.DrawString(font, $"ARMOR    {EquippedName(inventory.EquippedArmor, content)}",
-            new Vector2(bounds.X + 12, 161), Color.LightCyan);
+        GameText.Draw(batch, font, GameText.Inventory,
+            new Vector2(bounds.X + 12, 108), Color.White, 616);
+        GameText.Draw(batch, font, string.Format(GameText.SlotLine, GameText.Weapon, EquippedName(inventory.EquippedWeapon, content)),
+            new Vector2(bounds.X + 12, 139), Color.LightCyan, 616);
+        GameText.Draw(batch, font, string.Format(GameText.SlotLine, GameText.Armor, EquippedName(inventory.EquippedArmor, content)),
+            new Vector2(bounds.X + 12, 161), Color.LightCyan, 616);
         var current = player.Stats;
-        batch.DrawString(font,
-            $"TOTALS  ATK {current.AttackDamage}   MAX HP {current.MaximumHealth}   CRIT {current.CriticalChance}%",
-            new Vector2(bounds.X + 12, 184), Color.Gold);
-        batch.DrawString(font, "Paused. I to close. Wheel to scroll.",
-            new Vector2(bounds.X + 12, 207), Color.LightGray);
+        GameText.Draw(batch, font,
+            string.Format(GameText.Totals, current.AttackDamage, current.MaximumHealth, current.CriticalChance),
+            new Vector2(bounds.X + 12, 184), Color.Gold, 616);
+        GameText.Draw(batch, font, GameText.Paused,
+            new Vector2(bounds.X + 12, 207), Color.LightGray, 616);
 
         if (inventory.Items.Count == 0)
         {
-            batch.DrawString(font, "Empty - defeat a slime and press E.",
-                new Vector2(bounds.X + 12, 242), Color.Gray);
+            GameText.Draw(batch, font, GameText.Empty,
+                new Vector2(bounds.X + 12, 242), Color.Gray, 616);
         }
 
         for (var row = 0; row < VisibleRows && row + _firstRow < inventory.Items.Count; row++)
@@ -108,13 +108,14 @@ public sealed class InventoryPanel
                 equipped ? new Color(53, 84, 66) : new Color(43, 49, 65));
 
             var rarityColor = RarityColor(item.Rarity);
-            batch.DrawString(font,
-                $"{item.Rarity} {ItemNameFormatter.GetDisplayName(item, definition, content)}  [{slot}]" +
-                (equipped ? "  [equipped]" : ""),
+            GameText.Draw(batch, font,
+                string.Format(GameText.Item, GameText.Rarity(item.Rarity),
+                    ItemNameFormatter.GetDisplayName(item, definition, content), GameText.Slot(slot),
+                    equipped ? GameText.Equipped : ""),
                 new Vector2(rowBounds.X + 8, rowBounds.Y + 4),
-                rarityColor);
-            batch.DrawString(font, FormatRolls(item, content),
-                new Vector2(rowBounds.X + 8, rowBounds.Y + 25), Color.White);
+                rarityColor, 600, 21);
+            GameText.Draw(batch, font, FormatRolls(item, content),
+                new Vector2(rowBounds.X + 8, rowBounds.Y + 25), Color.White, 336, 21);
 
             var preview = _service.GetTotalsWithReplacement(
                 player.BaseAttackDamage,
@@ -123,12 +124,13 @@ public sealed class InventoryPanel
                 content,
                 slot,
                 item);
-            var comparison = $"ATK {FormatDelta((long)preview.AttackDamage - current.AttackDamage)}" +
-                             $"   HP {FormatDelta((long)preview.MaximumHealth - current.MaximumHealth)}" +
-                             $"   CRIT {FormatDelta((long)preview.CriticalChance - current.CriticalChance)}%";
-            batch.DrawString(font, comparison,
+            var comparison = string.Format(GameText.Comparison,
+                FormatDelta((long)preview.AttackDamage - current.AttackDamage),
+                FormatDelta((long)preview.MaximumHealth - current.MaximumHealth),
+                FormatDelta((long)preview.CriticalChance - current.CriticalChance));
+            GameText.Draw(batch, font, comparison,
                 new Vector2(rowBounds.X + 352, rowBounds.Y + 25),
-                new Color(165, 230, 180));
+                new Color(165, 230, 180), 256, 21);
         }
     }
 
@@ -142,27 +144,21 @@ public sealed class InventoryPanel
 
     private static string EquippedName(ItemInstance? item, GameContent content) =>
         item is null
-            ? "None"
-            : $"{item.Rarity} {ItemNameFormatter.GetDisplayName(item, content.Items[item.DefinitionId], content)}";
+            ? GameText.None
+            : $"{GameText.Rarity(item.Rarity)} {ItemNameFormatter.GetDisplayName(item, content.Items[item.DefinitionId], content)}";
 
-    private static string FormatRolls(ItemInstance item, GameContent content)
+    internal static string FormatRolls(ItemInstance item, GameContent content)
     {
         if (item.Rolls.Count == 0)
         {
-            return "No affixes";
+            return GameText.NoAffixes;
         }
 
-        return "Rolls: " + string.Join("  ", item.Rolls.Select(roll =>
+        return GameText.Rolls + string.Join("  ", item.Rolls.Select(roll =>
         {
             var affix = content.Affixes[roll.AffixId];
             var value = roll.Value > 0 ? $"+{roll.Value}" : roll.Value.ToString();
-            var stat = roll.Stat switch
-            {
-                ItemStat.Attack => "ATK",
-                ItemStat.MaximumHealth => "HP",
-                ItemStat.CriticalChance => "CRIT",
-                _ => throw new ArgumentOutOfRangeException(nameof(item), "Unsupported affix stat.")
-            };
+            var stat = GameText.Stat(roll.Stat);
             return $"{affix.Name} {value} {stat}";
         }));
     }

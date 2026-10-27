@@ -1,6 +1,6 @@
 {
   "id": "affix.lucky",
-  "name": "of Fortune",
+  "name": "之幸运",
   "stat": "CriticalChance",
   "nameKind": "Suffix",
   "minValue": 3,

@@ -10,16 +10,17 @@ dotnet publish src\DarkLoot.Game --configuration Release --output artifacts\publ
 .\artifacts\publish\DarkLoot.Game.exe
 ```
 
-## Controls
+## 中文操作
 
-- **WASD** move; mouse aims; **left click** swings a short melee arc (click again for each attack).
-- **E** picks up nearby gold loot. **I** opens/closes inventory and pauses combat.
-- Click an item row to compare its stat deltas and equip it to its weapon or armor slot; mouse wheel scrolls.
-- **R** restores the slime for another fight, retaining health, inventory, equipment and existing loot.
-- **Escape** exits. At zero health the arena respawns, clears ground loot and keeps equipment.
+- 游戏默认使用简体中文，无语言切换。
+- **WASD** 移动，鼠标瞄准，**左键**近战（每次攻击需再次点击）。
+- **E** 拾取附近战利品；**I** 打开或关闭背包，打开时暂停战斗。
+- 背包显示属性变化，点击物品行即可装备到武器或护甲栏；滚轮翻页。
+- **R** 重置史莱姆，保留生命、背包、装备和已有掉落。
+- **Escape** 退出。死亡后恢复当前生命上限，清空地面掉落，保留装备。
 
-Defeat the Training Slime for a guaranteed Training Blade and Training Vest. Loot rolls Common, Magic,
-or Rare with zero, one, or two distinct affixes; generated values stay fixed on each item, and prefix/suffix affixes compose the display name. Equip both
+Defeat 训练史莱姆 for a guaranteed 训练之刃 and 训练护甲. Loot rolls 普通 (Common), 魔法 (Magic),
+or 稀有 (Rare) with zero, one, or two distinct affixes; generated values stay fixed on each item, and prefix/suffix affixes compose the display name. Equip both
 slots to combine attack, maximum-health and critical-chance totals. The inventory shows each item's
 rolled values and hypothetical changes to those totals. Equipping maximum health never heals, while
 death restores current maximum health and retains all gear. Blue is the player; rarity colors mark loot,
@@ -33,9 +34,16 @@ and critical hits use a distinct orange-red combat flash.
   shared stat totals, hit-only critical rolls and combat rules.
 - **Game**: MonoGame host maps Engine input to `PlayerIntent`; renderers and inventory hit-testing contain no combat/drop rules.
 
-Definitions and the compiled Arial 14-point bitmap SpriteFont are copied on build/publish.
+Definitions and the compiled Microsoft YaHei 12-point bitmap SpriteFont are copied on build/publish.
 Runtime paths resolve from `AppContext.BaseDirectory`, independent of the working directory.
-MonoGame framework, pipeline and tools are pinned to 3.8.6. Building the font requires installed Arial.
+MonoGame framework, pipeline and tools are pinned to 3.8.6. Building the font requires installed
+Microsoft YaHei (微软雅黑, Windows Chinese supplemental fonts). The published game uses only the
+compiled atlas; it does not need the source font installed or distributed.
+`GameText.cs` holds Chinese presentation text and enum labels; JSON `name` fields hold content names.
+When adding text/names, extend the explicit Unicode regions in `Content\Fonts\UIFont.spritefont`
+and run the window smoke. There is deliberately no fallback glyph: missing characters fail rather
+than silently rendering as `?`. Text is measured and fitted inside existing inventory row/column
+bounds, leaving click regions unchanged.
 
 Legacy item definitions default to the Weapon slot, and loot tables without `rarityWeights` produce
 Common items. Item `attackBonus` remains between 0 and 1,000,000 inclusive. Affix ranges are inclusive,
@@ -52,8 +60,13 @@ Get-Content src\DarkLoot.Game\bin\Release\net9.0-windows\smoke-test.log
 ```
 
 This opens a real graphics window and injects deterministic input snapshots through the host update/UI/draw
-path. It exercises guaranteed weapon/armor drops, pickup, both equipment slots, comparison totals, stable
+path. It first verifies actual loaded `SpriteFont.Characters` against all presentation strings, enum
+labels, content names, and all legal zero/one/two-affix display combinations at roll endpoints.
+It checks `MeasureString` layout bounds (including extreme stat comparisons), with no silent font
+fallback. It exercises guaranteed weapon/armor drops, pickup, both equipment slots, comparison totals, stable
 rolls on re-equip, restart, critical damage feedback, pause, contact damage and death restoration, then exits.
 It uses accelerated simulation time, is bounded to 1,200 updates and returns nonzero on failure. Physical
 keyboard/mouse input and human visual review remain unverified. Startup errors are written beside the
 executable to `startup-error.log` (smoke failures to `smoke-test.log`).
+Run `.\artifacts\publish\DarkLoot.Game.exe --smoke-test` after publishing to validate the copied atlas
+and definitions too. Diagnostic logs remain in English.

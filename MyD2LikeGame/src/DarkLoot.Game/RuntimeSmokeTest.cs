@@ -1,11 +1,14 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using DarkLoot.Data;
 using DarkLoot.Data.Definitions;
 using DarkLoot.Engine.Input;
 using DarkLoot.Gameplay.Combat;
 using DarkLoot.Gameplay.Items;
+using Microsoft.Xna.Framework.Graphics;
 using NumericsVector = System.Numerics.Vector2;
 
 namespace DarkLoot.Game;
@@ -32,6 +35,94 @@ internal sealed class RuntimeSmokeTest
     {
         _logPath = logPath;
         File.WriteAllText(logPath, $"DarkLoot gear smoke; PID={Environment.ProcessId}{Environment.NewLine}");
+    }
+
+    public void ValidatePresentation(SpriteFont font, GameContent content)
+    {
+        var strings = typeof(GameText).GetFields(BindingFlags.Public | BindingFlags.Static)
+            .Where(field => field.IsLiteral && field.FieldType == typeof(string))
+            .Select(field => (string)field.GetRawConstantValue()!).ToList();
+        strings.AddRange(content.Items.Values.Select(item => item.Name));
+        strings.AddRange(content.Monsters.Values.Select(monster => monster.Name));
+        strings.AddRange(content.Affixes.Values.Select(affix => affix.Name));
+        strings.AddRange(Enum.GetValues<ItemSlot>().Select(GameText.Slot));
+        strings.AddRange(Enum.GetValues<ItemRarity>().Select(GameText.Rarity));
+        strings.AddRange(Enum.GetValues<ItemStat>().Select(GameText.Stat));
+        var layouts = new List<(string Text, float Width, float Height)>();
+        var combinations = 0;
+        foreach (var definition in content.Items.Values)
+        {
+            var eligible = content.Affixes.Values.Where(affix => affix.Slots.Contains(definition.Slot)).ToArray();
+            var rolls = new List<AffixRoll[]> { Array.Empty<AffixRoll>() };
+            foreach (var first in eligible)
+            {
+                foreach (var value in new[] { first.MinValue, first.MaxValue }.Distinct())
+                {
+                    var firstRoll = new AffixRoll(first.Id, first.Stat, value);
+                    rolls.Add([firstRoll]);
+                    foreach (var second in eligible.Where(affix => affix.Id != first.Id))
+                    {
+                        foreach (var secondValue in new[] { second.MinValue, second.MaxValue }.Distinct())
+                        {
+                            rolls.Add([firstRoll, new AffixRoll(second.Id, second.Stat, secondValue)]);
+                        }
+                    }
+                }
+            }
+
+            foreach (var combination in rolls)
+            {
+                var rarity = combination.Length switch
+                {
+                    0 => ItemRarity.Common,
+                    1 => ItemRarity.Magic,
+                    _ => ItemRarity.Rare
+                };
+                var item = new ItemInstance(Guid.Empty, definition.Id, rarity, combination);
+                var name = ItemNameFormatter.GetDisplayName(item, definition, content);
+                layouts.Add((string.Format(GameText.Item, GameText.Rarity(rarity), name,
+                    GameText.Slot(definition.Slot), GameText.Equipped), 600, 21));
+                layouts.Add((InventoryPanel.FormatRolls(item, content), 336, 21));
+                layouts.Add((string.Format(GameText.Pickup, GameText.Rarity(rarity), name), 400, 22));
+                layouts.Add((string.Format(GameText.SlotLine, GameText.Slot(definition.Slot),
+                    $"{GameText.Rarity(rarity)} {name}"), 616, 22));
+                combinations++;
+            }
+        }
+
+        layouts.AddRange(new[] { GameText.Movement, GameText.Controls, GameText.Victory, GameText.Objective }
+            .Select(text => (text, 1080f, 22f)));
+        layouts.AddRange(new[] { GameText.Inventory, GameText.Paused, GameText.Empty }
+            .Select(text => (text, 616f, 22f)));
+        layouts.Add((string.Format(GameText.Hud, int.MaxValue, int.MaxValue, int.MaxValue, 100), 1080, 22));
+        layouts.Add((string.Format(GameText.Totals, int.MaxValue, int.MaxValue, 100), 616, 22));
+        layouts.Add((string.Format(GameText.Comparison, "+2147483647", "-2147483647", "+100"), 256, 21));
+        foreach (var monster in content.Monsters.Values)
+        {
+            layouts.Add((string.Format(GameText.Monster, monster.Name, monster.MaxHealth, monster.MaxHealth), 280, 22));
+        }
+        layouts.Add((string.Format(GameText.Hit, int.MaxValue), 200, 22));
+        layouts.Add((string.Format(GameText.CriticalHit, int.MaxValue), 200, 22));
+        layouts.Add((GameText.Swing, 200, 22));
+        strings.AddRange(layouts.Select(layout => layout.Text));
+        var required = strings.SelectMany(text => text).Where(character => character is not '\n' and not '\r')
+            .Distinct().Order().ToArray();
+        var missing = required.Where(character => !font.Characters.Contains(character)).ToArray();
+        Check(missing.Length == 0,
+            $"loaded SpriteFont glyph coverage; strings={strings.Count}; combinations={combinations}; " +
+            $"required={required.Length}; atlas={font.Characters.Count}; " +
+            $"missing={string.Join(" ", missing.Select(character => $"U+{(int)character:X4}"))}");
+        Check(font.DefaultCharacter is null, "font has no silent fallback character");
+        var minimumScale = 1f;
+        foreach (var (text, width, height) in layouts)
+        {
+            var measured = font.MeasureString(text);
+            var scale = Math.Min(1f, Math.Min(width / Math.Max(1, measured.X), height / Math.Max(1, measured.Y)));
+            Check(float.IsFinite(scale) && scale >= .60f,
+                $"MeasureString layout fits readable bounds {width}x{height}; scale={scale:F3}; text={text}");
+            minimumScale = Math.Min(minimumScale, scale);
+        }
+        Log($"PASS Chinese presentation complete; layouts={layouts.Count}; minimumScale={minimumScale:F3}");
     }
 
     public GameInputSnapshot NextInput(

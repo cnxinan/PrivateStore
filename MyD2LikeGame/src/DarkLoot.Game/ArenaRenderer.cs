@@ -37,10 +37,12 @@ public sealed class ArenaRenderer
             var color = InventoryPanel.RarityColor(drop.Item.Rarity);
             shapes.Circle(batch, position, 13, new Color(52, 48, 36));
             shapes.Line(batch, position - new Vector2(7, 7), position + new Vector2(7, 7), color, 5);
-            batch.DrawString(font,
-                $"E: {drop.Item.Rarity} {ItemNameFormatter.GetDisplayName(drop.Item, definition, content)}",
-                position + new Vector2(16, 8),
-                color);
+            var label = string.Format(GameText.Pickup, GameText.Rarity(drop.Item.Rarity),
+                ItemNameFormatter.GetDisplayName(drop.Item, definition, content));
+            var labelWidth = Math.Min(400, font.MeasureString(label).X);
+            var labelX = Math.Clamp(position.X + 16, 8, batch.GraphicsDevice.Viewport.Width - labelWidth - 8);
+            GameText.Draw(batch, font, label,
+                new Vector2(labelX, position.Y + 8), color, labelWidth);
         }
 
         if (!arena.Monster.IsDefeated)
@@ -51,8 +53,13 @@ public sealed class ArenaRenderer
             shapes.Circle(batch, monsterPosition + new Vector2(6, -4), 3, Color.Black);
             DrawHealthBar(batch, shapes, monsterPosition + new Vector2(-24, -31), 48,
                 (float)arena.Monster.Health / arena.Monster.MaxHealth, Color.LimeGreen);
-            batch.DrawString(font, $"Slime {arena.Monster.Health}/{arena.Monster.MaxHealth}",
-                monsterPosition + new Vector2(-48, -57), Color.White);
+            var label = string.Format(GameText.Monster, content.Monsters[arena.Monster.Id].Name,
+                arena.Monster.Health, arena.Monster.MaxHealth);
+            var labelWidth = Math.Min(280, font.MeasureString(label).X);
+            var labelX = Math.Clamp(monsterPosition.X - labelWidth / 2, 8,
+                batch.GraphicsDevice.Viewport.Width - labelWidth - 8);
+            GameText.Draw(batch, font, label,
+                new Vector2(labelX, monsterPosition.Y - 57), Color.White, labelWidth);
         }
 
         var playerPosition = camera.WorldToScreen(arena.Player.Position);
@@ -85,10 +92,10 @@ public sealed class ArenaRenderer
                 previous = next;
             }
             var message = hit
-                ? critical ? $"CRITICAL! -{hitDamage}" : $"HIT -{hitDamage}"
-                : "SWING";
-            batch.DrawString(font, message, playerPosition + new Vector2(-30, -64),
-                critical ? Color.OrangeRed : hit ? Color.Gold : Color.LightCyan);
+                ? string.Format(critical ? GameText.CriticalHit : GameText.Hit, hitDamage)
+                : GameText.Swing;
+            GameText.Draw(batch, font, message, playerPosition + new Vector2(-30, -64),
+                critical ? Color.OrangeRed : hit ? Color.Gold : Color.LightCyan, 200);
         }
     }
 

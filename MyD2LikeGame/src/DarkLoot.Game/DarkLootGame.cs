@@ -41,7 +41,7 @@ public sealed class DarkLootGame : MonoGameGame
             PreferredBackBufferHeight = 720
         };
         Content.RootDirectory = Path.Combine(AppContext.BaseDirectory, "Content");
-        Window.Title = "DarkLoot - Training Arena";
+        Window.Title = GameText.Title;
         IsMouseVisible = true;
         if (smokeTest)
         {
@@ -62,6 +62,7 @@ public sealed class DarkLootGame : MonoGameGame
         _batch = new SpriteBatch(GraphicsDevice);
         _shapes = new ShapeRenderer(GraphicsDevice);
         _font = Content.Load<SpriteFont>("Fonts/UIFont");
+        _smoke?.ValidatePresentation(_font, _content);
     }
 
     protected override void Update(GameTime gameTime)

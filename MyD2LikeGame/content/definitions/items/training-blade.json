@@ -1,6 +1,6 @@
 {
   "id": "weapon.training_blade",
-  "name": "Training Blade",
+  "name": "训练之刃",
   "attackBonus": 5,
   "slot": "Weapon"
 }

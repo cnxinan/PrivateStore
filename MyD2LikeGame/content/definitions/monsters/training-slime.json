@@ -1,6 +1,6 @@
 {
   "id": "monster.training_slime",
-  "name": "Training Slime",
+  "name": "训练史莱姆",
   "maxHealth": 100,
   "contactDamage": 3,
   "moveSpeed": 55,
