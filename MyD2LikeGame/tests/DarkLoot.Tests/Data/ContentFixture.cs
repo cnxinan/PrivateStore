@@ -131,6 +131,21 @@ internal static class ContentFixture
                 """);
     }
 
+    public static string CreateLootTableWithNoEntries(int maxDrops)
+    {
+        return Create(
+            itemJson: ValidItemJson,
+            monsterJson: ValidMonsterJson,
+            lootTableJson: $$"""
+                {
+                  "id": "loot.training_slime",
+                  "minDrops": 0,
+                  "maxDrops": {{maxDrops}},
+                  "entries": []
+                }
+                """);
+    }
+
     public static void Delete(string root)
     {
         if (Directory.Exists(root))

@@ -166,6 +166,14 @@ public static class GameContentLoader
             throw Invalid(path, $"{nameof(definition.Entries)} is required.");
         }
 
+        if (definition.MaxDrops > 0 && definition.Entries.Count == 0)
+        {
+            throw Invalid(
+                path,
+                $"Loot table '{definition.Id}' must contain at least one " +
+                $"{nameof(definition.Entries)} when {nameof(definition.MaxDrops)} is positive.");
+        }
+
         foreach (var entry in definition.Entries)
         {
             if (entry is null)

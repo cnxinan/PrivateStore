@@ -170,4 +170,42 @@ public sealed class GameContentLoaderTests
             ContentFixture.Delete(root);
         }
     }
+
+    [Fact]
+    public void LoadDirectory_EmptyEntriesWithPositiveMaxDrops_ReportsSourceAndDefinition()
+    {
+        var root = ContentFixture.CreateLootTableWithNoEntries(maxDrops: 1);
+        var lootTablePath = Path.Combine(root, "loot-tables", "training-slime.json");
+
+        try
+        {
+            var error = Assert.Throws<ContentLoadException>(
+                () => GameContentLoader.LoadDirectory(root));
+
+            Assert.Contains(lootTablePath, error.Message);
+            Assert.Contains("loot.training_slime", error.Message);
+            Assert.Contains("Entries", error.Message);
+        }
+        finally
+        {
+            ContentFixture.Delete(root);
+        }
+    }
+
+    [Fact]
+    public void LoadDirectory_EmptyEntriesWithZeroMaxDrops_IsValid()
+    {
+        var root = ContentFixture.CreateLootTableWithNoEntries(maxDrops: 0);
+
+        try
+        {
+            var content = GameContentLoader.LoadDirectory(root);
+
+            Assert.Empty(content.LootTables["loot.training_slime"].Entries);
+        }
+        finally
+        {
+            ContentFixture.Delete(root);
+        }
+    }
 }
