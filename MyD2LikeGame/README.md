@@ -19,12 +19,11 @@ dotnet publish src\DarkLoot.Game --configuration Release --output artifacts\publ
 - **R** 重置史莱姆，保留生命、背包、装备和已有掉落。
 - **Escape** 退出。死亡后恢复当前生命上限，清空地面掉落，保留装备。
 
-Defeat 训练史莱姆 for a guaranteed 训练之刃 and 训练护甲. Loot rolls 普通 (Common), 魔法 (Magic),
-or 稀有 (Rare) with zero, one, or two distinct affixes; generated values stay fixed on each item, and prefix/suffix affixes compose the display name. Equip both
-slots to combine attack, maximum-health and critical-chance totals. The inventory shows each item's
-rolled values and hypothetical changes to those totals. Equipping maximum health never heals, while
-death restores current maximum health and retains all gear. Blue is the player; rarity colors mark loot,
-and critical hits use a distinct orange-red combat flash.
+击败训练史莱姆必定掉落训练之刃和训练护甲。装备随机生成普通、魔法或稀有品质，
+分别拥有零条、一条或两条不同词缀；生成后的词缀数值固定，前后缀会组成装备名称。
+武器和护甲共同提供攻击、生命上限和暴击率，背包显示随机属性及换装后的属性变化。
+提高生命上限不会立即回血；死亡后恢复当前生命上限，并保留所有装备。
+蓝色代表玩家，战利品按品质着色，暴击使用橙红色闪光反馈。
 
 ## Architecture
 
