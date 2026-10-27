@@ -47,6 +47,8 @@ public sealed class PlayerState
 
     public bool LastHitWasCritical { get; internal set; }
 
+    public long AttackSequence { get; internal set; }
+
     public Inventory Inventory { get; }
 
     public bool TryEquip(Guid instanceId)

@@ -94,7 +94,7 @@ internal sealed class RuntimeSmokeTest
             .Select(text => (text, 1080f, 22f)));
         layouts.AddRange(new[] { GameText.Inventory, GameText.Paused, GameText.Empty }
             .Select(text => (text, 616f, 22f)));
-        layouts.Add((string.Format(GameText.Hud, int.MaxValue, int.MaxValue, int.MaxValue, 100), 1080, 22));
+        layouts.Add((string.Format(GameText.Hud, int.MaxValue, int.MaxValue, int.MaxValue, 100, 9999d), 1080, 22));
         layouts.Add((string.Format(GameText.Totals, int.MaxValue, int.MaxValue, 100), 616, 22));
         layouts.Add((string.Format(GameText.Comparison, "+2147483647", "-2147483647", "+100"), 256, 21));
         foreach (var monster in content.Monsters.Values)
@@ -152,7 +152,7 @@ internal sealed class RuntimeSmokeTest
 
         if (_stage is 0 or 8)
         {
-            var delta = arena.Monster.Position - arena.Player.Position;
+            var delta = arena.Monsters[0].Position - arena.Player.Position;
             if (delta.Length() > 30)
             {
                 movement = NumericsVector.Normalize(delta);
@@ -201,12 +201,13 @@ internal sealed class RuntimeSmokeTest
         else if (_stage == 9)
         {
             attack = _updates % 2 == 0;
-            restart = arena.Monster.Health < arena.Monster.MaxHealth &&
+            restart = arena.Monsters[0].Health < arena.Monsters[0].MaxHealth &&
                       !arena.Player.LastHitWasCritical;
         }
         else if (_stage == 10)
         {
             toggle = true;
+            restart = arena.Monsters[0].IsDefeated;
         }
         else if (_stage == 11)
         {
@@ -220,20 +221,21 @@ internal sealed class RuntimeSmokeTest
 
         return new GameInputSnapshot(
             movement,
-            arena.Monster.Position,
+            arena.Monsters[0].Position,
             pointer,
             attack,
             pickup,
             toggle,
             restart,
-            false);
+            false,
+            AttackHeld: _stage is 1 or 9 or 11);
     }
 
     public void AfterUpdate(ArenaSimulation arena, InventoryPanel panel, GameContent content)
     {
         switch (_stage)
         {
-            case 1 when arena.Monster.IsDefeated:
+            case 1 when arena.Monsters[0].IsDefeated:
                 Check(arena.GroundItems.Count == 2, "slime generated guaranteed weapon and armor loot");
                 Check(arena.GroundItems.Any(item => item.Item.DefinitionId == "weapon.training_blade") &&
                       arena.GroundItems.Any(item => item.Item.DefinitionId == "armor.training_vest"),
@@ -308,21 +310,22 @@ internal sealed class RuntimeSmokeTest
                     break;
                 }
             case 7 when !panel.IsOpen:
-                Check(arena.Monster.Health == arena.Monster.MaxHealth &&
+                Check(arena.Monsters[0].Health == arena.Monsters[0].MaxHealth &&
                       arena.Player.Inventory.EquippedWeapon?.InstanceId == _weapon &&
                       arena.Player.Inventory.EquippedArmor?.InstanceId == _armor,
                     "R reset restored slime and preserved both equipped slots");
                 _stage = 8;
                 break;
             case 9 when arena.Player.LastHitWasCritical && arena.Player.LastHitDamage > 0:
-                Check(arena.Player.LastHitDamage >= arena.Player.AttackDamage * 2,
+                Check(arena.Player.LastHitDamage ==
+                      (int)Math.Min((long)arena.Player.AttackDamage * 2, arena.Monsters[0].MaxHealth),
                     "successful critical hit exposed doubled applied damage for feedback");
                 Log($"PASS critical combat feedback damage={arena.Player.LastHitDamage}");
                 _stage = 10;
                 break;
             case 10 when panel.IsOpen:
                 _pausedPlayerPosition = arena.Player.Position;
-                _pausedMonsterPosition = arena.Monster.Position;
+                _pausedMonsterPosition = arena.Monsters[0].Position;
                 _pausedHealth = arena.Player.Health;
                 _stage = 11;
                 break;
@@ -330,8 +333,8 @@ internal sealed class RuntimeSmokeTest
                 if (++_pausedUpdates == 20)
                 {
                     Check(panel.IsOpen && arena.Player.Position == _pausedPlayerPosition &&
-                          arena.Monster.Position == _pausedMonsterPosition &&
-                          arena.Player.Health == _pausedHealth && !arena.Monster.IsDefeated,
+                          arena.Monsters[0].Position == _pausedMonsterPosition &&
+                          arena.Player.Health == _pausedHealth && !arena.Monsters[0].IsDefeated,
                         "inventory paused a live encounter and consumed inputs for 20 updates");
                     _stage = 12;
                 }
@@ -346,7 +349,7 @@ internal sealed class RuntimeSmokeTest
                 break;
             case 14 when arena.Player.Health > _previousHealth:
                 Check(arena.Player.Health == arena.Player.MaximumHealth &&
-                      arena.Monster.Health == arena.Monster.MaxHealth &&
+                      arena.Monsters[0].Health == arena.Monsters[0].MaxHealth &&
                       arena.GroundItems.Count == 0 &&
                       arena.Player.Inventory.EquippedWeapon?.InstanceId == _weapon &&
                       arena.Player.Inventory.EquippedArmor?.InstanceId == _armor,
@@ -358,7 +361,7 @@ internal sealed class RuntimeSmokeTest
         _previousHealth = arena.Player.Health;
     }
 
-    public bool AfterDraw()
+    public bool AfterDraw(double framesPerSecond)
     {
         _draws++;
         if (_stage != 15)
@@ -367,6 +370,8 @@ internal sealed class RuntimeSmokeTest
         }
 
         Check(_draws > 10, "real graphics update/draw loop rendered multiple frames");
+        Check(double.IsFinite(framesPerSecond) && framesPerSecond > 0,
+            $"HUD received measured real draw rate {framesPerSecond:F1} FPS");
         Log($"PASS gear smoke complete; updates={_updates}; draws={_draws}");
         return true;
     }

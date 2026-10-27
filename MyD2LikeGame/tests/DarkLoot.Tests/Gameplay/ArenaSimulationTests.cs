@@ -9,9 +9,24 @@ namespace DarkLoot.Tests.Gameplay;
 public sealed class ArenaSimulationTests
 {
     [Fact]
+    public void Update_HeldAttackRepeatsOnlyAfterCooldownAndReleaseStopsSwings()
+    {
+        var simulation = CreateSingleTargetArena(CreateContent(), new Random(17));
+        var held = new PlayerIntent(Vector2.Zero, simulation.Monsters[0].Position, true, false);
+        simulation.Update(held, 0);
+        Assert.Equal(1, simulation.Player.AttackSequence);
+        simulation.Update(held, .1f);
+        Assert.Equal(1, simulation.Player.AttackSequence);
+        simulation.Update(held, .25f);
+        Assert.Equal(2, simulation.Player.AttackSequence);
+        simulation.Update(held with { AttackPressed = false }, .5f);
+        Assert.Equal(2, simulation.Player.AttackSequence);
+    }
+
+    [Fact]
     public void Update_NormalizesDiagonalMovementAndKeepsPositionsFiniteAndBounded()
     {
-        var simulation = new ArenaSimulation(CreateContent(), new Random(17));
+        var simulation = CreateSingleTargetArena(CreateContent(), new Random(17));
         var start = simulation.Player.Position;
 
         simulation.Update(
@@ -20,7 +35,7 @@ public sealed class ArenaSimulationTests
 
         Assert.Equal(180f, Vector2.Distance(start, simulation.Player.Position), 3);
         AssertFiniteAndBounded(simulation.Player.Position);
-        AssertFiniteAndBounded(simulation.Monster.Position);
+        AssertFiniteAndBounded(simulation.Monsters[0].Position);
 
         simulation.Update(
             new PlayerIntent(
@@ -31,25 +46,25 @@ public sealed class ArenaSimulationTests
             1000f);
 
         AssertFiniteAndBounded(simulation.Player.Position);
-        AssertFiniteAndBounded(simulation.Monster.Position);
+        AssertFiniteAndBounded(simulation.Monsters[0].Position);
     }
 
     [Fact]
     public void Update_AttacksOnlyWhenMonsterIsInRangeAndFacingArc()
     {
         var random = new CountingRandom();
-        var simulation = new ArenaSimulation(CreateContent(), random);
+        var simulation = CreateSingleTargetArena(CreateContent(), random);
 
         simulation.Update(
             new PlayerIntent(Vector2.UnitX, new Vector2(480, 350), true, false),
             1f);
-        Assert.Equal(12, simulation.Monster.Health);
+        Assert.Equal(12, simulation.Monsters[0].Health);
 
         simulation.Update(
-            new PlayerIntent(Vector2.UnitX, simulation.Monster.Position, true, false),
-            0.27f);
+            new PlayerIntent(Vector2.UnitX, simulation.Monsters[0].Position, true, false),
+            0.35f);
 
-        Assert.Equal(2, simulation.Monster.Health);
+        Assert.Equal(2, simulation.Monsters[0].Health);
         Assert.False(simulation.Player.LastHitWasCritical);
         Assert.Equal(0, random.CriticalRolls);
     }
@@ -57,67 +72,67 @@ public sealed class ArenaSimulationTests
     [Fact]
     public void Update_EnforcesPlayerAttackCooldown()
     {
-        var simulation = new ArenaSimulation(CreateContent(), new Random(17));
+        var simulation = CreateSingleTargetArena(CreateContent(), new Random(17));
 
         simulation.Update(
-            new PlayerIntent(Vector2.UnitX, simulation.Monster.Position, false, false),
+            new PlayerIntent(Vector2.UnitX, simulation.Monsters[0].Position, false, false),
             1f);
         simulation.Update(
-            new PlayerIntent(Vector2.UnitX, simulation.Monster.Position, true, false),
+            new PlayerIntent(Vector2.UnitX, simulation.Monsters[0].Position, true, false),
             0.35f);
-        Assert.Equal(2, simulation.Monster.Health);
+        Assert.Equal(2, simulation.Monsters[0].Health);
 
         simulation.Update(
-            new PlayerIntent(Vector2.Zero, simulation.Monster.Position, true, false),
+            new PlayerIntent(Vector2.Zero, simulation.Monsters[0].Position, true, false),
             0.1f);
-        Assert.Equal(2, simulation.Monster.Health);
+        Assert.Equal(2, simulation.Monsters[0].Health);
 
         simulation.Update(
-            new PlayerIntent(Vector2.Zero, simulation.Monster.Position, true, false),
+            new PlayerIntent(Vector2.Zero, simulation.Monsters[0].Position, true, false),
             0.25f);
-        Assert.True(simulation.Monster.IsDefeated);
+        Assert.True(simulation.Monsters[0].IsDefeated);
     }
 
     [Fact]
     public void Update_HandlesCoincidentPlayerAndMonsterAndCoincidentAim()
     {
-        var simulation = new ArenaSimulation(CreateContent(), new Random(17));
+        var simulation = CreateSingleTargetArena(CreateContent(), new Random(17));
 
         simulation.Update(
             new PlayerIntent(Vector2.UnitX, new Vector2(480, 270), false, false),
             100f);
 
-        Assert.Equal(simulation.Player.Position, simulation.Monster.Position);
+        Assert.Equal(simulation.Player.Position, simulation.Monsters[0].Position);
         simulation.Update(
             new PlayerIntent(Vector2.Zero, simulation.Player.Position, true, false),
             0f);
 
-        Assert.Equal(2, simulation.Monster.Health);
+        Assert.Equal(2, simulation.Monsters[0].Health);
         simulation.Update(
             new PlayerIntent(Vector2.Zero, simulation.Player.Position, true, false),
             0.35f);
-        Assert.True(simulation.Monster.IsDefeated);
+        Assert.True(simulation.Monsters[0].IsDefeated);
         AssertFiniteAndBounded(simulation.Player.Position);
-        AssertFiniteAndBounded(simulation.Monster.Position);
+        AssertFiniteAndBounded(simulation.Monsters[0].Position);
     }
 
     [Fact]
     public void Update_KillsOncePicksUpAndEquipsLootThenResetKeepsWeaponDamage()
     {
         var content = CreateContent();
-        var simulation = new ArenaSimulation(content, new Random(17));
+        var simulation = CreateSingleTargetArena(content, new Random(17));
 
         var unarmedAttackCount = AdvanceUntilDefeated(simulation);
         Assert.Equal(2, unarmedAttackCount);
 
-        Assert.True(simulation.Monster.IsDefeated);
+        Assert.True(simulation.Monsters[0].IsDefeated);
         var drop = Assert.Single(simulation.GroundItems);
         Assert.Equal("item.training_sword", drop.Item.DefinitionId);
 
         for (var index = 0; index < 20; index++)
         {
             simulation.Update(
-                new PlayerIntent(Vector2.Zero, simulation.Monster.Position, true, false),
+                new PlayerIntent(Vector2.Zero, simulation.Monsters[0].Position, true, false),
                 0.1f);
         }
 
@@ -125,7 +140,7 @@ public sealed class ArenaSimulationTests
         Assert.Empty(simulation.Player.Inventory.Items);
 
         simulation.Update(
-            new PlayerIntent(Vector2.UnitY, simulation.Monster.Position, false, false),
+            new PlayerIntent(Vector2.UnitY, simulation.Monsters[0].Position, false, false),
             1f);
         simulation.Update(
             new PlayerIntent(Vector2.Zero, simulation.Player.Position, false, true),
@@ -134,7 +149,7 @@ public sealed class ArenaSimulationTests
         Assert.Empty(simulation.Player.Inventory.Items);
 
         simulation.Update(
-            new PlayerIntent(-Vector2.UnitY, simulation.Monster.Position, false, true),
+            new PlayerIntent(-Vector2.UnitY, simulation.Monsters[0].Position, false, true),
             1f);
         Assert.Empty(simulation.GroundItems);
         var weapon = Assert.Single(simulation.Player.Inventory.Items);
@@ -145,14 +160,14 @@ public sealed class ArenaSimulationTests
         Assert.Equal(13, simulation.Player.AttackDamage);
 
         simulation.ResetEncounter();
-        Assert.Equal(12, simulation.Monster.Health);
-        Assert.False(simulation.Monster.IsDefeated);
+        Assert.Equal(12, simulation.Monsters[0].Health);
+        Assert.False(simulation.Monsters[0].IsDefeated);
         Assert.Same(weapon, simulation.Player.Inventory.EquippedWeapon);
         Assert.Equal(13, simulation.Player.AttackDamage);
 
         var equippedAttackCount = AdvanceUntilDefeated(simulation);
 
-        Assert.True(simulation.Monster.IsDefeated);
+        Assert.True(simulation.Monsters[0].IsDefeated);
         Assert.Equal(1, equippedAttackCount);
         Assert.Single(simulation.GroundItems);
     }
@@ -161,7 +176,7 @@ public sealed class ArenaSimulationTests
     public void Update_RespawnsPlayerAndMonsterAndClearsDropsWithoutLosingEquipment()
     {
         var content = CreateContent();
-        var simulation = new ArenaSimulation(content, new Random(17));
+        var simulation = CreateSingleTargetArena(content, new Random(17));
         var inventoryService = new InventoryService();
         var sword = new ItemInstance(Guid.NewGuid(), "item.training_sword");
         Assert.True(inventoryService.TryPickUp(simulation.Player.Inventory, sword));
@@ -177,7 +192,7 @@ public sealed class ArenaSimulationTests
         for (var index = 0; index < 1000; index++)
         {
             simulation.Update(
-                new PlayerIntent(Vector2.Zero, simulation.Monster.Position, false, false),
+                new PlayerIntent(Vector2.Zero, simulation.Monsters[0].Position, false, false),
                 0.1f);
 
             tookDamage |= simulation.Player.Health < 100;
@@ -189,8 +204,8 @@ public sealed class ArenaSimulationTests
 
         Assert.Equal(100, simulation.Player.Health);
         Assert.Equal(new Vector2(160, 270), simulation.Player.Position);
-        Assert.Equal(new Vector2(480, 270), simulation.Monster.Position);
-        Assert.False(simulation.Monster.IsDefeated);
+        Assert.Equal(new Vector2(480, 270), simulation.Monsters[0].Position);
+        Assert.False(simulation.Monsters[0].IsDefeated);
         Assert.Empty(simulation.GroundItems);
         Assert.Same(sword, simulation.Player.Inventory.EquippedWeapon);
         Assert.Equal(13, simulation.Player.AttackDamage);
@@ -200,7 +215,7 @@ public sealed class ArenaSimulationTests
     public void Update_LimitsMonsterContactDamageToOneHitPerCooldown()
     {
         var content = CreateContent(contactDamage: 2, monsterSpeed: 100);
-        var simulation = new ArenaSimulation(content, new Random(17));
+        var simulation = CreateSingleTargetArena(content, new Random(17));
 
         simulation.Update(
             new PlayerIntent(Vector2.Zero, simulation.Player.Position, false, false),
@@ -225,7 +240,7 @@ public sealed class ArenaSimulationTests
     public void TryEquip_ClampsHealthImmediatelyAndNeverHealsWhenMaximumChanges()
     {
         var content = CreateGearContent();
-        var simulation = new ArenaSimulation(content, new Random(17));
+        var simulation = CreateSingleTargetArena(content, new Random(17));
         var service = new InventoryService();
         var highArmor = new ItemInstance(
             Guid.NewGuid(), "item.armor_high", ItemRarity.Magic,
@@ -237,7 +252,7 @@ public sealed class ArenaSimulationTests
         Assert.True(service.TryPickUp(simulation.Player.Inventory, lowArmor));
         Assert.True(simulation.TryEquip(highArmor.InstanceId));
 
-        simulation.Update(new PlayerIntent(Vector2.Zero, simulation.Monster.Position, false, false), 3f);
+        simulation.Update(new PlayerIntent(Vector2.Zero, simulation.Monsters[0].Position, false, false), 3f);
         Assert.Equal(90, simulation.Player.Health);
         Assert.Equal(150, simulation.Player.MaximumHealth);
 
@@ -260,7 +275,7 @@ public sealed class ArenaSimulationTests
         affixes["health.dead"] = new(
             "health.dead", "Deadly", ItemStat.MaximumHealth, -200, -200, [ItemSlot.Armor]);
         var content = new GameContent(items, baseContent.Monsters, baseContent.LootTables, affixes);
-        var simulation = new ArenaSimulation(content, new Random(17));
+        var simulation = CreateSingleTargetArena(content, new Random(17));
         var item = new ItemInstance(
             Guid.NewGuid(), "item.armor_dead", ItemRarity.Magic,
             [new AffixRoll("health.dead", ItemStat.MaximumHealth, -200)]);
@@ -277,7 +292,7 @@ public sealed class ArenaSimulationTests
     {
         var content = CreateGearContent();
         var random = new CountingRandom();
-        var simulation = new ArenaSimulation(content, random);
+        var simulation = CreateSingleTargetArena(content, random);
         var service = new InventoryService();
         var weapon = new ItemInstance(
             Guid.NewGuid(), "item.crit_weapon", ItemRarity.Magic,
@@ -288,13 +303,13 @@ public sealed class ArenaSimulationTests
         for (var index = 0; index < 20 && simulation.Player.LastHitDamage == 0; index++)
         {
             simulation.Update(
-                new PlayerIntent(Vector2.UnitX, simulation.Monster.Position, true, false),
+                new PlayerIntent(Vector2.UnitX, simulation.Monsters[0].Position, true, false),
                 0.2f);
         }
 
         Assert.True(simulation.Player.LastHitWasCritical);
         Assert.Equal(20, simulation.Player.LastHitDamage);
-        Assert.Equal(80, simulation.Monster.Health);
+        Assert.Equal(80, simulation.Monsters[0].Health);
         Assert.Equal(0, random.CriticalRolls);
     }
 
@@ -303,7 +318,7 @@ public sealed class ArenaSimulationTests
     {
         var content = CreateGearContent();
         var random = new CountingRandom();
-        var simulation = new ArenaSimulation(content, random);
+        var simulation = CreateSingleTargetArena(content, random);
         var service = new InventoryService();
         var weapon = new ItemInstance(
             Guid.NewGuid(), "item.crit_weapon", ItemRarity.Magic,
@@ -312,21 +327,21 @@ public sealed class ArenaSimulationTests
         Assert.True(simulation.TryEquip(weapon.InstanceId));
 
         simulation.Update(
-            new PlayerIntent(Vector2.Zero, simulation.Monster.Position, true, false),
+            new PlayerIntent(Vector2.Zero, simulation.Monsters[0].Position, true, false),
             0.1f);
         Assert.Equal(0, random.CriticalRolls);
 
         for (var index = 0; index < 30 &&
-             Vector2.Distance(simulation.Player.Position, simulation.Monster.Position) > 48;
+             Vector2.Distance(simulation.Player.Position, simulation.Monsters[0].Position) > 48;
              index++)
         {
             simulation.Update(
-                new PlayerIntent(Vector2.UnitX, simulation.Monster.Position, false, false),
+                new PlayerIntent(Vector2.UnitX, simulation.Monsters[0].Position, false, false),
                 0.05f);
         }
 
         simulation.Update(
-            new PlayerIntent(Vector2.Zero, simulation.Monster.Position, true, false),
+            new PlayerIntent(Vector2.Zero, simulation.Monsters[0].Position, true, false),
             0f);
 
         Assert.Equal(1, random.CriticalRolls);
@@ -342,7 +357,11 @@ public sealed class ArenaSimulationTests
             new Dictionary<string, LootTableDefinition>());
 
         var error = Assert.Throws<ArgumentException>(
-            () => new ArenaSimulation(content, new Random(17)));
+            () => new ArenaSimulation(
+                content,
+                new Random(17),
+                MixedEncounterFixture.CreateEncounter(
+                    new MonsterSpawnDefinition("missing", "monster.training_slime", 480, 270))));
 
         Assert.Contains("monster.training_slime", error.Message);
     }
@@ -357,7 +376,11 @@ public sealed class ArenaSimulationTests
             new Dictionary<string, LootTableDefinition>());
 
         var error = Assert.Throws<ArgumentException>(
-            () => new ArenaSimulation(content, new Random(17)));
+            () => new ArenaSimulation(
+                content,
+                new Random(17),
+                MixedEncounterFixture.CreateEncounter(
+                    new MonsterSpawnDefinition("single", "monster.training_slime", 480, 270))));
 
         Assert.Contains("loot.training_slime", error.Message);
     }
@@ -365,23 +388,23 @@ public sealed class ArenaSimulationTests
     private static int AdvanceUntilDefeated(ArenaSimulation simulation)
     {
         var attackCount = 0;
-        for (var index = 0; index < 1000 && !simulation.Monster.IsDefeated; index++)
+        for (var index = 0; index < 1000 && !simulation.Monsters[0].IsDefeated; index++)
         {
-            var delta = simulation.Monster.Position - simulation.Player.Position;
+            var delta = simulation.Monsters[0].Position - simulation.Player.Position;
             var direction = delta.LengthSquared() <= 48 * 48
                 ? Vector2.Zero
                 : Vector2.Normalize(delta);
-            var previousHealth = simulation.Monster.Health;
+            var previousHealth = simulation.Monsters[0].Health;
 
             simulation.Update(
                 new PlayerIntent(
                     direction,
-                    simulation.Monster.Position,
+                    simulation.Monsters[0].Position,
                     true,
                     false),
                 0.05f);
 
-            if (simulation.Monster.Health < previousHealth)
+            if (simulation.Monsters[0].Health < previousHealth)
             {
                 attackCount++;
             }
@@ -397,6 +420,13 @@ public sealed class ArenaSimulationTests
         Assert.InRange(position.X, 0f, 960f);
         Assert.InRange(position.Y, 0f, 540f);
     }
+
+    private static ArenaSimulation CreateSingleTargetArena(GameContent content, Random random) =>
+        new(
+            content,
+            random,
+            MixedEncounterFixture.CreateEncounter(
+                new MonsterSpawnDefinition("single", "monster.training_slime", 480, 270)));
 
     private static GameContent CreateContent(
         int contactDamage = 2,

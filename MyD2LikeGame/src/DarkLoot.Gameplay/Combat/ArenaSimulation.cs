@@ -11,7 +11,6 @@ public sealed class ArenaSimulation
 {
     private const float ArenaWidth = 960f;
     private const float ArenaHeight = 540f;
-    private const float PlayerSpeed = 180f;
     private const int PlayerMaxHealth = 100;
     private const int PlayerBaseAttackDamage = 10;
     private const float MeleeRange = 48f;
@@ -20,59 +19,91 @@ public sealed class ArenaSimulation
     private const float MonsterContactRange = 24f;
     private const float MonsterContactCooldownSeconds = 0.8f;
     private const float PickupRange = 36f;
-    private const string TrainingMonsterId = "monster.training_slime";
+    private const string TrainingEncounterId = "encounter.training_arena";
     private static readonly Vector2 PlayerSpawn = new(160f, 270f);
-    private static readonly Vector2 MonsterSpawn = new(480f, 270f);
 
     private readonly GameContent _content;
     private readonly Random _random;
     private readonly InventoryService _inventoryService = new();
     private readonly LootGenerator _lootGenerator = new();
-    private readonly LootTableDefinition _lootTable;
+    private readonly List<MonsterState> _monsters = [];
+    private readonly ReadOnlyCollection<MonsterState> _readOnlyMonsters;
+    private readonly List<MeleeHit> _lastSwingHits = [];
+    private readonly ReadOnlyCollection<MeleeHit> _readOnlyLastSwingHits;
     private readonly List<GroundItem> _groundItems = [];
     private readonly ReadOnlyCollection<GroundItem> _readOnlyGroundItems;
+    private readonly MonsterBehaviorSystem _monsterBehaviorSystem = new();
     private float _attackCooldown;
     private float _monsterContactCooldown;
-    private bool _lootGenerated;
 
     public ArenaSimulation(GameContent content, Random random)
+        : this(content, random, RequireTrainingEncounter(content))
+    {
+    }
+
+    public ArenaSimulation(GameContent content, Random random, EncounterDefinition encounter)
     {
         ArgumentNullException.ThrowIfNull(content);
         ArgumentNullException.ThrowIfNull(random);
-        if (content.Monsters is null ||
-            !content.Monsters.TryGetValue(TrainingMonsterId, out var monsterDefinition) ||
-            monsterDefinition is null ||
-            !string.Equals(monsterDefinition.Id, TrainingMonsterId, StringComparison.Ordinal))
+        ArgumentNullException.ThrowIfNull(encounter);
+        if (string.IsNullOrWhiteSpace(encounter.Id) ||
+            encounter.Spawns is null ||
+            encounter.Spawns.Count == 0)
         {
-            throw new ArgumentException(
-                $"Game content is missing required monster '{TrainingMonsterId}'.",
-                nameof(content));
-        }
-
-        if (monsterDefinition.MaxHealth <= 0 ||
-            monsterDefinition.ContactDamage < 0 ||
-            !float.IsFinite(monsterDefinition.MoveSpeed) ||
-            monsterDefinition.MoveSpeed <= 0)
-        {
-            throw new ArgumentException(
-                $"Monster '{TrainingMonsterId}' has invalid combat values.",
-                nameof(content));
-        }
-
-        if (content.LootTables is null ||
-            !content.LootTables.TryGetValue(monsterDefinition.LootTableId, out var lootTable) ||
-            lootTable is null)
-        {
-            throw new ArgumentException(
-                $"Game content is missing loot table '{monsterDefinition.LootTableId}' " +
-                $"for monster '{TrainingMonsterId}'.",
-                nameof(content));
+            throw new ArgumentException("Encounter must have an ID and at least one spawn.", nameof(encounter));
         }
 
         _content = content;
         _random = random;
-        _lootTable = lootTable;
+        _readOnlyMonsters = _monsters.AsReadOnly();
+        _readOnlyLastSwingHits = _lastSwingHits.AsReadOnly();
         _readOnlyGroundItems = _groundItems.AsReadOnly();
+        var instanceIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var spawn in encounter.Spawns)
+        {
+            if (spawn is null ||
+                string.IsNullOrWhiteSpace(spawn.InstanceId) ||
+                string.IsNullOrWhiteSpace(spawn.MonsterId) ||
+                !float.IsFinite(spawn.X) || spawn.X is < 0 or > ArenaWidth ||
+                !float.IsFinite(spawn.Y) || spawn.Y is < 0 or > ArenaHeight ||
+                !instanceIds.Add(spawn.InstanceId))
+            {
+                throw new ArgumentException(
+                    $"Encounter '{encounter.Id}' contains an invalid or duplicate spawn.",
+                    nameof(encounter));
+            }
+
+            if (content.Monsters is null ||
+                !content.Monsters.TryGetValue(spawn.MonsterId, out var definition) ||
+                definition is null ||
+                !string.Equals(definition.Id, spawn.MonsterId, StringComparison.Ordinal))
+            {
+                throw new ArgumentException(
+                    $"Encounter '{encounter.Id}' spawn '{spawn.InstanceId}' references missing monster " +
+                    $"'{spawn.MonsterId}'.",
+                    nameof(content));
+            }
+
+            if (!IsValidMonster(definition))
+            {
+                throw new ArgumentException(
+                    $"Monster '{spawn.MonsterId}' has invalid combat values or behavior.",
+                    nameof(content));
+            }
+
+            if (content.LootTables is null ||
+                !content.LootTables.TryGetValue(definition.LootTableId, out var lootTable) ||
+                lootTable is null)
+            {
+                throw new ArgumentException(
+                    $"Game content is missing loot table '{definition.LootTableId}' for monster " +
+                    $"'{spawn.MonsterId}'.",
+                    nameof(content));
+            }
+
+            _monsters.Add(new MonsterState(spawn, definition));
+        }
+
         Player = new PlayerState(
             content,
             _inventoryService,
@@ -80,12 +111,17 @@ public sealed class ArenaSimulation
             PlayerMaxHealth,
             PlayerMaxHealth,
             PlayerBaseAttackDamage);
-        Monster = new MonsterState(monsterDefinition, MonsterSpawn);
     }
 
     public PlayerState Player { get; }
 
-    public MonsterState Monster { get; }
+    public IReadOnlyList<MonsterState> Monsters => _readOnlyMonsters;
+
+    public IReadOnlyList<MeleeHit> LastSwingHits => _readOnlyLastSwingHits;
+
+    public int RemainingMonsters => _monsters.Count(monster => !monster.IsDefeated);
+
+    public bool IsCleared => RemainingMonsters == 0;
 
     public IReadOnlyList<GroundItem> GroundItems => _readOnlyGroundItems;
 
@@ -108,10 +144,14 @@ public sealed class ArenaSimulation
         UpdateFacing(intent.AimWorldPosition);
         TryAttack(intent.AttackPressed);
 
-        if (!Monster.IsDefeated)
+        foreach (var monster in _monsters)
         {
-            MoveMonster(elapsedSeconds);
-            TryMonsterContactDamage();
+            _monsterBehaviorSystem.Update(monster, Player.Position, elapsedSeconds);
+        }
+
+        if (TryMonsterContactDamage())
+        {
+            return;
         }
 
         if (intent.PickupPressed)
@@ -122,10 +162,8 @@ public sealed class ArenaSimulation
 
     public void ResetEncounter()
     {
-        ResetMonster();
+        ResetMonsters();
         _attackCooldown = 0;
-        Player.LastHitDamage = 0;
-        Player.LastHitWasCritical = false;
     }
 
     private void MovePlayer(Vector2 direction, float elapsedSeconds)
@@ -134,7 +172,7 @@ public sealed class ArenaSimulation
         Player.Position = MoveAndClamp(
             Player.Position,
             normalized,
-            PlayerSpeed,
+            180f,
             elapsedSeconds);
     }
 
@@ -155,93 +193,94 @@ public sealed class ArenaSimulation
 
     private void TryAttack(bool attackPressed)
     {
-        if (!attackPressed || Monster.IsDefeated || _attackCooldown > 0)
+        if (!attackPressed || IsCleared || _attackCooldown > 0)
         {
             return;
         }
 
+        _lastSwingHits.Clear();
         Player.LastHitDamage = 0;
         Player.LastHitWasCritical = false;
-        if (!CombatRules.IsInMeleeRange(
-                Player.Position,
-                Player.Facing,
-                Monster.Position,
-                MeleeRange,
-                MeleeHalfAngleDegrees))
-        {
-            return;
-        }
-
+        Player.AttackSequence++;
         _attackCooldown = AttackCooldownSeconds;
-        var critical = Player.CriticalChance switch
+
+        foreach (var monster in _monsters)
         {
-            0 => false,
-            100 => true,
-            var chance => _random.Next(100) < chance
-        };
-        var damage = critical
-            ? (int)Math.Min((long)Player.AttackDamage * 2, int.MaxValue)
-            : Player.AttackDamage;
-        var appliedDamage = Math.Min(damage, Monster.Health);
-        Monster.Health -= appliedDamage;
-        Player.LastHitDamage = appliedDamage;
-        Player.LastHitWasCritical = critical;
-        if (Monster.IsDefeated && !_lootGenerated)
-        {
-            GenerateMonsterLoot();
+            if (monster.IsDefeated ||
+                !CombatRules.IsInMeleeRange(
+                    Player.Position,
+                    Player.Facing,
+                    monster.Position,
+                    MeleeRange,
+                    MeleeHalfAngleDegrees))
+            {
+                continue;
+            }
+
+            var critical = Player.CriticalChance switch
+            {
+                0 => false,
+                100 => true,
+                var chance => _random.Next(100) < chance
+            };
+            var damage = critical
+                ? (int)Math.Min((long)Player.AttackDamage * 2, int.MaxValue)
+                : Player.AttackDamage;
+            var appliedDamage = Math.Min(damage, monster.Health);
+            monster.Health -= appliedDamage;
+            _lastSwingHits.Add(new MeleeHit(monster.InstanceId, appliedDamage, critical));
+            if (_lastSwingHits.Count == 1)
+            {
+                Player.LastHitDamage = appliedDamage;
+                Player.LastHitWasCritical = critical;
+            }
+
+            if (monster.IsDefeated && !monster.DeathResolved)
+            {
+                monster.DeathResolved = true;
+                GenerateMonsterLoot(monster);
+            }
         }
     }
 
-    private void GenerateMonsterLoot()
+    private void GenerateMonsterLoot(MonsterState monster)
     {
-        _lootGenerated = true;
-        foreach (var item in _lootGenerator.Generate(_lootTable, _content, _random))
+        var lootTable = _content.LootTables[monster.Definition.LootTableId];
+        foreach (var item in _lootGenerator.Generate(lootTable, _content, _random))
         {
-            _groundItems.Add(new GroundItem(item, Monster.Position));
+            _groundItems.Add(new GroundItem(item, monster.Position));
         }
     }
 
-    private void MoveMonster(float elapsedSeconds)
+    private bool TryMonsterContactDamage()
     {
-        var deltaX = (double)Player.Position.X - Monster.Position.X;
-        var deltaY = (double)Player.Position.Y - Monster.Position.Y;
-        var distance = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
-        if (distance == 0)
+        if (_monsterContactCooldown > 0)
         {
-            return;
+            return false;
         }
 
-        var travelDistance = Math.Min((double)Monster.MoveSpeed * elapsedSeconds, distance);
-        if (travelDistance >= distance)
+        foreach (var monster in _monsters)
         {
-            Monster.Position = Player.Position;
-            return;
+            if (monster.IsDefeated ||
+                monster.ContactDamage <= 0 ||
+                Vector2.DistanceSquared(Player.Position, monster.Position) >
+                MonsterContactRange * MonsterContactRange)
+            {
+                continue;
+            }
+
+            _monsterContactCooldown = MonsterContactCooldownSeconds;
+            Player.Health = Math.Max(0, Player.Health - monster.ContactDamage);
+            if (Player.Health == 0)
+            {
+                RespawnAfterDeath();
+                return true;
+            }
+
+            return false;
         }
 
-        var direction = NormalizeFinite(new Vector2((float)deltaX, (float)deltaY));
-        Monster.Position = MoveAndClamp(
-            Monster.Position,
-            direction,
-            (float)travelDistance,
-            1f);
-    }
-
-    private void TryMonsterContactDamage()
-    {
-        if (Monster.ContactDamage <= 0 ||
-            _monsterContactCooldown > 0 ||
-            Vector2.DistanceSquared(Player.Position, Monster.Position) >
-            MonsterContactRange * MonsterContactRange)
-        {
-            return;
-        }
-
-        _monsterContactCooldown = MonsterContactCooldownSeconds;
-        Player.Health = Math.Max(0, Player.Health - Monster.ContactDamage);
-        if (Player.Health == 0)
-        {
-            RespawnAfterDeath();
-        }
+        return false;
     }
 
     private void TryPickUpNearestItem()
@@ -276,21 +315,73 @@ public sealed class ArenaSimulation
     {
         Player.Position = PlayerSpawn;
         Player.Health = Player.MaximumHealth;
-        Player.LastHitDamage = 0;
-        Player.LastHitWasCritical = false;
         Player.Facing = Vector2.UnitX;
         _groundItems.Clear();
-        _monsterContactCooldown = 0;
-        ResetMonster();
+        ResetMonsters();
         _attackCooldown = 0;
     }
 
-    private void ResetMonster()
+    private void ResetMonsters()
     {
-        Monster.Position = MonsterSpawn;
-        Monster.Health = Monster.MaxHealth;
+        foreach (var monster in _monsters)
+        {
+            monster.Position = monster.SpawnPosition;
+            monster.Health = monster.MaxHealth;
+            monster.DeathResolved = false;
+        }
+
         _monsterContactCooldown = 0;
-        _lootGenerated = false;
+        ClearSwingFeedback();
+    }
+
+    private void ClearSwingFeedback()
+    {
+        _lastSwingHits.Clear();
+        Player.LastHitDamage = 0;
+        Player.LastHitWasCritical = false;
+    }
+
+    private static EncounterDefinition RequireTrainingEncounter(GameContent content)
+    {
+        ArgumentNullException.ThrowIfNull(content);
+        if (content.Encounters.TryGetValue(TrainingEncounterId, out var encounter) &&
+            encounter is not null)
+        {
+            return encounter;
+        }
+
+        throw new ArgumentException(
+            $"Game content is missing required encounter '{TrainingEncounterId}'.",
+            nameof(content));
+    }
+
+    private static bool IsValidMonster(MonsterDefinition definition)
+    {
+        if (definition.MaxHealth <= 0 ||
+            definition.ContactDamage < 0 ||
+            !float.IsFinite(definition.MoveSpeed) ||
+            definition.MoveSpeed <= 0 ||
+            !Enum.IsDefined(definition.Behavior))
+        {
+            return false;
+        }
+
+        return definition.Behavior switch
+        {
+            MonsterBehavior.Chase => definition.RangedAttack is null,
+            MonsterBehavior.Archer =>
+                definition.RangedAttack is { Range: > 0 } attack &&
+                float.IsFinite(attack.Range) &&
+                float.IsFinite(attack.ProjectileSpeed) &&
+                attack.ProjectileSpeed > 0 &&
+                float.IsFinite(attack.FireInterval) &&
+                attack.FireInterval > 0 &&
+                float.IsFinite(attack.WindupSeconds) &&
+                attack.WindupSeconds > 0 &&
+                attack.WindupSeconds <= attack.FireInterval &&
+                attack.Damage >= 0,
+            _ => false
+        };
     }
 
     private static Vector2 MoveAndClamp(
@@ -324,8 +415,6 @@ public sealed class ArenaSimulation
         return new Vector2((float)(x / length), (float)(y / length));
     }
 
-    private static bool IsFinite(Vector2 vector)
-    {
-        return float.IsFinite(vector.X) && float.IsFinite(vector.Y);
-    }
+    private static bool IsFinite(Vector2 vector) =>
+        float.IsFinite(vector.X) && float.IsFinite(vector.Y);
 }

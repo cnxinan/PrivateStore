@@ -1,7 +1,10 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using DarkLoot.Data;
+using DarkLoot.Data.Definitions;
 using DarkLoot.Engine.Camera;
+using DarkLoot.Engine.Diagnostics;
 using DarkLoot.Engine.Input;
 using DarkLoot.Engine.Rendering;
 using DarkLoot.Gameplay.Combat;
@@ -20,6 +23,8 @@ public sealed class DarkLootGame : MonoGameGame
     private readonly ArenaRenderer _arenaRenderer = new();
     private readonly HudRenderer _hud = new();
     private readonly InventoryPanel _inventory = new();
+    private readonly FrameRateCounter _frameRate = new();
+    private readonly Stopwatch _renderClock = Stopwatch.StartNew();
     private readonly RuntimeSmokeTest? _smoke;
     private SpriteBatch _batch = null!;
     private ShapeRenderer _shapes = null!;
@@ -28,9 +33,6 @@ public sealed class DarkLootGame : MonoGameGame
     private ArenaSimulation _arena = null!;
     private NumericsVector _aim;
     private float _attackFlash;
-    private bool _hit;
-    private bool _critical;
-    private int _hitDamage;
     private bool _wasActive;
 
     public DarkLootGame(bool smokeTest)
@@ -52,7 +54,15 @@ public sealed class DarkLootGame : MonoGameGame
     protected override void Initialize()
     {
         _content = GameContentLoader.LoadDirectory(Path.Combine(AppContext.BaseDirectory, "Definitions"));
-        _arena = new ArenaSimulation(_content, new Random(_smoke is null ? 42 : 17));
+        var encounter = _smoke is null
+            ? _content.Encounters["encounter.training_arena"]
+            : new EncounterDefinition(
+                "encounter.smoke",
+                [new MonsterSpawnDefinition("smoke.slime", "monster.training_slime", 480, 270)]);
+        _arena = new ArenaSimulation(
+            _content,
+            new Random(_smoke is null ? 42 : 17),
+            encounter);
         FollowPlayer();
         base.Initialize();
     }
@@ -99,20 +109,17 @@ public sealed class DarkLootGame : MonoGameGame
         {
             _arena.ResetEncounter();
         }
-        var attacking = input.AttackPressed && !_inventory.IsOpen;
-        var previousMonsterHealth = _arena.Monster.Health;
+        var attacking = (input.AttackHeld || input.AttackPressed) && !_inventory.IsOpen;
+        var previousAttackSequence = _arena.Player.AttackSequence;
         if (!_inventory.IsOpen)
         {
             var intent = new PlayerIntent(input.MoveDirection, input.AimWorldPosition, attacking, input.PickupPressed);
             _arena.Update(intent, elapsed);
         }
         _attackFlash = Math.Max(0, _attackFlash - elapsed);
-        if (attacking)
+        if (_arena.Player.AttackSequence != previousAttackSequence)
         {
             _attackFlash = .18f;
-            _hit = _arena.Monster.Health < previousMonsterHealth;
-            _critical = _hit && _arena.Player.LastHitWasCritical;
-            _hitDamage = _hit ? _arena.Player.LastHitDamage : 0;
         }
         FollowPlayer();
     }
@@ -122,6 +129,7 @@ public sealed class DarkLootGame : MonoGameGame
 
     protected override void Draw(GameTime gameTime)
     {
+        _frameRate.RecordDraw(_renderClock.Elapsed);
         GraphicsDevice.Clear(new Color(10, 15, 20));
         _batch.Begin(samplerState: SamplerState.PointClamp);
         _arenaRenderer.Draw(
@@ -132,15 +140,13 @@ public sealed class DarkLootGame : MonoGameGame
             _content,
             _camera,
             _aim,
-            _attackFlash,
-            _hit,
-            _critical,
-            _hitDamage);
-        _hud.Draw(_batch, _shapes, _font, _arena, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
+            _attackFlash);
+        _hud.Draw(_batch, _shapes, _font, _arena, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height,
+            _frameRate.FramesPerSecond);
         _inventory.Draw(_batch, _shapes, _font, _arena.Player, _content, GraphicsDevice.Viewport.Width);
         _batch.End();
         base.Draw(gameTime);
-        if (_smoke?.AfterDraw() == true)
+        if (_smoke?.AfterDraw(_frameRate.FramesPerSecond) == true)
         {
             Exit();
         }

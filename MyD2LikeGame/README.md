@@ -13,13 +13,16 @@ dotnet publish src\DarkLoot.Game --configuration Release --output artifacts\publ
 ## 中文操作
 
 - 游戏默认使用简体中文，无语言切换。
-- **WASD** 移动，鼠标瞄准，**左键**近战（每次攻击需再次点击）。
+- **WASD** 移动，鼠标瞄准，**按住左键**持续近战（每 0.35 秒最多攻击一次），松开停止。
+- 顶部 **FPS** 显示实际绘制帧率，每半秒刷新；背包内仍使用单次点击装备。
 - **E** 拾取附近战利品；**I** 打开或关闭背包，打开时暂停战斗。
 - 背包显示属性变化，点击物品行即可装备到武器或护甲栏；滚轮翻页。
-- **R** 重置史莱姆，保留生命、背包、装备和已有掉落。
+- **R** 重置整个遭遇，保留生命、背包、装备和已有掉落。
 - **Escape** 退出。死亡后恢复当前生命上限，清空地面掉落，保留装备。
 
-击败训练史莱姆必定掉落训练之刃和训练护甲。装备随机生成普通、魔法或稀有品质，
+训练场按 `encounter.training_arena` 配置两只史莱姆、两只迅捷狼和两只骷髅弓手；
+近战挥击命中前方范围内的所有存活敌人，接触伤害共享冷却。击败训练史莱姆必定掉落训练之刃和训练护甲。
+装备随机生成普通、魔法或稀有品质，
 分别拥有零条、一条或两条不同词缀；生成后的词缀数值固定，前后缀会组成装备名称。
 武器和护甲共同提供攻击、生命上限和暴击率，背包显示随机属性及换装后的属性变化。
 提高生命上限不会立即回血；死亡后恢复当前生命上限，并保留所有装备。
@@ -29,8 +32,8 @@ dotnet publish src\DarkLoot.Game --configuration Release --output artifacts\publ
 
 - **Engine**: game-independent input snapshots, follow camera and generated rectangle/circle textures.
 - **Data**: shared JSON definitions loader and validation.
-- **Gameplay**: headless `ArenaSimulation`, weighted rarity/affix generation, two-slot equipment,
-  shared stat totals, hit-only critical rolls and combat rules.
+- **Gameplay**: headless multi-instance `ArenaSimulation`, per-target area melee, weighted rarity/affix
+  generation, two-slot equipment, shared stat totals, hit-only critical rolls and combat rules.
 - **Game**: MonoGame host maps Engine input to `PlayerIntent`; renderers and inventory hit-testing contain no combat/drop rules.
 
 Definitions and the compiled Microsoft YaHei 12-point bitmap SpriteFont are copied on build/publish.

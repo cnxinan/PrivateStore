@@ -14,7 +14,8 @@ public sealed record GameInputSnapshot(
     bool InventoryTogglePressed,
     bool RestartPressed,
     bool ExitPressed,
-    int ScrollDelta = 0);
+    int ScrollDelta = 0,
+    bool AttackHeld = false);
 
 public sealed class GameInput
 {
@@ -22,9 +23,10 @@ public sealed class GameInput
     private MouseState _previousMouse;
 
     public GameInputSnapshot Capture(Camera2D camera)
+        => Capture(camera, Keyboard.GetState(), Mouse.GetState());
+
+    public GameInputSnapshot Capture(Camera2D camera, KeyboardState keyboard, MouseState mouse)
     {
-        var keyboard = Keyboard.GetState();
-        var mouse = Mouse.GetState();
         var movement = new NumericsVector(
             (keyboard.IsKeyDown(Keys.D) ? 1 : 0) - (keyboard.IsKeyDown(Keys.A) ? 1 : 0),
             (keyboard.IsKeyDown(Keys.S) ? 1 : 0) - (keyboard.IsKeyDown(Keys.W) ? 1 : 0));
@@ -43,7 +45,8 @@ public sealed class GameInput
             Pressed(Keys.I),
             Pressed(Keys.R),
             keyboard.IsKeyDown(Keys.Escape),
-            mouse.ScrollWheelValue - _previousMouse.ScrollWheelValue);
+            mouse.ScrollWheelValue - _previousMouse.ScrollWheelValue,
+            mouse.LeftButton == ButtonState.Pressed);
         _previousKeyboard = keyboard;
         _previousMouse = mouse;
         return snapshot;
