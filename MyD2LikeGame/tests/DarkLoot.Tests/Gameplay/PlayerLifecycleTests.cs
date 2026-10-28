@@ -116,7 +116,7 @@ public sealed class PlayerLifecycleTests
         arena.Update(Idle with { AimWorldPosition = new Vector2(160, 400), AttackPressed = true }, 0);
 
         Assert.True(arena.Player.IsDead);
-        Assert.Single(arena.GroundItems);
+        var firstRoundDrop = Assert.Single(arena.GroundItems).Item.InstanceId;
         var attackSequence = arena.Player.AttackSequence;
         arena.Update(Idle with { PickupPressed = true }, .3f);
         Assert.Equal(2, arena.Projectiles.Count);
@@ -159,7 +159,7 @@ public sealed class PlayerLifecycleTests
         Assert.Equal(8, Assert.Single(armor.Rolls).Value);
         arena.Update(Idle with { AimWorldPosition = new Vector2(160, 400), AttackPressed = true }, .3f);
         Assert.Equal(2, arena.Projectiles.Count);
-        Assert.Single(arena.GroundItems);
+        Assert.NotEqual(firstRoundDrop, Assert.Single(arena.GroundItems).Item.InstanceId);
     }
 
     [Fact]

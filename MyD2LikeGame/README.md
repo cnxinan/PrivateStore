@@ -22,11 +22,13 @@ dotnet publish src\DarkLoot.Game --configuration Release --output artifacts\publ
 - 死亡等待期间禁止移动、攻击、拾取、换装和打开背包；怪物与箭矢继续运行，箭矢穿过死者。背包暂停或窗口失焦时，战斗计时冻结。
 
 训练场按 `encounter.training_arena` 配置两只史莱姆、两只迅捷狼和两只骷髅弓手；
-近战挥击命中前方范围内的所有存活敌人，接触伤害共享冷却。每只敌人被击败时有 50% 概率掉落一件训练之刃或训练护甲，两者权重相同；普通、魔法、稀有品质的权重为 1:4:2。
+近战挥击命中前方范围内的所有存活敌人，接触伤害共享冷却。每只敌人被击败时必定掉落一件训练之刃或训练护甲，两者权重相同；普通、魔法、稀有品质的权重为 1:4:2。
 装备随机生成普通、魔法或稀有品质，
 分别拥有零条、一条或两条不同词缀；生成后的词缀数值固定，前后缀会组成装备名称。
 武器和护甲共同提供攻击、生命上限和暴击率，背包显示随机属性及换装后的属性变化。
 提高生命上限不会立即回血；死亡后恢复当前生命上限，并保留所有装备。
+`ItemStatCalculator`统一计算实际属性与换装预览；`InventoryService`统一处理拾取、穿戴及内部同 ID 快照替换；
+`KillRewardService`按战斗轮次和怪物实例去重结算装备奖励。本轮未引入装备经验、打造或存档。
 蓝色代表玩家，战利品按品质着色，暴击使用橙红色闪光反馈。
 绿色圆形是史莱姆，长身、尖耳和尾巴的是迅捷狼，灰色骷髅与弓是骷髅弓手；
 每只存活怪物独立显示名称和生命条，群体挥击在各目标旁独立显示伤害和暴击。
@@ -82,7 +84,7 @@ labels, content names, and all legal zero/one/two-affix display combinations at 
 It checks `MeasureString` layout bounds (including extreme stat comparisons), with no silent font
 fallback. Production content is checked unmodified, including its six configured spawns and full legal
 affix repertoire. Only smoke uses copied definitions/spawns: slow enemies, lethal wolf contact, fixed
-50% critical gear and guaranteed two-slot fixture loot; production keeps the shared 50% zero/one drop table.
+50% critical gear and guaranteed two-slot fixture loot; production uses a shared guaranteed one-item drop table.
 Named stages are Approach, MultiHit, DodgeArrow, TakeArrow, Pickup, Equip, ClearEncounter,
 PauseWithArrow, RestartCleanup, DeathRespawn and Complete. Assertions require real multi-kills,
 independent critical/normal target rolls, locked non-homing arrows that miss and hit, both picked/equipped

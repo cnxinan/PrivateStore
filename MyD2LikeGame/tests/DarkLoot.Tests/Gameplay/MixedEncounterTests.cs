@@ -93,6 +93,47 @@ public sealed class MixedEncounterTests
     }
 
     [Fact]
+    public void Update_ResolvesEachKillImmediatelyAndPreservesCriticalAndLootRandomOrder()
+    {
+        var fixture = MixedEncounterFixture.CreateContent();
+        var monsters = fixture.Monsters.ToDictionary(pair => pair.Key, pair => pair.Value);
+        monsters["monster.training_slime"] = monsters["monster.training_slime"] with
+        {
+            MaxHealth = 1,
+            LootTableId = "loot.order"
+        };
+        var tables = fixture.LootTables.ToDictionary(pair => pair.Key, pair => pair.Value);
+        tables["loot.order"] = new LootTableDefinition(
+            "loot.order", 1, 1, [new LootEntryDefinition("weapon.training_blade", 1)]);
+        var content = new DarkLoot.Data.GameContent(fixture.Items, monsters, tables, fixture.Affixes);
+        var random = new OrderedRandom();
+        var arena = new ArenaSimulation(content, random,
+            MixedEncounterFixture.CreateEncounter(
+                new MonsterSpawnDefinition("first", "monster.training_slime", 190, 265),
+                new MonsterSpawnDefinition("second", "monster.training_slime", 190, 275)));
+        var weapon = new ItemInstance(
+            Guid.NewGuid(), "weapon.training_blade", ItemRarity.Magic,
+            [new AffixRoll("affix.test_crit", ItemStat.CriticalChance, 50)]);
+        Assert.Equal(EquipmentChangeResult.Applied,
+            arena.EquipmentOperations.PickUp(arena.Player, weapon));
+        Assert.Equal(EquipmentChangeResult.Applied,
+            arena.EquipmentOperations.Equip(arena.Player, weapon.InstanceId));
+
+        arena.Update(new PlayerIntent(Vector2.Zero, new Vector2(300, 270), true, false), 0);
+
+        Assert.Equal(new[]
+        {
+            "crit:100", "count:1:2", "entry:1",
+            "crit:100", "count:1:2", "entry:1"
+        }, random.Calls);
+        Assert.Equal(new[] { "first", "second" },
+            arena.LastSwingHits.Select(hit => hit.MonsterInstanceId));
+        Assert.Equal(new[] { new Vector2(190, 265), new Vector2(190, 275) },
+            arena.GroundItems.Select(drop => drop.Position));
+        Assert.Equal(2, arena.GroundItems.Count);
+    }
+
+    [Fact]
     public void Update_OutOfArcSwingConsumesCooldownAndDoesNotHitAfterTurning()
     {
         var arena = new ArenaSimulation(
@@ -454,5 +495,28 @@ public sealed class MixedEncounterTests
         private int _index;
 
         public override int Next(int maxValue) => values[_index++];
+    }
+
+    private sealed class OrderedRandom : Random
+    {
+        public List<string> Calls { get; } = [];
+
+        public override int Next(int maxValue)
+        {
+            Calls.Add($"crit:{maxValue}");
+            return 0;
+        }
+
+        public override long NextInt64(long minValue, long maxValue)
+        {
+            Calls.Add($"count:{minValue}:{maxValue}");
+            return minValue;
+        }
+
+        public override long NextInt64(long maxValue)
+        {
+            Calls.Add($"entry:{maxValue}");
+            return 0;
+        }
     }
 }

@@ -30,10 +30,9 @@ public sealed class ArenaSimulation
     private const string TrainingEncounterId = "encounter.training_arena";
     private static readonly Vector2 PlayerSpawn = new(160f, 270f);
 
-    private readonly GameContent _content;
     private readonly Random _random;
     private readonly ItemStatCalculator _itemStatCalculator = new();
-    private readonly LootGenerator _lootGenerator = new();
+    private readonly KillRewardService _killRewards;
     private readonly List<MonsterState> _monsters = [];
     private readonly ReadOnlyCollection<MonsterState> _readOnlyMonsters;
     private readonly List<MeleeHit> _lastSwingHits = [];
@@ -64,9 +63,10 @@ public sealed class ArenaSimulation
             throw new ArgumentException("Encounter must have an ID and at least one spawn.", nameof(encounter));
         }
 
-        _content = content;
         EquipmentOperations = new InventoryService(content);
         _random = random;
+        _killRewards = new KillRewardService(content, random);
+        _killRewards.BeginRound(0);
         _readOnlyMonsters = _monsters.AsReadOnly();
         _readOnlyLastSwingHits = _lastSwingHits.AsReadOnly();
         _readOnlyGroundItems = _groundItems.AsReadOnly();
@@ -230,7 +230,8 @@ public sealed class ArenaSimulation
             return;
         }
 
-        ResetSequence++;
+        ResetSequence = checked(ResetSequence + 1);
+        _killRewards.BeginRound(ResetSequence);
         _events.Clear();
         Player.DeathRemaining = 0;
         Player.Reaction.Clear();
@@ -321,11 +322,15 @@ public sealed class ArenaSimulation
             monster.CancelWindup();
             if (monster.IsDefeated && !monster.DeathResolved)
             {
+                var rewards = ResolveMonsterRewards(monster);
                 monster.DeathResolved = true;
                 monster.Reaction.Clear();
                 _events.Add(new CombatEvent(
                     CombatEventKind.Died, monster.InstanceId, monster.Position, direction, appliedDamage, critical));
-                GenerateMonsterLoot(monster);
+                foreach (var item in rewards.Items)
+                {
+                    _groundItems.Add(new GroundItem(item, monster.Position));
+                }
             }
             else if (!monster.IsDefeated)
             {
@@ -334,13 +339,17 @@ public sealed class ArenaSimulation
         }
     }
 
-    private void GenerateMonsterLoot(MonsterState monster)
+    private KillRewardResult ResolveMonsterRewards(MonsterState monster)
     {
-        var lootTable = _content.LootTables[monster.Definition.LootTableId];
-        foreach (var item in _lootGenerator.Generate(lootTable, _content, _random))
+        var kill = new KillRecord(
+            ResetSequence, monster.InstanceId, monster.Position, monster.Definition.LootTableId);
+        var result = _killRewards.Resolve(kill);
+        if (result.Status != KillRewardStatus.Granted)
         {
-            _groundItems.Add(new GroundItem(item, monster.Position));
+            throw new InvalidOperationException($"Fresh monster kill was rejected: {result.Status}.");
         }
+
+        return result;
     }
 
     private bool TryMonsterContactDamage()

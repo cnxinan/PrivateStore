@@ -185,6 +185,25 @@ public sealed class ArenaSimulationTests
     }
 
     [Fact]
+    public void Update_RejectsPickupOfAlreadyOwnedDropAndKeepsItOnTheGround()
+    {
+        var simulation = CreateSingleTargetArena(CreateContent(), new Random(17));
+        AdvanceUntilDefeated(simulation);
+        var drop = Assert.Single(simulation.GroundItems);
+        Assert.Equal(EquipmentChangeResult.Applied,
+            simulation.EquipmentOperations.PickUp(simulation.Player, drop.Item));
+
+        var offset = drop.Position - simulation.Player.Position;
+        simulation.Update(
+            new PlayerIntent(offset, drop.Position, false, false),
+            offset.Length() / 180f);
+        simulation.Update(new PlayerIntent(Vector2.Zero, drop.Position, false, true), 0);
+
+        Assert.Same(drop, Assert.Single(simulation.GroundItems));
+        Assert.Same(drop.Item, Assert.Single(simulation.Player.Inventory.Items));
+    }
+
+    [Fact]
     public void Update_RespawnsPlayerAndMonsterAndClearsDropsWithoutLosingEquipment()
     {
         var content = CreateContent();
