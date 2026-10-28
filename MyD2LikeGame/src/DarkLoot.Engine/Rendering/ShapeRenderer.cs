@@ -32,6 +32,12 @@ public sealed class ShapeRenderer : IDisposable
     public void Circle(SpriteBatch batch, Vector2 center, float radius, Color color) =>
         batch.Draw(_circle, center, null, color, 0, new Vector2(16), radius / 16, SpriteEffects.None, 0);
 
+    public void Ellipse(SpriteBatch batch, Vector2 center, Vector2 radii, float rotation, Color color) =>
+        batch.Draw(_circle, center, null, color, rotation, new Vector2(16), radii / 16, SpriteEffects.None, 0);
+
+    public void RotatedRectangle(SpriteBatch batch, Vector2 center, Vector2 size, float rotation, Color color) =>
+        batch.Draw(_pixel, center, null, color, rotation, new Vector2(.5f), size, SpriteEffects.None, 0);
+
     public void Line(SpriteBatch batch, Vector2 start, Vector2 end, Color color, float thickness = 2)
     {
         var delta = end - start;

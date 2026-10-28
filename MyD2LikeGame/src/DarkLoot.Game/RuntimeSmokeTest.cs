@@ -5,6 +5,8 @@ using System.Linq;
 using System.Reflection;
 using DarkLoot.Data;
 using DarkLoot.Data.Definitions;
+using DarkLoot.Engine.Animation;
+using DarkLoot.Engine.Camera;
 using DarkLoot.Engine.Input;
 using DarkLoot.Gameplay.Combat;
 using DarkLoot.Gameplay.Items;
@@ -50,6 +52,12 @@ internal sealed class RuntimeSmokeTest
     private long _attackBeforeUpdate;
     private int _lastSwingUpdate;
     private Dictionary<string, int> _healthBeforeSwing = [];
+    private ActorPose _pausedPlayerPose;
+    private ActorPose[] _pausedMonsterPoses = [];
+    private bool _sawPartialDeath;
+    private bool _sawIsolatedPoses;
+    private bool _sawPartialDeathPixels;
+    private bool _sawPlayerDeathPixels;
 
     public RuntimeSmokeTest(string logPath)
     {
@@ -385,8 +393,27 @@ internal sealed class RuntimeSmokeTest
             AttackHeld: attack && !panel.IsOpen);
     }
 
-    public void AfterUpdate(ArenaSimulation arena, InventoryPanel panel, GameContent content)
+    public void AfterUpdate(ArenaSimulation arena, InventoryPanel panel, GameContent content,
+        ActorPose playerPose, Func<string, ActorPose> monsterPose)
     {
+        foreach (var death in arena.Events.Where(item => item.Kind == CombatEventKind.Died))
+        {
+            var pose = death.ActorId == "player" ? playerPose : monsterPose(death.ActorId);
+            var anchor = death.ActorId == "player" ? arena.Player.Position :
+                arena.Monsters.Single(monster => monster.InstanceId == death.ActorId).Position;
+            Check(pose.Opacity == 1 && pose.Scale == NumericsVector.One && anchor == death.Position,
+                $"new death starts visible at actual death position; actor={death.ActorId}");
+        }
+        var partialDeath = arena.Monsters.FirstOrDefault(monster => monster.IsDefeated &&
+            monsterPose(monster.InstanceId).Opacity is > 0 and < 1);
+        if (partialDeath is not null)
+        {
+            _sawPartialDeath = true;
+            Check(monsterPose(partialDeath.InstanceId).Scale.X is > 0 and < 1,
+                "partial monster death retains nonzero geometry");
+        }
+        _sawIsolatedPoses |= arena.Monsters.GroupBy(monster => monster.Id).Any(group =>
+            group.Select(monster => monsterPose(monster.InstanceId)).Distinct().Count() > 1);
         if (arena.Player.AttackSequence != _attackBeforeUpdate)
         {
             _lastSwingUpdate = _updates;
@@ -394,6 +421,8 @@ internal sealed class RuntimeSmokeTest
         switch (_stage)
         {
             case SmokeStage.Approach when arena.Player.Position.X >= 196:
+                Check(Math.Abs(playerPose.LimbSwing) > .001f && playerPose.Offset != NumericsVector.Zero,
+                    "walking changes player pose from neutral geometry");
                 Check(arena.Monsters.Count == 6 && arena.Player.Position.X > 160,
                     "Approach moved player in six-instance mixed arena");
                 _lockedAim = arena.Monsters[4].LockedAimDirection;
@@ -525,6 +554,10 @@ internal sealed class RuntimeSmokeTest
                 }
                 else if (_phase == 3 && panel.IsOpen)
                 {
+                    Check(playerPose.AttackProgress > 0 && playerPose.Facing == -NumericsVector.UnitX,
+                        "accepted swing retains locked direction when aim changes during pause");
+                    _pausedPlayerPose = playerPose;
+                    _pausedMonsterPoses = arena.Monsters.Select(monster => monsterPose(monster.InstanceId)).ToArray();
                     Check(arena.Projectiles.Count > 0 && arena.GroundItems.Count > 0 &&
                           arena.Monsters.Any(monster => monster.IsWindingUp),
                         "PauseWithArrow opened real inventory with nonempty arrows, active windup and ground loot");
@@ -533,6 +566,10 @@ internal sealed class RuntimeSmokeTest
                 }
                 else if (_phase == 2)
                 {
+                    Check(playerPose == _pausedPlayerPose &&
+                          arena.Monsters.Select(monster => monsterPose(monster.InstanceId))
+                              .SequenceEqual(_pausedMonsterPoses),
+                        "inventory freezes nonneutral player swing and independent monster poses");
                     Check(panel.IsOpen && Snapshot(arena) == _pauseSnapshot,
                         $"inventory freezes every monster, windup, arrow, player health and swing; update={++_pausedUpdates}");
                     if (_pausedUpdates == 20)
@@ -559,6 +596,10 @@ internal sealed class RuntimeSmokeTest
                       arena.Player.Health == _healthBeforeRestart &&
                       arena.Player.Position == _positionBeforeRestart,
                     "RestartCleanup R cleared previously nonempty loot/arrows and feedback, restored six, retained player state");
+                Check(panel.IsOpen && playerPose.Offset == NumericsVector.Zero &&
+                      playerPose.AttackProgress == 0 && playerPose.Rotation == 0 &&
+                      arena.Monsters.All(monster => monsterPose(monster.InstanceId).Scale == NumericsVector.One),
+                    "R while paused cleans animation immediately without advancing presentation time");
                 CheckGear(arena);
                 _healthBefore = arena.Player.Health;
                 Enter(SmokeStage.DeathRespawn);
@@ -615,11 +656,38 @@ internal sealed class RuntimeSmokeTest
     private int _healthBeforeRestart;
     private NumericsVector _positionBeforeRestart;
 
-    public bool AfterDraw(ArenaSimulation arena, float attackFlash, double framesPerSecond)
+    public bool AfterDraw(ArenaSimulation arena, ActorPresentation presentation, Camera2D camera,
+        GraphicsDevice device, double framesPerSecond)
     {
+        var attackFlash = presentation.SwingRemaining;
         _draws++;
+        if (!_sawPartialDeathPixels)
+        {
+            var corpse = arena.Monsters.FirstOrDefault(monster => monster.IsDefeated &&
+                monster.Id == "monster.training_slime" &&
+                presentation.GetMonsterPose(monster.InstanceId).Opacity is > .4f and < .9f);
+            if (corpse is not null)
+            {
+                Check(BodyPixels(device, camera.WorldToScreen(corpse.Position))
+                        .Any(pixel => pixel.G > pixel.R + 25 && pixel.G > pixel.B + 40),
+                    "real Draw backbuffer retains green partial-death slime geometry at death anchor");
+                _sawPartialDeathPixels = true;
+            }
+        }
+        if (!_sawPlayerDeathPixels && arena.Player.IsDead &&
+            presentation.PlayerPose.Opacity is > .4f and < .9f)
+        {
+            Check(BodyPixels(device, camera.WorldToScreen(arena.Player.Position))
+                    .Any(pixel => pixel.B > pixel.R + 20 && pixel.B > pixel.G + 8),
+                "real Draw backbuffer retains blue partial-death player geometry at death anchor");
+            _sawPlayerDeathPixels = true;
+        }
         if (attackFlash > 0)
         {
+            foreach (var hit in arena.LastSwingHits)
+                Check(presentation.HitTexts.Count(text => text.ActorId == hit.MonsterInstanceId &&
+                          text.Damage == hit.Damage && text.WasCritical == hit.WasCritical) == 1,
+                    $"real Draw receives accepted per-target hit text once; actor={hit.MonsterInstanceId}");
             _sawKilledFeedbackDraw |= arena.LastSwingHits.Any(hit =>
                 arena.Monsters.Any(monster => monster.InstanceId == hit.MonsterInstanceId && monster.IsDefeated));
             _sawIndependentFeedbackDraw |= arena.LastSwingHits.Any(hit => hit.WasCritical) &&
@@ -637,10 +705,20 @@ internal sealed class RuntimeSmokeTest
         }
         Check(_sawKilledFeedbackDraw && _sawIndependentFeedbackDraw && attackFlash == 0,
             "real Draw received killed-target and independent critical feedback; death cleared swing flash");
+        Check(_sawPartialDeath && _sawIsolatedPoses && _sawPartialDeathPixels && _sawPlayerDeathPixels,
+            "real smoke observed partial death geometry and per-instance independent phases/events");
         Check(_draws > 20 && double.IsFinite(framesPerSecond) && framesPerSecond > 0,
             $"actual graphics Draw FPS={framesPerSecond:F1}; draws={_draws}");
         Log($"PASS mixed smoke Complete; updates={_updates}; draws={_draws}; completionArrow={_sawCompletionArrow}");
         return true;
+    }
+
+    private static Microsoft.Xna.Framework.Color[] BodyPixels(GraphicsDevice device, Microsoft.Xna.Framework.Vector2 anchor)
+    {
+        var pixels = new Microsoft.Xna.Framework.Color[25];
+        var bounds = new Microsoft.Xna.Framework.Rectangle((int)anchor.X - 2, (int)anchor.Y - 2, 5, 5);
+        device.GetBackBufferData(bounds, pixels, 0, pixels.Length);
+        return pixels;
     }
 
     private void Enter(SmokeStage stage)

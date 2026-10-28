@@ -77,5 +77,5 @@ public sealed class PlayerState
         return true;
     }
 
-    internal Vector2 Facing { get; set; } = Vector2.UnitX;
+    public Vector2 Facing { get; internal set; } = Vector2.UnitX;
 }

@@ -70,7 +70,7 @@ public sealed class ActorAnimator
         }
         _wasHurt = input.Hurt;
 
-        // Impulses seen during hurt are discarded, including the recovery Update.
+        // Impulses while still hurt are discarded, never queued for recovery.
         if (Action == ActorAction.Hurt)
         {
             _windingUp = false;
@@ -82,7 +82,7 @@ public sealed class ActorAnimator
             }
             Action = input.Moving ? ActorAction.Move : ActorAction.Idle;
         }
-        else if (input.AttackTriggered)
+        if (input.AttackTriggered)
         {
             Action = ActorAction.Attack;
             _actionSeconds = 0;

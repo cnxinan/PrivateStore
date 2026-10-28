@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using DarkLoot.Data;
 using DarkLoot.Data.Definitions;
+using DarkLoot.Engine.Animation;
 using DarkLoot.Engine.Camera;
 using DarkLoot.Engine.Rendering;
 using DarkLoot.Gameplay.Combat;
@@ -15,9 +15,10 @@ namespace DarkLoot.Game;
 
 public sealed class ArenaRenderer
 {
+    private readonly ActorRenderer _actors = new();
+
     public void Draw(SpriteBatch batch, ShapeRenderer shapes, SpriteFont font,
-        ArenaSimulation arena, GameContent content, Camera2D camera, NumericsVector aim,
-        float attackFlash)
+        ArenaSimulation arena, GameContent content, Camera2D camera, ActorPresentation presentation)
     {
         var origin = camera.WorldToScreen(NumericsVector.Zero);
         var bounds = new Rectangle((int)origin.X - 18, (int)origin.Y - 18, 996, 576);
@@ -60,25 +61,14 @@ public sealed class ArenaRenderer
         foreach (var monster in arena.Monsters)
         {
             var monsterPosition = camera.WorldToScreen(monster.Position);
-            var swingHit = arena.LastSwingHits.FirstOrDefault(
-                hit => hit.MonsterInstanceId == monster.InstanceId);
-            var hitThisSwing = swingHit is not null && attackFlash > 0;
-            if (hitThisSwing)
-            {
-                var hitMessage = string.Format(
-                    swingHit!.WasCritical ? GameText.CriticalHit : GameText.Hit, swingHit.Damage);
-                GameText.Draw(batch, font, hitMessage,
-                    monsterPosition + new Vector2(-30, -78),
-                    swingHit.WasCritical ? Color.OrangeRed : Color.Gold, 200);
-            }
+            var kind = monster.Behavior == MonsterBehavior.Archer ? ActorVisualKind.Archer :
+                monster.Id == "monster.fast_wolf" ? ActorVisualKind.Wolf : ActorVisualKind.Slime;
+            _actors.Draw(batch, shapes, kind, monsterPosition, presentation.GetMonsterPose(monster.InstanceId));
             if (monster.IsDefeated)
             {
                 continue;
             }
 
-            DrawMonster(batch, shapes, monster, monsterPosition, hitThisSwing);
-            shapes.Circle(batch, monsterPosition + new Vector2(-6, -4), 3, Color.Black);
-            shapes.Circle(batch, monsterPosition + new Vector2(6, -4), 3, Color.Black);
             DrawHealthBar(batch, shapes, monsterPosition + new Vector2(-24, -31), 48,
                 (float)monster.Health / monster.MaxHealth, Color.LimeGreen);
             var label = string.Format(GameText.Monster, content.Monsters[monster.Id].Name,
@@ -106,74 +96,22 @@ public sealed class ArenaRenderer
         }
 
         var playerPosition = camera.WorldToScreen(arena.Player.Position);
-        shapes.Circle(batch, playerPosition, 14, new Color(87, 169, 236));
-        var direction = aim - arena.Player.Position;
-        if (direction.LengthSquared() > .001f)
-        {
-            direction = NumericsVector.Normalize(direction);
-        }
-        else
-        {
-            direction = NumericsVector.UnitX;
-        }
-        var facing = new Vector2(direction.X, direction.Y);
-        shapes.Line(batch, playerPosition, playerPosition + facing * 24, Color.LightCyan, 4);
-        DrawHealthBar(batch, shapes, playerPosition + new Vector2(-24, 23), 48,
-            (float)arena.Player.Health / arena.Player.MaximumHealth, Color.Crimson);
+        _actors.Draw(batch, shapes, ActorVisualKind.Player, playerPosition, presentation.PlayerPose,
+            presentation.SwingHasHit, presentation.SwingWasCritical);
+        if (!arena.Player.IsDead)
+            DrawHealthBar(batch, shapes, playerPosition + new Vector2(-24, 26), 48,
+                (float)arena.Player.Health / arena.Player.MaximumHealth, Color.Crimson);
 
-        if (attackFlash > 0)
+        if (presentation.SwingRemaining > 0 && !presentation.SwingHasHit)
         {
-            var hasHit = arena.LastSwingHits.Count > 0;
-            var critical = arena.LastSwingHits.Any(hit => hit.WasCritical);
-            var angle = MathF.Atan2(facing.Y, facing.X);
-            var previous = playerPosition + new Vector2(MathF.Cos(angle - MathF.PI / 4), MathF.Sin(angle - MathF.PI / 4)) * 48;
-            for (var segment = 1; segment <= 12; segment++)
-            {
-                var arcAngle = angle - MathF.PI / 4 + segment * MathF.PI / 24;
-                var next = playerPosition + new Vector2(MathF.Cos(arcAngle), MathF.Sin(arcAngle)) * 48;
-                shapes.Line(batch, previous, next, critical
-                    ? Color.OrangeRed
-                    : hasHit ? Color.Gold : Color.LightCyan, 5);
-                previous = next;
-            }
-            if (!hasHit)
-            {
-                GameText.Draw(batch, font, GameText.Swing,
-                    playerPosition + new Vector2(-30, -64), Color.LightCyan, 200);
-            }
+            GameText.Draw(batch, font, GameText.Swing,
+                playerPosition + new Vector2(-30, -64), Color.LightCyan, 200);
         }
-    }
-
-    private static void DrawMonster(SpriteBatch batch, ShapeRenderer shapes, MonsterState monster,
-        Vector2 position, bool hit)
-    {
-        var color = hit ? Color.White : monster.Behavior == MonsterBehavior.Archer
-            ? Color.LightGray : monster.Id == "monster.fast_wolf" ? Color.SandyBrown : Color.YellowGreen;
-        if (monster.Behavior == MonsterBehavior.Archer)
-        {
-            shapes.Circle(batch, position + new Vector2(0, -9), 10, color);
-            shapes.Line(batch, position, position + new Vector2(0, 17), color, 3);
-            shapes.Line(batch, position + new Vector2(-10, 4), position + new Vector2(10, 4), color, 3);
-            shapes.Line(batch, position + new Vector2(0, 12), position + new Vector2(-9, 22), color, 3);
-            shapes.Line(batch, position + new Vector2(0, 12), position + new Vector2(9, 22), color, 3);
-            shapes.Line(batch, position + new Vector2(18, -14), position + new Vector2(25, 2), Color.BurlyWood, 3);
-            shapes.Line(batch, position + new Vector2(25, 2), position + new Vector2(18, 18), Color.BurlyWood, 3);
-            shapes.Line(batch, position + new Vector2(18, -14), position + new Vector2(18, 18), Color.Wheat, 1);
-        }
-        else if (monster.Id == "monster.fast_wolf")
-        {
-            shapes.Rectangle(batch, new Rectangle((int)position.X - 23, (int)position.Y - 9, 40, 20), color);
-            shapes.Circle(batch, position + new Vector2(17, -4), 12, color);
-            shapes.Line(batch, position + new Vector2(9, -10), position + new Vector2(7, -23), color, 7);
-            shapes.Line(batch, position + new Vector2(21, -10), position + new Vector2(23, -23), color, 7);
-            shapes.Line(batch, position + new Vector2(-20, 0), position + new Vector2(-32, -12), color, 5);
-            shapes.Line(batch, position + new Vector2(-13, 8), position + new Vector2(-13, 18), color, 5);
-            shapes.Line(batch, position + new Vector2(10, 8), position + new Vector2(10, 18), color, 5);
-        }
-        else
-        {
-            shapes.Circle(batch, position, 18, color);
-        }
+        foreach (var hit in presentation.HitTexts)
+            GameText.Draw(batch, font,
+                string.Format(hit.WasCritical ? GameText.CriticalHit : GameText.Hit, hit.Damage),
+                camera.WorldToScreen(hit.Position) + new Vector2(-30, -78),
+                hit.WasCritical ? Color.OrangeRed : Color.Gold, 200);
     }
 
     internal static void DrawHealthBar(SpriteBatch batch, ShapeRenderer shapes, Vector2 position,

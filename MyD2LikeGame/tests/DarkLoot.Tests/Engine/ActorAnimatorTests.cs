@@ -145,6 +145,20 @@ public sealed class ActorAnimatorTests
     }
 
     [Fact]
+    public void FreshAcceptedSwing_OnHurtRecoveryUpdateIsNotDiscardedOrReplayed()
+    {
+        var animator = new ActorAnimator(ActorVisualKind.Player);
+        animator.Update(Input with { Hurt = true, AttackTriggered = true }, 0);
+        animator.Update(Input with { AttackTriggered = true, Facing = Vector2.UnitY }, .15f);
+        Assert.Equal(ActorAction.Attack, animator.Action);
+        Assert.True(animator.Pose.AttackProgress > 0);
+        Assert.Equal(Vector2.UnitY, animator.Pose.Facing);
+        animator.Update(Input, .18f);
+        Assert.Equal(ActorAction.Idle, animator.Action);
+        Assert.Equal(0, animator.Pose.AttackProgress);
+    }
+
+    [Fact]
     public void BriefHurt_RemainsVisibleUntilRecoveryAndCannotReplayAttack()
     {
         var animator = new ActorAnimator(ActorVisualKind.Player);

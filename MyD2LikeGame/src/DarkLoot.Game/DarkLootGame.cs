@@ -9,7 +9,6 @@ using DarkLoot.Engine.Rendering;
 using DarkLoot.Gameplay.Combat;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using NumericsVector = System.Numerics.Vector2;
 using MonoGameGame = Microsoft.Xna.Framework.Game;
 
 namespace DarkLoot.Game;
@@ -20,6 +19,7 @@ public sealed class DarkLootGame : MonoGameGame
     private readonly GameInput _input = new();
     private readonly Camera2D _camera = new();
     private readonly ArenaRenderer _arenaRenderer = new();
+    private readonly ActorPresentation _presentation = new();
     private readonly HudRenderer _hud = new();
     private readonly InventoryPanel _inventory = new();
     private readonly FrameRateCounter _frameRate = new();
@@ -31,8 +31,6 @@ public sealed class DarkLootGame : MonoGameGame
     private GameContent _content = null!;
     private GameContent _productionContent = null!;
     private ArenaSimulation _arena = null!;
-    private NumericsVector _aim;
-    private float _attackFlash;
     private bool _wasActive;
 
     public DarkLootGame(bool smokeTest)
@@ -64,6 +62,7 @@ public sealed class DarkLootGame : MonoGameGame
             _content,
             _smoke?.CreateRandom() ?? new Random(42),
             encounter);
+        _presentation.Reset(_arena);
         FollowPlayer();
         base.Initialize();
     }
@@ -102,37 +101,27 @@ public sealed class DarkLootGame : MonoGameGame
             return;
         }
         ApplyInput(input, _smoke is null ? Math.Min((float)gameTime.ElapsedGameTime.TotalSeconds, .1f) : .1f);
-        _smoke?.AfterUpdate(_arena, _inventory, _content);
+        _smoke?.AfterUpdate(_arena, _inventory, _content, _presentation.PlayerPose, _presentation.GetMonsterPose);
         base.Update(gameTime);
     }
 
     private void ApplyInput(GameInputSnapshot input, float elapsed)
     {
-        _aim = input.AimWorldPosition;
         if (!_arena.Player.IsDead)
         {
             _inventory.Update(input, _arena.Player, _content, GraphicsDevice.Viewport.Width);
         }
-        var previousResetSequence = _arena.ResetSequence;
         if (input.RestartPressed && !_arena.Player.IsDead)
         {
             _arena.ResetEncounter();
+            _presentation.Reset(_arena);
         }
         var attacking = (input.AttackHeld || input.AttackPressed) && !_inventory.IsOpen;
-        var previousAttackSequence = _arena.Player.AttackSequence;
         if (!_inventory.IsOpen)
         {
             var intent = new PlayerIntent(input.MoveDirection, input.AimWorldPosition, attacking, input.PickupPressed);
             _arena.Update(intent, elapsed);
-        }
-        _attackFlash = Math.Max(0, _attackFlash - elapsed);
-        if (_arena.Player.AttackSequence != previousAttackSequence)
-        {
-            _attackFlash = .18f;
-        }
-        if (_arena.ResetSequence != previousResetSequence)
-        {
-            _attackFlash = 0;
+            _presentation.Update(_arena, elapsed);
         }
         FollowPlayer();
     }
@@ -152,14 +141,13 @@ public sealed class DarkLootGame : MonoGameGame
             _arena,
             _content,
             _camera,
-            _aim,
-            _attackFlash);
+            _presentation);
         _hud.Draw(_batch, _shapes, _font, _arena, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height,
             _frameRate.FramesPerSecond);
         _inventory.Draw(_batch, _shapes, _font, _arena.Player, _content, GraphicsDevice.Viewport.Width);
         _batch.End();
         base.Draw(gameTime);
-        if (_smoke?.AfterDraw(_arena, _attackFlash, _frameRate.FramesPerSecond) == true)
+        if (_smoke?.AfterDraw(_arena, _presentation, _camera, GraphicsDevice, _frameRate.FramesPerSecond) == true)
         {
             Exit();
         }

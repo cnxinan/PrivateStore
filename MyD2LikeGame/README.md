@@ -30,17 +30,23 @@ dotnet publish src\DarkLoot.Game --configuration Release --output artifacts\publ
 蓝色代表玩家，战利品按品质着色，暴击使用橙红色闪光反馈。
 绿色圆形是史莱姆，长身、尖耳和尾巴的是迅捷狼，灰色骷髅与弓是骷髅弓手；
 每只存活怪物独立显示名称和生命条，群体挥击在各目标旁独立显示伤害和暴击。
+角色有呼吸、行走、挥击或拉弓动作；受击闪白并轻微压缩，保护期低频明暗变化。
+怪物死亡原地缩小淡出 0.3 秒，人物原地倾倒淡出 0.6 秒；掉落与击杀立即结算。
+名字、血条和拾取位置保持真实坐标，不随动画偏移。背包暂停及窗口失焦同时冻结表现，
+背包内按 R 立即清理旧动作和伤害提示，但不推进动画时间。
 弓手进入射程后停步，每箭先以橙色方向线锁定瞄准 0.3 秒，发射间隔至少 1.5 秒；
 箭不会追踪，横向移动可以躲避，杀死弓手不会消除已发射的箭。
 左上显示剩余怪物数量，击败六只后显示清场提示；按 R 重开会清空地面装备。
 
 ## Architecture
 
-- **Engine**: game-independent input snapshots, follow camera and generated rectangle/circle textures.
+- **Engine**: game-independent input snapshots, follow camera, deterministic actor poses and shape primitives.
 - **Data**: shared JSON definitions loader and validation.
 - **Gameplay**: headless multi-instance `ArenaSimulation`, per-target area melee, weighted rarity/affix
   generation, two-slot equipment, shared stat totals, hit-only critical rolls and combat rules.
-- **Game**: MonoGame host maps Engine input to `PlayerIntent`; renderers and inventory hit-testing contain no combat/drop rules.
+- **Game**: MonoGame host maps Engine input to `PlayerIntent`; `ActorPresentation` consumes per-Update combat
+  events once and maintains one animator per instance, while `ActorRenderer` transforms actor-local geometry.
+  Renderers and inventory hit-testing contain no combat/drop rules; Draw never advances animation time.
 
 Definitions and the compiled Microsoft YaHei 12-point bitmap SpriteFont are copied on build/publish.
 Runtime paths resolve from `AppContext.BaseDirectory`, independent of the working directory.
@@ -82,6 +88,10 @@ The real inventory freezes all monsters, an active windup, in-flight arrows and 
 closing it resumes motion while retaining the pre-pause swing cooldown. R must clear nonempty arrows/loot
 without losing gear. Actual lethal contact must enter a full 0.6-second death wait, reject dead
 controls/inventory/R, then respawn at the equipped maximum health with six monsters and 0.8-second protection.
+Pose checks require walking, locked swing direction, independent instance reactions, nonneutral paused poses,
+and zero-time paused reset. Real backbuffer samples require visible partial monster/player death bodies;
+these are color-presence checks at authoritative anchors, not golden screenshots. Headless controller tests
+compile the presentation source directly, without referencing the executable Game project.
 It uses accelerated simulation time, bounds each named stage to 450 updates and the run to 2,400 updates,
 and returns nonzero with the stage/phase on failure (no success fallback). Physical
 keyboard/mouse input and human visual review remain unverified. Startup errors are written beside the
