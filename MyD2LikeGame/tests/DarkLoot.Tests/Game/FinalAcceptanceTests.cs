@@ -78,6 +78,53 @@ public sealed class FinalAcceptanceTests
                 Assert.NotEqual(Guid.Empty, item.InstanceId);
                 Assert.Equal(ItemRarity.Magic, item.Rarity);
             });
+
+            var beforeMaterials = arena.Player.Resources.Materials.Values.Sum();
+            var beforeRecipes = arena.Player.Resources.Recipes.Values.Sum();
+            for (var pickupUpdate = 0; pickupUpdate < 200 && arena.GroundResources.Count > 0; pickupUpdate++)
+            {
+                var drop = arena.GroundResources[0];
+                var movement = drop.Position - arena.Player.Position;
+                arena.Update(new PlayerIntent(
+                    movement.Length() > 18 ? System.Numerics.Vector2.Normalize(movement) : System.Numerics.Vector2.Zero,
+                    drop.Position, false, true), .1f);
+                presentation.Update(arena, .1f);
+            }
+            Assert.Empty(arena.GroundResources);
+            Assert.True(arena.Player.Resources.Materials.Values.Sum() > beforeMaterials);
+            Assert.True(arena.Player.Resources.Recipes.Values.Sum() > beforeRecipes);
+            var materials = arena.Player.Resources.Materials.ToArray();
+            var recipes = arena.Player.Resources.Recipes.ToArray();
+            var knowledge = arena.Blacksmith.KnownRecipeIds.Order(StringComparer.Ordinal).ToArray();
+            smoke.NextInput(arena, inventory, smith, content, 1120, presentation.SwingRemaining);
+            arena.ResetEncounter();
+            presentation.Reset(arena);
+            smoke.AfterReset(arena, presentation);
+            Assert.Equal(materials, arena.Player.Resources.Materials.ToArray());
+            Assert.Equal(recipes, arena.Player.Resources.Recipes.ToArray());
+            Assert.Equal(knowledge, arena.Blacksmith.KnownRecipeIds.Order(StringComparer.Ordinal));
+
+            smoke.NextInput(arena, inventory, smith, content, 1120, presentation.SwingRemaining);
+            var lethal = arena.Monsters.First(monster => monster.Id == "monster.fast_wolf");
+            var travel = lethal.Position - arena.Player.Position;
+            arena.Update(new PlayerIntent(System.Numerics.Vector2.Normalize(travel), lethal.Position,
+                false, false), travel.Length() / 180);
+            presentation.Update(arena, .1f);
+            Assert.True(arena.Player.IsDead);
+            smoke.AfterUpdate(arena, inventory, smith, content, presentation.PlayerPose,
+                presentation.GetMonsterPose, presentation.SwingRemaining, presentation.HitTexts);
+            for (var tick = 0; tick < 2; tick++)
+            {
+                smoke.NextInput(arena, inventory, smith, content, 1120, presentation.SwingRemaining);
+                arena.Update(new PlayerIntent(System.Numerics.Vector2.Zero, arena.Player.Position, false, false), .3f);
+                presentation.Update(arena, .3f);
+                smoke.AfterUpdate(arena, inventory, smith, content, presentation.PlayerPose,
+                    presentation.GetMonsterPose, presentation.SwingRemaining, presentation.HitTexts);
+            }
+            Assert.False(arena.Player.IsDead);
+            Assert.Equal(materials, arena.Player.Resources.Materials.ToArray());
+            Assert.Equal(recipes, arena.Player.Resources.Recipes.ToArray());
+            Assert.Equal(knowledge, arena.Blacksmith.KnownRecipeIds.Order(StringComparer.Ordinal));
         }
         finally
         {

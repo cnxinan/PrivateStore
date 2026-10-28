@@ -321,6 +321,13 @@ internal sealed class RuntimeSmokeTest
         _playerPositionBeforeUpdate = arena.Player.Position;
         _healthBeforeUpdate = arena.Player.Health;
         _playerWasDeadBeforeUpdate = arena.Player.IsDead;
+        // Any live world update can become the lethal boundary; keep that snapshot through respawn.
+        if (!_playerWasDeadBeforeUpdate)
+        {
+            _retainedMaterials = arena.Player.Resources.Materials.ToDictionary(pair => pair.Key, pair => pair.Value);
+            _retainedRecipes = arena.Player.Resources.Recipes.ToDictionary(pair => pair.Key, pair => pair.Value);
+            _retainedKnowledge = arena.Blacksmith.KnownRecipeIds.Order(StringComparer.Ordinal).ToArray();
+        }
         _windingArcherIdsBeforeUpdate = arena.Monsters
             .Where(monster => monster.Behavior == MonsterBehavior.Archer && monster.IsWindingUp)
             .Select(monster => monster.InstanceId).ToArray();
@@ -598,6 +605,9 @@ internal sealed class RuntimeSmokeTest
         double swingRemaining,
         IReadOnlyList<ActorHitText> hitTexts)
     {
+        if (arena.Player.IsDead || _playerWasDeadBeforeUpdate)
+            CheckResourceRetention(arena);
+
         var playerDamage = arena.Events.FirstOrDefault(item =>
             item.Kind == CombatEventKind.Damaged && item.ActorId == "player");
         if (playerDamage is not null)
@@ -877,9 +887,6 @@ internal sealed class RuntimeSmokeTest
                 else
                 {
                     Check(panel.Page == InventoryPage.Equipment, "actual equipment tab restores item rows");
-                    _retainedMaterials = arena.Player.Resources.Materials.ToDictionary(pair => pair.Key, pair => pair.Value);
-                    _retainedRecipes = arena.Player.Resources.Recipes.ToDictionary(pair => pair.Key, pair => pair.Value);
-                    _retainedKnowledge = arena.Blacksmith.KnownRecipeIds.Order(StringComparer.Ordinal).ToArray();
                     Enter(SmokeStage.Equip);
                 }
                 break;
@@ -1232,6 +1239,7 @@ internal sealed class RuntimeSmokeTest
                   presentation.GetMonsterPose(monster.InstanceId).Scale == NumericsVector.One),
             "actual R reset cleans six actors, arrows, loot, stun, immunity and animation at zero time without healing");
         CheckGear(arena);
+        CheckResourceRetention(arena);
         _sawCleanReset = true;
     }
 
@@ -1330,11 +1338,16 @@ internal sealed class RuntimeSmokeTest
               arena.Player.Inventory.EquippedWeapon.Rolls.SequenceEqual(_weaponRolls) &&
               arena.Player.Inventory.EquippedArmor.Rolls.SequenceEqual(_armorRolls) &&
               _craftedItems.Length == 2 &&
-              _craftedItems.All(item => arena.Player.Inventory.Items.Contains(item)) &&
-              CountsEqual(_retainedMaterials, arena.Player.Resources.Materials) &&
+              _craftedItems.All(item => arena.Player.Inventory.Items.Contains(item)),
+            "both crafted slots, inventory identities and fixed rolls retained");
+    }
+
+    private void CheckResourceRetention(ArenaSimulation arena)
+    {
+        Check(CountsEqual(_retainedMaterials, arena.Player.Resources.Materials) &&
               CountsEqual(_retainedRecipes, arena.Player.Resources.Recipes) &&
               arena.Blacksmith.KnownRecipeIds.Order(StringComparer.Ordinal).SequenceEqual(_retainedKnowledge),
-            "both crafted slots, inventory identities, fixed rolls, materials, recipes and learned knowledge retained");
+            "boundary material counts, recipe counts and learned knowledge retained");
     }
 
     private static bool CountsEqual(IReadOnlyDictionary<string, int> expected, IReadOnlyDictionary<string, int> actual) =>
