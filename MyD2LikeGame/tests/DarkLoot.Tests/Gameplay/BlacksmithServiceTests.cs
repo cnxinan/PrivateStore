@@ -43,6 +43,20 @@ public sealed class BlacksmithServiceTests
     }
 
     [Fact]
+    public void Learn_AlreadyLearnedTakesPrecedenceAfterSoleRecipeCopyWasConsumed()
+    {
+        var content = LoadProductionContent();
+        var arena = new ArenaSimulation(content, new Random(17));
+        var smith = new BlacksmithService(content, new Random(17),
+            arena.EquipmentOperations, new BlacksmithState());
+        Give(arena, content, ResourceKind.Recipe, "recipe.magic_blade", 1);
+
+        Assert.Equal(BlacksmithStatus.Applied, smith.Learn(arena.Player, "recipe.magic_blade").Status);
+        Assert.Equal(BlacksmithStatus.AlreadyLearned, smith.Learn(arena.Player, "recipe.magic_blade").Status);
+        Assert.Equal(0, arena.Player.Resources.GetCount(ResourceKind.Recipe, "recipe.magic_blade"));
+    }
+
+    [Fact]
     public void Craft_AllProductionRecipesConsumeTheirExactCostsAndCreateConfiguredItems()
     {
         var content = LoadProductionContent();
@@ -150,6 +164,33 @@ public sealed class BlacksmithServiceTests
         Assert.Equal(1, arena.Player.Resources.GetCount(ResourceKind.Material, "material.slime"));
         Assert.Empty(arena.Player.Inventory.Items);
         Assert.Equal(100, arena.Player.Health);
+    }
+
+    [Fact]
+    public void Craft_DoesNotHealPlayerDamagedByRealMonsterContact()
+    {
+        var content = LoadProductionContent();
+        var monsters = content.Monsters.ToDictionary(pair => pair.Key, pair => pair.Value);
+        monsters["monster.training_slime"] = monsters["monster.training_slime"] with { ContactDamage = 10 };
+        var damagedContent = content with { Monsters = monsters };
+        var encounter = new EncounterDefinition("craft-damage-test",
+            [new MonsterSpawnDefinition("contact", "monster.training_slime", 160, 294)]);
+        var arena = new ArenaSimulation(damagedContent, new Random(17), encounter);
+        var smith = new BlacksmithService(damagedContent, new Random(17),
+            arena.EquipmentOperations, new BlacksmithState());
+        Give(arena, damagedContent, ResourceKind.Recipe, "recipe.magic_blade", 1);
+        Give(arena, damagedContent, ResourceKind.Material, "material.bone", 2);
+        Give(arena, damagedContent, ResourceKind.Material, "material.slime", 1);
+        Assert.Equal(BlacksmithStatus.Applied, smith.Learn(arena.Player, "recipe.magic_blade").Status);
+
+        arena.Update(new PlayerIntent(Vector2.Zero, arena.Player.Position, false, false), 0);
+        var damagedHealth = arena.Player.Health;
+        Assert.InRange(damagedHealth, 1, 99);
+        Assert.True(smith.CanInteract(arena.Player));
+
+        Assert.Equal(BlacksmithStatus.Applied, smith.Craft(arena.Player, "recipe.magic_blade").Status);
+
+        Assert.Equal(damagedHealth, arena.Player.Health);
     }
 
     private static void Give(

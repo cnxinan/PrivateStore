@@ -63,14 +63,14 @@ public sealed class BlacksmithService
             return new BlacksmithResult(access.Value);
         }
 
-        if (player.Resources.GetCount(ResourceKind.Recipe, recipeId) == 0)
-        {
-            return new BlacksmithResult(BlacksmithStatus.RecipeNotOwned);
-        }
-
         if (_state.HasLearned(recipeId))
         {
             return new BlacksmithResult(BlacksmithStatus.AlreadyLearned);
+        }
+
+        if (player.Resources.GetCount(ResourceKind.Recipe, recipeId) == 0)
+        {
+            return new BlacksmithResult(BlacksmithStatus.RecipeNotOwned);
         }
 
         var resourceCandidate = player.Resources.PrepareLearn(recipeId);
