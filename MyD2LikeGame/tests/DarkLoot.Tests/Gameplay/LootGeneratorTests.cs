@@ -55,31 +55,19 @@ public sealed class LootGeneratorTests
     }
 
     [Theory]
-    [InlineData(0, -1, null)]
-    [InlineData(1, 0, "weapon.training_blade")]
-    [InlineData(1, 1, "armor.training_vest")]
-    public void Generate_ProductionTableAllowsZeroOrOneEqualWeightedDrop(
-        int dropCount,
+    [InlineData(0, "weapon.training_blade")]
+    [InlineData(1, "armor.training_vest")]
+    public void Generate_ProductionTableAlwaysDropsOneEqualWeightedEquipmentItem(
         int entryTicket,
-        string? expectedItemId)
+        string expectedItemId)
     {
         var content = LoadProductionContent();
         var table = content.LootTables["loot.training_slime"];
-        var random = entryTicket < 0
-            ? new ScriptedRandom(dropCount)
-            : new ScriptedRandom(dropCount, entryTicket);
+        var random = new ScriptedRandom(1, entryTicket);
 
         var items = new LootGenerator().Generate(table, content, random);
 
-        Assert.Equal(dropCount, items.Count);
-        if (expectedItemId is not null)
-        {
-            Assert.Equal(expectedItemId, Assert.Single(items).DefinitionId);
-        }
-        else
-        {
-            Assert.Empty(items);
-        }
+        Assert.Equal(expectedItemId, Assert.Single(items).DefinitionId);
     }
 
     [Fact]
@@ -90,7 +78,7 @@ public sealed class LootGeneratorTests
 
         Assert.All(content.Monsters.Values, monster =>
             Assert.Equal("loot.training_slime", monster.LootTableId));
-        Assert.Equal(0, table.MinDrops);
+        Assert.Equal(1, table.MinDrops);
         Assert.Equal(1, table.MaxDrops);
         Assert.Equal(
             new[] { "weapon.training_blade", "armor.training_vest" },

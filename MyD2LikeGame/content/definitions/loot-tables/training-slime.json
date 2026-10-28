@@ -1,6 +1,6 @@
 {
   "id": "loot.training_slime",
-  "minDrops": 0,
+  "minDrops": 1,
   "maxDrops": 1,
   "entries": [
     { "itemId": "weapon.training_blade", "weight": 1 },
