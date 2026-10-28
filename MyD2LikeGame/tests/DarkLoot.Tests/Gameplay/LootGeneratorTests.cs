@@ -97,51 +97,6 @@ public sealed class LootGeneratorTests
     }
 
     [Theory]
-    [InlineData(0, "weapon.training_blade")]
-    [InlineData(1, "armor.training_vest")]
-    public void Generate_ProductionTableAlwaysDropsOneEqualWeightedEquipmentItem(
-        int entryTicket,
-        string expectedItemId)
-    {
-        var content = LoadProductionContent();
-        var table = content.LootTables["loot.training_slime"];
-        var random = new ScriptedRandom(1, entryTicket);
-
-        var items = new LootGenerator().Generate(table, content, random);
-
-        Assert.Equal(expectedItemId, Assert.Single(items).DefinitionId);
-    }
-
-    [Fact]
-    public void ProductionLootTable_UsesSharedEqualWeightedEquipmentAndConfiguredRarityWeights()
-    {
-        var content = LoadProductionContent();
-        var table = content.LootTables["loot.training_slime"];
-
-        Assert.All(content.Monsters.Values, monster =>
-            Assert.Equal("loot.training_slime", monster.LootTableId));
-        Assert.Equal(1, table.MinDrops);
-        Assert.Equal(1, table.MaxDrops);
-        Assert.Equal(
-            new[] { "weapon.training_blade", "armor.training_vest" },
-            table.Entries.Select(entry => entry.ItemId));
-        Assert.All(table.Entries, entry =>
-        {
-            Assert.True(entry.Weight > 0);
-            Assert.False(entry.Guaranteed);
-        });
-        Assert.Equal(table.Entries[0].Weight, table.Entries[1].Weight);
-        Assert.Equal(
-            new[]
-            {
-                new RarityWeightDefinition(ItemRarity.Common, 1),
-                new RarityWeightDefinition(ItemRarity.Magic, 4),
-                new RarityWeightDefinition(ItemRarity.Rare, 2)
-            },
-            table.RarityWeights);
-    }
-
-    [Theory]
     [InlineData(0, "item.first")]
     [InlineData(1, "item.second")]
     [InlineData(3, "item.second")]
@@ -370,25 +325,6 @@ public sealed class LootGeneratorTests
             new Dictionary<string, LootTableDefinition>());
     }
 
-    private static GameContent LoadProductionContent()
-    {
-        var directory = new DirectoryInfo(AppContext.BaseDirectory);
-        while (directory is not null &&
-               !File.Exists(Path.Combine(
-                   directory.FullName,
-                   "content",
-                   "definitions",
-                   "loot-tables",
-                   "training-slime.json")))
-        {
-            directory = directory.Parent;
-        }
-
-        Assert.NotNull(directory);
-        return GameContentLoader.LoadDirectory(
-            Path.Combine(directory!.FullName, "content", "definitions"));
-    }
-
     private sealed class CallOrderRandom : Random
     {
         public List<string> Calls { get; } = [];
@@ -410,19 +346,6 @@ public sealed class LootGeneratorTests
             Calls.Add($"range:{minValue}:{maxValue}");
             return maxValue - 1;
         }
-    }
-
-    private sealed class ScriptedRandom(params long[] values) : Random
-    {
-        private int _index;
-
-        public override long NextInt64(long minValue, long maxValue) =>
-            Math.Clamp(values[_index++], minValue, maxValue - 1);
-
-        public override long NextInt64(long maxValue) =>
-            Math.Clamp(values[_index++], 0, maxValue - 1);
-
-        public override double NextDouble() => 0;
     }
 
     private sealed class FixedRandom(int nextValue) : Random

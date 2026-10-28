@@ -8,6 +8,7 @@
     <Style>Regular</Style>
     <CharacterRegions>
       <CharacterRegion><Start>&#32;</Start><End>&#126;</End></CharacterRegion>
+      <CharacterRegion><Start>&#215;</Start><End>&#215;</End></CharacterRegion>
       <!-- Exact Chinese repertoire from GameText and definition names; smoke checks the loaded atlas. -->
       <CharacterRegion><Start>&#20313;</Start><End>&#20313;</End></CharacterRegion>
       <CharacterRegion><Start>&#21097;</Start><End>&#21097;</End></CharacterRegion>

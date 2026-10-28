@@ -2,8 +2,10 @@ using System.Collections.ObjectModel;
 using System.Numerics;
 using DarkLoot.Data;
 using DarkLoot.Data.Definitions;
+using DarkLoot.Gameplay.Crafting;
 using DarkLoot.Gameplay.Items;
 using DarkLoot.Gameplay.Loot;
+using DarkLoot.Gameplay.Resources;
 
 namespace DarkLoot.Gameplay.Combat;
 
@@ -37,8 +39,8 @@ public sealed class ArenaSimulation
     private readonly ReadOnlyCollection<MonsterState> _readOnlyMonsters;
     private readonly List<MeleeHit> _lastSwingHits = [];
     private readonly ReadOnlyCollection<MeleeHit> _readOnlyLastSwingHits;
-    private readonly List<GroundItem> _groundItems = [];
-    private readonly ReadOnlyCollection<GroundItem> _readOnlyGroundItems;
+    private readonly List<GroundResource> _groundResources = [];
+    private readonly ReadOnlyCollection<GroundResource> _readOnlyGroundResources;
     private readonly MonsterBehaviorSystem _monsterBehaviorSystem = new();
     private readonly ProjectileSystem _projectileSystem = new();
     private readonly List<CombatEvent> _events = [];
@@ -67,9 +69,12 @@ public sealed class ArenaSimulation
         _random = random;
         _killRewards = new KillRewardService(content, random);
         _killRewards.BeginRound(0);
+        ResourceOperations = new ResourcePickupService(content);
+        Blacksmith = new BlacksmithState();
+        BlacksmithOperations = new BlacksmithService(content, random, EquipmentOperations, Blacksmith);
         _readOnlyMonsters = _monsters.AsReadOnly();
         _readOnlyLastSwingHits = _lastSwingHits.AsReadOnly();
-        _readOnlyGroundItems = _groundItems.AsReadOnly();
+        _readOnlyGroundResources = _groundResources.AsReadOnly();
         _readOnlyEvents = _events.AsReadOnly();
         var instanceIds = new HashSet<string>(StringComparer.Ordinal);
         foreach (var spawn in encounter.Spawns)
@@ -105,12 +110,12 @@ public sealed class ArenaSimulation
                     nameof(content));
             }
 
-            if (content.LootTables is null ||
-                !content.LootTables.TryGetValue(definition.LootTableId, out var lootTable) ||
+            if (content.ResourceLootTables is null ||
+                !content.ResourceLootTables.TryGetValue(definition.LootTableId, out var lootTable) ||
                 lootTable is null)
             {
                 throw new ArgumentException(
-                    $"Game content is missing loot table '{definition.LootTableId}' for monster " +
+                    $"Game content is missing resource loot table '{definition.LootTableId}' for monster " +
                     $"'{spawn.MonsterId}'.",
                     nameof(content));
             }
@@ -139,7 +144,7 @@ public sealed class ArenaSimulation
 
     public long ResetSequence { get; private set; }
 
-    public IReadOnlyList<GroundItem> GroundItems => _readOnlyGroundItems;
+    public IReadOnlyList<GroundResource> GroundResources => _readOnlyGroundResources;
 
     public IReadOnlyList<ProjectileState> Projectiles => _projectileSystem.Projectiles;
 
@@ -148,6 +153,12 @@ public sealed class ArenaSimulation
     public Vector2 SwingDirection { get; private set; } = Vector2.UnitX;
 
     public InventoryService EquipmentOperations { get; }
+
+    public ResourcePickupService ResourceOperations { get; }
+
+    public BlacksmithState Blacksmith { get; }
+
+    public BlacksmithService BlacksmithOperations { get; }
 
     public void Update(PlayerIntent intent, float elapsedSeconds)
     {
@@ -219,7 +230,7 @@ public sealed class ArenaSimulation
 
         if (intent.PickupPressed && !Player.Reaction.IsActive)
         {
-            TryPickUpNearestItem();
+            TryPickUpNearestResource();
         }
     }
 
@@ -237,7 +248,7 @@ public sealed class ArenaSimulation
         Player.Reaction.Clear();
         Player.InvulnerabilityRemaining = 0;
         SwingDirection = Vector2.UnitX;
-        _groundItems.Clear();
+        _groundResources.Clear();
         ResetMonsters();
         _attackCooldown = 0;
     }
@@ -327,9 +338,10 @@ public sealed class ArenaSimulation
                 monster.Reaction.Clear();
                 _events.Add(new CombatEvent(
                     CombatEventKind.Died, monster.InstanceId, monster.Position, direction, appliedDamage, critical));
-                foreach (var item in rewards.Items)
+                foreach (var resource in rewards.Resources)
                 {
-                    _groundItems.Add(new GroundItem(item, monster.Position));
+                    _groundResources.Add(new GroundResource(
+                        Guid.NewGuid(), resource, monster.Position));
                 }
             }
             else if (!monster.IsDefeated)
@@ -391,15 +403,15 @@ public sealed class ArenaSimulation
         return false;
     }
 
-    private void TryPickUpNearestItem()
+    private void TryPickUpNearestResource()
     {
         var nearestIndex = -1;
         var nearestDistanceSquared = PickupRange * PickupRange;
-        for (var index = 0; index < _groundItems.Count; index++)
+        for (var index = 0; index < _groundResources.Count; index++)
         {
             var distanceSquared = Vector2.DistanceSquared(
                 Player.Position,
-                _groundItems[index].Position);
+                _groundResources[index].Position);
             if (distanceSquared <= nearestDistanceSquared)
             {
                 nearestDistanceSquared = distanceSquared;
@@ -412,17 +424,17 @@ public sealed class ArenaSimulation
             return;
         }
 
-        var item = _groundItems[nearestIndex].Item;
-        switch (EquipmentOperations.PickUp(Player, item))
+        var drop = _groundResources[nearestIndex];
+        switch (ResourceOperations.PickUp(Player, drop))
         {
-            case EquipmentChangeResult.Applied:
-                _groundItems.RemoveAt(nearestIndex);
+            case ResourcePickupResult.Applied:
+                _groundResources.RemoveAt(nearestIndex);
                 break;
-            case EquipmentChangeResult.PlayerDead:
-            case EquipmentChangeResult.DuplicateInstance:
+            case ResourcePickupResult.PlayerDead:
+            case ResourcePickupResult.AlreadyCollected:
                 break;
             default:
-                throw new InvalidOperationException("Unexpected pickup result.");
+                throw new InvalidOperationException("Unexpected resource pickup result.");
         }
     }
 

@@ -158,19 +158,19 @@ public sealed class GameContentLoaderTests
             Assert.Equal("Training Sword", item.Name);
             Assert.Equal(3, item.AttackBonus);
             Assert.Equal(DarkLoot.Data.Definitions.ItemSlot.Weapon, item.Slot);
-            Assert.Empty(content.Materials);
+            Assert.Single(content.Materials);
             Assert.Empty(content.Recipes);
-            Assert.Empty(content.ResourceLootTables);
+            Assert.Single(content.ResourceLootTables);
 
             var monster = Assert.Single(content.Monsters).Value;
             Assert.Equal("monster.training_slime", monster.Id);
             Assert.Equal(12, monster.MaxHealth);
-            Assert.Equal("loot.training_slime", monster.LootTableId);
+            Assert.Equal("resource.slime", monster.LootTableId);
             Assert.Equal(MonsterBehavior.Chase, monster.Behavior);
             Assert.Null(monster.RangedAttack);
 
             var lootTable = Assert.Single(content.LootTables).Value;
-            Assert.Equal("loot.training_slime", lootTable.Id);
+            Assert.Equal("loot.test_equipment", lootTable.Id);
             Assert.Equal("item.training_sword", Assert.Single(lootTable.Entries).ItemId);
             Assert.Null(lootTable.RarityWeights);
             Assert.Empty(content.Encounters);
@@ -263,7 +263,7 @@ public sealed class GameContentLoaderTests
     }
 
     [Fact]
-    public void LoadDirectory_MissingLootTableReference_ReportsMonsterAndId()
+    public void LoadDirectory_MissingResourceLootTableReference_ReportsMonsterAndId()
     {
         var root = ContentFixture.CreateMonsterWithoutLootTable();
 
@@ -273,7 +273,7 @@ public sealed class GameContentLoaderTests
                 () => GameContentLoader.LoadDirectory(root));
 
             Assert.Contains("monster.training_slime", error.Message);
-            Assert.Contains("loot.training_slime", error.Message);
+            Assert.Contains("resource.slime", error.Message);
         }
         finally
         {
@@ -291,7 +291,7 @@ public sealed class GameContentLoaderTests
             var error = Assert.Throws<ContentLoadException>(
                 () => GameContentLoader.LoadDirectory(root));
 
-            Assert.Contains("loot.training_slime", error.Message);
+            Assert.Contains("loot.test_equipment", error.Message);
             Assert.Contains("item.training_sword", error.Message);
         }
         finally
@@ -373,7 +373,7 @@ public sealed class GameContentLoaderTests
                 () => GameContentLoader.LoadDirectory(root));
 
             Assert.Contains(lootTablePath, error.Message);
-            Assert.Contains("loot.training_slime", error.Message);
+            Assert.Contains("loot.test_equipment", error.Message);
             Assert.Contains("Entries", error.Message);
         }
         finally
@@ -391,7 +391,7 @@ public sealed class GameContentLoaderTests
         {
             var content = GameContentLoader.LoadDirectory(root);
 
-            Assert.Empty(content.LootTables["loot.training_slime"].Entries);
+            Assert.Empty(content.LootTables["loot.test_equipment"].Entries);
         }
         finally
         {
@@ -612,7 +612,7 @@ public sealed class GameContentLoaderTests
               "maxHealth": 20,
               "contactDamage": 0,
               "moveSpeed": 70,
-              "lootTableId": "loot.training_slime",
+              "lootTableId": "resource.slime",
               "behavior": "{{behavior}}"{{rangedAttack}}
             }
             """;
@@ -803,8 +803,8 @@ public sealed class GameContentLoaderTests
     }
 
     private const string ArcherJson =
-        """{"id":"monster.skeleton_archer","name":"骷髅弓手","maxHealth":20,"contactDamage":0,"moveSpeed":70,"lootTableId":"loot.training_slime","behavior":"Archer","rangedAttack":{"range":260,"projectileSpeed":240,"fireInterval":1.5,"windupSeconds":0.3,"damage":5}}""";
+        """{"id":"monster.skeleton_archer","name":"骷髅弓手","maxHealth":20,"contactDamage":0,"moveSpeed":70,"lootTableId":"resource.slime","behavior":"Archer","rangedAttack":{"range":260,"projectileSpeed":240,"fireInterval":1.5,"windupSeconds":0.3,"damage":5}}""";
 
     private const string WolfJson =
-        """{"id":"monster.fast_wolf","name":"Fast Wolf","maxHealth":20,"contactDamage":5,"moveSpeed":140,"lootTableId":"loot.training_slime","behavior":"Chase"}""";
+        """{"id":"monster.fast_wolf","name":"Fast Wolf","maxHealth":20,"contactDamage":5,"moveSpeed":140,"lootTableId":"resource.slime","behavior":"Chase"}""";
 }

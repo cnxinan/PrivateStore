@@ -1,5 +1,5 @@
 using DarkLoot.Data;
-using DarkLoot.Gameplay.Items;
+using DarkLoot.Gameplay.Resources;
 
 namespace DarkLoot.Gameplay.Loot;
 
@@ -12,13 +12,13 @@ public enum KillRewardStatus
 
 public sealed record KillRewardResult(
     KillRewardStatus Status,
-    IReadOnlyList<ItemInstance> Items);
+    IReadOnlyList<ResourceStack> Resources);
 
 public sealed class KillRewardService
 {
     private readonly GameContent _content;
     private readonly Random _random;
-    private readonly LootGenerator _generator = new();
+    private readonly ResourceLootGenerator _generator = new();
     private readonly HashSet<string> _resolved = new(StringComparer.Ordinal);
     private long? _roundId;
 
@@ -75,25 +75,25 @@ public sealed class KillRewardService
         {
             return new KillRewardResult(
                 KillRewardStatus.WrongRound,
-                Array.Empty<ItemInstance>());
+                Array.Empty<ResourceStack>());
         }
 
         if (_resolved.Contains(kill.MonsterInstanceId))
         {
             return new KillRewardResult(
                 KillRewardStatus.AlreadyResolved,
-                Array.Empty<ItemInstance>());
+                Array.Empty<ResourceStack>());
         }
 
-        if (!_content.LootTables.TryGetValue(kill.LootTableId, out var table) || table is null)
+        if (!_content.ResourceLootTables.TryGetValue(kill.LootTableId, out var table) || table is null)
         {
             throw new ArgumentException(
-                $"Loot table '{kill.LootTableId}' was not found.",
+                $"Resource loot table '{kill.LootTableId}' was not found.",
                 nameof(kill));
         }
 
-        var items = _generator.Generate(table, _content, _random);
+        var resources = _generator.Generate(table, _content, _random);
         _resolved.Add(kill.MonsterInstanceId);
-        return new KillRewardResult(KillRewardStatus.Granted, items);
+        return new KillRewardResult(KillRewardStatus.Granted, resources);
     }
 }

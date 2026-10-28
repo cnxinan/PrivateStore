@@ -19,12 +19,12 @@ internal static class ContentFixture
                   "maxHealth": 12,
                   "contactDamage": 2,
                   "moveSpeed": 45.5,
-                  "lootTableId": "loot.training_slime"
+                  "lootTableId": "resource.slime"
                 }
                 """,
             lootTableJson: """
                 {
-                  "id": "loot.training_slime",
+                  "id": "loot.test_equipment",
                   "minDrops": 1,
                   "maxDrops": 1,
                   "entries": [
@@ -78,6 +78,8 @@ internal static class ContentFixture
             monsterJson: ValidMonsterJson,
             lootTableJson: ValidLootTableJson);
 
+        Directory.Delete(Path.Combine(root, "materials"), recursive: true);
+        Directory.Delete(Path.Combine(root, "resource-loot-tables"), recursive: true);
         WriteDefinitions(root, "materials", materialJsons ?? [ValidMaterialJson], "material");
         WriteDefinitions(root, "recipes", recipeJsons ?? [ValidRecipeJson], "recipe");
         WriteDefinitions(
@@ -127,10 +129,12 @@ internal static class ContentFixture
 
     public static string CreateMonsterWithoutLootTable()
     {
-        return Create(
+        var root = Create(
             itemJson: ValidItemJson,
             monsterJson: ValidMonsterJson,
             lootTableJson: null);
+        Directory.Delete(Path.Combine(root, "resource-loot-tables"), recursive: true);
+        return root;
     }
 
     public static string CreateLootTableWithMissingItem()
@@ -152,7 +156,7 @@ internal static class ContentFixture
                   "maxHealth": 0,
                   "contactDamage": 2,
                   "moveSpeed": 45.5,
-                  "lootTableId": "loot.training_slime"
+                  "lootTableId": "resource.slime"
                 }
                 """,
             lootTableJson: ValidLootTableJson);
@@ -165,7 +169,7 @@ internal static class ContentFixture
             monsterJson: ValidMonsterJson,
             lootTableJson: """
                 {
-                  "id": "loot.training_slime",
+                  "id": "loot.test_equipment",
                   "minDrops": 1,
                   "maxDrops": 1,
                   "entries": [
@@ -185,7 +189,7 @@ internal static class ContentFixture
             monsterJson: ValidMonsterJson,
             lootTableJson: """
                 {
-                  "id": "loot.training_slime",
+                  "id": "loot.test_equipment",
                   "minDrops": 2,
                   "maxDrops": 1,
                   "entries": [
@@ -205,7 +209,7 @@ internal static class ContentFixture
             monsterJson: ValidMonsterJson,
             lootTableJson: $$"""
                 {
-                  "id": "loot.training_slime",
+                  "id": "loot.test_equipment",
                   "minDrops": 0,
                   "maxDrops": {{maxDrops}},
                   "entries": []
@@ -242,6 +246,8 @@ internal static class ContentFixture
         WriteDefinition(root, "items", "training-sword.json", itemJson);
         WriteDefinition(root, "monsters", "training-slime.json", monsterJson);
         WriteDefinition(root, "loot-tables", "training-slime.json", lootTableJson);
+        WriteDefinition(root, "materials", "slime.json", ValidMaterialJson);
+        WriteDefinition(root, "resource-loot-tables", "slime.json", BasicResourceLootTableJson);
 
         return root;
     }
@@ -291,6 +297,9 @@ internal static class ContentFixture
     private const string ValidResourceLootTableJson =
         """{"id":"resource.slime","materialId":"material.slime","minQuantity":1,"maxQuantity":2,"recipeChancePercent":20,"recipeIds":["recipe.magic_blade"]}""";
 
+    private const string BasicResourceLootTableJson =
+        """{"id":"resource.slime","materialId":"material.slime","minQuantity":1,"maxQuantity":2,"recipeChancePercent":0,"recipeIds":[]}""";
+
     private const string ValidItemJson = """
         {
           "id": "item.training_sword",
@@ -306,13 +315,13 @@ internal static class ContentFixture
           "maxHealth": 12,
           "contactDamage": 2,
           "moveSpeed": 45.5,
-          "lootTableId": "loot.training_slime"
+          "lootTableId": "resource.slime"
         }
         """;
 
     private const string ValidLootTableJson = """
         {
-          "id": "loot.training_slime",
+          "id": "loot.test_equipment",
           "minDrops": 1,
           "maxDrops": 1,
           "entries": [

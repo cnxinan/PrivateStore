@@ -76,7 +76,9 @@ public sealed class ActorPresentationTests
         arena.Update(Idle, .15f);
         presentation.Update(arena, .15f);
         Assert.Equal(0, presentation.GetMonsterPose("near").Opacity);
-        Assert.Empty(arena.GroundItems);
+        var resource = Assert.Single(arena.GroundResources);
+        Assert.Equal(deathPosition, resource.Position);
+        Assert.Equal("material.slime", resource.Stack.DefinitionId);
     }
 
     [Fact]

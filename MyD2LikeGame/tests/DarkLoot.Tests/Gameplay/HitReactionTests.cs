@@ -257,7 +257,7 @@ public sealed class HitReactionTests
         {
             RangedAttack = monsters["monster.skeleton_archer"].RangedAttack! with { Damage = 0 }
         };
-        var arena = CreateWithContent(new GameContent(content.Items, monsters, content.LootTables, content.Affixes),
+        var arena = CreateWithContent(content with { Monsters = monsters },
             new("archer", "monster.skeleton_archer", 250, 270),
             new MonsterSpawnDefinition("slime", "monster.training_slime", 160, 270));
         arena.Update(Idle, .3f);
@@ -292,12 +292,14 @@ public sealed class HitReactionTests
         var content = MixedEncounterFixture.CreateContent(contactDamage: 2);
         var monsters = content.Monsters.ToDictionary(pair => pair.Key, pair => pair.Value);
         monsters["monster.fast_wolf"] = monsters["monster.fast_wolf"] with { MaxHealth = 10, MoveSpeed = .01f };
-        var loot = new Dictionary<string, LootTableDefinition>
+        var resources = content.ResourceLootTables.ToDictionary(pair => pair.Key, pair => pair.Value);
+        resources["resource.wolf"] = new ResourceLootTableDefinition(
+            "resource.wolf", "material.hide", 1, 1, 0, []);
+        var arena = CreateWithContent(content with
         {
-            ["loot.training_empty"] = new("loot.training_empty", 1, 1,
-                [new LootEntryDefinition("weapon.training_blade", 1) { Guaranteed = true }])
-        };
-        var arena = CreateWithContent(new GameContent(content.Items, monsters, loot, content.Affixes),
+            Monsters = monsters,
+            ResourceLootTableDefinitions = resources
+        },
             new("loot", "monster.fast_wolf", 175, 270),
             new("contact", "monster.training_slime", 160, 270));
         arena.Update(Idle with { AttackPressed = true }, 0);
@@ -305,12 +307,13 @@ public sealed class HitReactionTests
         arena.Update(Idle, .12f);
         Assert.True(arena.Player.Reaction.IsActive);
         arena.Update(Idle with { PickupPressed = true }, .05f);
-        Assert.Single(arena.GroundItems);
+        Assert.Single(arena.GroundResources);
         Assert.Empty(arena.Player.Inventory.Items);
         arena.Update(Idle with { PickupPressed = true }, .1f);
         Assert.Equal(new Vector2(142, 270), arena.Player.Position);
-        Assert.Empty(arena.GroundItems);
-        Assert.Single(arena.Player.Inventory.Items);
+        Assert.Empty(arena.GroundResources);
+        Assert.Equal(1, arena.Player.Resources.GetCount(
+            DarkLoot.Gameplay.Resources.ResourceKind.Material, "material.hide"));
     }
 
     [Fact]
@@ -437,7 +440,7 @@ public sealed class HitReactionTests
         var content = MixedEncounterFixture.CreateContent(contactDamage: 100);
         var monsters = content.Monsters.ToDictionary(pair => pair.Key, pair => pair.Value);
         monsters["monster.fast_wolf"] = monsters["monster.fast_wolf"] with { MaxHealth = 10 };
-        var arena = CreateWithContent(new GameContent(content.Items, monsters, content.LootTables, content.Affixes),
+        var arena = CreateWithContent(content with { Monsters = monsters },
             new("target", "monster.fast_wolf", 180, 270),
             new("contact", "monster.training_slime", 140, 270));
         arena.Update(Idle with { AttackPressed = true }, 0);
@@ -460,7 +463,7 @@ public sealed class HitReactionTests
         var content = MixedEncounterFixture.CreateContent();
         var monsters = content.Monsters.ToDictionary(pair => pair.Key, pair => pair.Value);
         monsters["monster.training_slime"] = monsters["monster.training_slime"] with { MaxHealth = 10 };
-        var arena = CreateWithContent(new GameContent(content.Items, monsters, content.LootTables, content.Affixes),
+        var arena = CreateWithContent(content with { Monsters = monsters },
             new MonsterSpawnDefinition("target", "monster.training_slime", 180, 270));
         arena.Update(Idle with { AttackPressed = true }, 0);
         Assert.True(arena.IsCleared);

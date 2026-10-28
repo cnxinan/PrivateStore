@@ -2,7 +2,9 @@ using System.Numerics;
 using DarkLoot.Data;
 using DarkLoot.Data.Definitions;
 using DarkLoot.Gameplay.Combat;
+using DarkLoot.Gameplay.Crafting;
 using DarkLoot.Gameplay.Items;
+using DarkLoot.Gameplay.Resources;
 
 namespace DarkLoot.Tests.Gameplay;
 
@@ -91,12 +93,7 @@ public sealed class PlayerLifecycleTests
         var fixture = MixedEncounterFixture.CreateContent(contactDamage: 100);
         var monsters = fixture.Monsters.ToDictionary(pair => pair.Key, pair => pair.Value);
         monsters["monster.fast_wolf"] = monsters["monster.fast_wolf"] with { MaxHealth = 10 };
-        var content = new GameContent(fixture.Items, monsters,
-            new Dictionary<string, LootTableDefinition>
-            {
-                ["loot.training_empty"] = new("loot.training_empty", 1, 1,
-                    [new LootEntryDefinition("weapon.training_blade", 1) { Guaranteed = true }])
-            }, fixture.Affixes);
+        var content = fixture with { Monsters = monsters };
         var arena = new ArenaSimulation(content, new Random(17), MixedEncounterFixture.CreateEncounter(
             new("contact", "monster.training_slime", 140, 270),
             new("drop", "monster.fast_wolf", 160, 290),
@@ -113,10 +110,18 @@ public sealed class PlayerLifecycleTests
         Assert.Equal(EquipmentChangeResult.Applied, arena.EquipmentOperations.PickUp(arena.Player, armor));
         Assert.Equal(EquipmentChangeResult.Applied, arena.EquipmentOperations.Equip(arena.Player, weapon.InstanceId));
         Assert.Equal(EquipmentChangeResult.Applied, arena.EquipmentOperations.Equip(arena.Player, armor.InstanceId));
+        Assert.Equal(ResourcePickupResult.Applied, arena.ResourceOperations.PickUp(
+            arena.Player, new GroundResource(Guid.NewGuid(),
+                new ResourceStack(ResourceKind.Material, "material.slime", 5), arena.Player.Position)));
+        Assert.Equal(ResourcePickupResult.Applied, arena.ResourceOperations.PickUp(
+            arena.Player, new GroundResource(Guid.NewGuid(),
+                new ResourceStack(ResourceKind.Recipe, "recipe.magic_blade", 1), arena.Player.Position)));
+        Assert.Equal(BlacksmithStatus.Applied,
+            arena.BlacksmithOperations.Learn(arena.Player, "recipe.magic_blade").Status);
         arena.Update(Idle with { AimWorldPosition = new Vector2(160, 400), AttackPressed = true }, 0);
 
         Assert.True(arena.Player.IsDead);
-        var firstRoundDrop = Assert.Single(arena.GroundItems).Item.InstanceId;
+        var firstRoundDrop = Assert.Single(arena.GroundResources).DropId;
         var attackSequence = arena.Player.AttackSequence;
         arena.Update(Idle with { PickupPressed = true }, .3f);
         Assert.Equal(2, arena.Projectiles.Count);
@@ -128,7 +133,7 @@ public sealed class PlayerLifecycleTests
         Assert.Equal(0, arena.Player.Health);
         Assert.Equal(attackSequence, arena.Player.AttackSequence);
         Assert.Equal(2, arena.Player.Inventory.Items.Count);
-        Assert.Single(arena.GroundItems);
+        Assert.Single(arena.GroundResources);
         Assert.True(arena.Monsters[2].Position.X < chaserPosition.X);
         Assert.Equal(2, arena.Projectiles.Count);
         Assert.True(arena.Projectiles[0].Position.X < 160);
@@ -139,7 +144,7 @@ public sealed class PlayerLifecycleTests
         arena.Update(Idle, .1f);
         Assert.False(arena.Player.IsDead);
         Assert.Equal(1, arena.ResetSequence);
-        Assert.Empty(arena.GroundItems);
+        Assert.Empty(arena.GroundResources);
         Assert.Empty(arena.Projectiles);
         Assert.Empty(arena.LastSwingHits);
         Assert.Equal(0, arena.Player.LastHitDamage);
@@ -155,11 +160,14 @@ public sealed class PlayerLifecycleTests
         Assert.Equal(new[] { weapon, armor }, arena.Player.Inventory.Items);
         Assert.Same(weapon, arena.Player.Inventory.EquippedWeapon);
         Assert.Same(armor, arena.Player.Inventory.EquippedArmor);
+        Assert.Equal(5, arena.Player.Resources.GetCount(ResourceKind.Material, "material.slime"));
+        Assert.Equal(0, arena.Player.Resources.GetCount(ResourceKind.Recipe, "recipe.magic_blade"));
+        Assert.True(arena.Blacksmith.HasLearned("recipe.magic_blade"));
         Assert.Equal(4, Assert.Single(weapon.Rolls).Value);
         Assert.Equal(8, Assert.Single(armor.Rolls).Value);
         arena.Update(Idle with { AimWorldPosition = new Vector2(160, 400), AttackPressed = true }, .3f);
         Assert.Equal(2, arena.Projectiles.Count);
-        Assert.NotEqual(firstRoundDrop, Assert.Single(arena.GroundItems).Item.InstanceId);
+        Assert.NotEqual(firstRoundDrop, Assert.Single(arena.GroundResources).DropId);
     }
 
     [Fact]

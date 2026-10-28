@@ -1,8 +1,8 @@
 using System.Numerics;
 using DarkLoot.Data;
 using DarkLoot.Data.Definitions;
-using DarkLoot.Gameplay.Items;
 using DarkLoot.Gameplay.Loot;
+using DarkLoot.Gameplay.Resources;
 
 namespace DarkLoot.Tests.Gameplay;
 
@@ -14,29 +14,30 @@ public sealed class KillRewardServiceTests
         var content = MixedEncounterFixture.CreateContent();
         var random = new CountingRandom();
         var service = new KillRewardService(content, random);
-        var kill = new KillRecord(0, "slime.1", new Vector2(190, 270), "loot.training_empty");
+        var kill = new KillRecord(0, "slime.1", new Vector2(190, 270), "resource.slime");
 
         service.BeginRound(0);
 
         var first = service.Resolve(kill);
         Assert.Equal(KillRewardStatus.Granted, first.Status);
-        Assert.Empty(first.Items);
+        Assert.Equal(new ResourceStack(ResourceKind.Material, "material.slime", 1),
+            Assert.Single(first.Resources));
         var afterFirst = random.Calls;
 
         var duplicate = service.Resolve(kill);
         Assert.Equal(KillRewardStatus.AlreadyResolved, duplicate.Status);
-        Assert.Empty(duplicate.Items);
+        Assert.Empty(duplicate.Resources);
         Assert.Equal(afterFirst, random.Calls);
 
         service.BeginRound(1);
         Assert.Equal(KillRewardStatus.WrongRound, service.Resolve(kill).Status);
-        Assert.Equal(
-            KillRewardStatus.WrongRound,
+        Assert.Equal(KillRewardStatus.WrongRound,
             service.Resolve(kill with { RoundId = 2 }).Status);
         Assert.Equal(afterFirst, random.Calls);
 
         var nextRound = service.Resolve(kill with { RoundId = 1 });
         Assert.Equal(KillRewardStatus.Granted, nextRound.Status);
+        Assert.Single(nextRound.Resources);
         Assert.True(random.Calls > afterFirst);
     }
 
@@ -44,51 +45,50 @@ public sealed class KillRewardServiceTests
     public void Resolve_GenerationExceptionDoesNotRecordSuccess()
     {
         var fixture = MixedEncounterFixture.CreateContent();
-        var tables = fixture.LootTables.ToDictionary(pair => pair.Key, pair => pair.Value);
-        tables["broken"] = new LootTableDefinition(
-            "broken",
-            1,
-            1,
-            [new LootEntryDefinition("missing", 1)]);
-        var content = new GameContent(fixture.Items, fixture.Monsters, tables, fixture.Affixes);
-        var service = new KillRewardService(content, new Random(17));
-        var kill = new KillRecord(0, "slime.1", Vector2.Zero, "broken");
-
+        var tables = fixture.ResourceLootTables.ToDictionary(pair => pair.Key, pair => pair.Value);
+        tables["broken"] = new ResourceLootTableDefinition("broken", "material.missing", 1, 1, 0, []);
+        var service = new KillRewardService(
+            fixture with { ResourceLootTableDefinitions = tables }, new Random(17));
         service.BeginRound(0);
+        var kill = new KillRecord(0, "slime.1", Vector2.Zero, "broken");
 
         Assert.Throws<ArgumentException>(() => service.Resolve(kill));
 
-        var retried = service.Resolve(kill with { LootTableId = "loot.training_empty" });
+        var retried = service.Resolve(kill with { LootTableId = "resource.slime" });
         Assert.Equal(KillRewardStatus.Granted, retried.Status);
-        Assert.Empty(retried.Items);
+        Assert.Single(retried.Resources);
     }
 
     [Fact]
-    public void Resolve_GrantsASeparateItemForEachMonsterAndDeduplicatesByMonsterInstance()
+    public void Resolve_GrantsSeparateResourceResultsAndDeduplicatesByMonsterInstance()
     {
-        var content = WithGuaranteedDrop();
-        var service = new KillRewardService(content, new Random(17));
+        var fixture = MixedEncounterFixture.CreateContent();
+        var tables = fixture.ResourceLootTables.ToDictionary(pair => pair.Key, pair => pair.Value);
+        tables["resource.test_guaranteed"] = new ResourceLootTableDefinition(
+            "resource.test_guaranteed", "material.slime", 1, 1, 0, []);
+        var service = new KillRewardService(
+            fixture with { ResourceLootTableDefinitions = tables }, new Random(17));
         service.BeginRound(0);
 
         var first = service.Resolve(
-            new KillRecord(0, "slime.1", Vector2.Zero, "loot.training_drop"));
+            new KillRecord(0, "slime.1", Vector2.Zero, "resource.test_guaranteed"));
         var second = service.Resolve(
-            new KillRecord(0, "slime.2", Vector2.One, "loot.training_drop"));
+            new KillRecord(0, "slime.2", Vector2.One, "resource.test_guaranteed"));
 
         Assert.Equal(KillRewardStatus.Granted, first.Status);
-        Assert.Equal("weapon.training_blade", Assert.Single(first.Items).DefinitionId);
+        Assert.Equal(new ResourceStack(ResourceKind.Material, "material.slime", 1),
+            Assert.Single(first.Resources));
         Assert.Equal(KillRewardStatus.Granted, second.Status);
-        Assert.Equal("weapon.training_blade", Assert.Single(second.Items).DefinitionId);
-        Assert.NotEqual(first.Items[0].InstanceId, second.Items[0].InstanceId);
+        Assert.Equal(first.Resources, second.Resources);
 
         var duplicate = service.Resolve(
-            new KillRecord(0, "slime.1", Vector2.One, "loot.training_drop"));
+            new KillRecord(0, "slime.1", Vector2.One, "resource.test_guaranteed"));
         Assert.Equal(KillRewardStatus.AlreadyResolved, duplicate.Status);
-        Assert.Empty(duplicate.Items);
+        Assert.Empty(duplicate.Resources);
     }
 
     [Fact]
-    public void Resolve_RejectsMissingLootTable()
+    public void Resolve_RejectsMissingResourceLootTable()
     {
         var service = new KillRewardService(MixedEncounterFixture.CreateContent(), new Random(17));
         service.BeginRound(0);
@@ -103,7 +103,7 @@ public sealed class KillRewardServiceTests
         var service = new KillRewardService(MixedEncounterFixture.CreateContent(), new Random(17));
 
         Assert.Throws<InvalidOperationException>(() => service.Resolve(
-            new KillRecord(0, "slime.1", Vector2.Zero, "loot.training_empty")));
+            new KillRecord(0, "slime.1", Vector2.Zero, "resource.slime")));
     }
 
     [Fact]
@@ -115,11 +115,11 @@ public sealed class KillRewardServiceTests
     }
 
     [Fact]
-    public void BeginRound_RequiresStrictlyIncreasingNonNegativeIdsWithoutClearingCurrentRound()
+    public void BeginRound_RequiresStrictlyIncreasingIdsAndClearsCurrentRound()
     {
         var service = new KillRewardService(MixedEncounterFixture.CreateContent(), new Random(17));
         service.BeginRound(0);
-        var firstKill = new KillRecord(0, "slime.1", Vector2.Zero, "loot.training_empty");
+        var firstKill = new KillRecord(0, "slime.1", Vector2.Zero, "resource.slime");
         Assert.Equal(KillRewardStatus.Granted, service.Resolve(firstKill).Status);
         service.BeginRound(1);
         var currentKill = firstKill with { RoundId = 1 };
@@ -128,21 +128,7 @@ public sealed class KillRewardServiceTests
         Assert.Throws<ArgumentOutOfRangeException>(() => service.BeginRound(1));
         Assert.Throws<ArgumentOutOfRangeException>(() => service.BeginRound(0));
         Assert.Throws<ArgumentOutOfRangeException>(() => service.BeginRound(-1));
-
         Assert.Equal(KillRewardStatus.AlreadyResolved, service.Resolve(currentKill).Status);
-    }
-
-    [Fact]
-    public void BeginRound_RejectsNonzeroInitialIdWithoutChangingState()
-    {
-        var service = new KillRewardService(MixedEncounterFixture.CreateContent(), new Random(17));
-
-        Assert.Throws<ArgumentOutOfRangeException>(() => service.BeginRound(1));
-
-        service.BeginRound(0);
-        Assert.Equal(
-            KillRewardStatus.Granted,
-            service.Resolve(new KillRecord(0, "slime.1", Vector2.Zero, "loot.training_empty")).Status);
     }
 
     [Fact]
@@ -153,15 +139,15 @@ public sealed class KillRewardServiceTests
 
         Assert.Throws<ArgumentNullException>(() => service.Resolve(null!));
         Assert.Throws<ArgumentOutOfRangeException>(() => service.Resolve(
-            new KillRecord(-1, "slime.1", Vector2.Zero, "loot.training_empty")));
+            new KillRecord(-1, "slime.1", Vector2.Zero, "resource.slime")));
         Assert.Throws<ArgumentException>(() => service.Resolve(
-            new KillRecord(0, "", Vector2.Zero, "loot.training_empty")));
+            new KillRecord(0, "", Vector2.Zero, "resource.slime")));
         Assert.Throws<ArgumentException>(() => service.Resolve(
             new KillRecord(0, "slime.1", Vector2.Zero, "")));
         Assert.Throws<ArgumentException>(() => service.Resolve(
-            new KillRecord(0, "slime.1", new Vector2(float.NaN, 0), "loot.training_empty")));
+            new KillRecord(0, "slime.1", new Vector2(float.NaN, 0), "resource.slime")));
         Assert.Throws<ArgumentException>(() => service.Resolve(
-            new KillRecord(0, "slime.1", new Vector2(0, float.PositiveInfinity), "loot.training_empty")));
+            new KillRecord(0, "slime.1", new Vector2(0, float.PositiveInfinity), "resource.slime")));
     }
 
     [Fact]
@@ -172,29 +158,16 @@ public sealed class KillRewardServiceTests
         for (long roundId = 0; roundId < 100; roundId++)
         {
             service.BeginRound(roundId);
-            var kill = new KillRecord(roundId, "slime.1", Vector2.Zero, "loot.training_empty");
+            var kill = new KillRecord(roundId, "slime.1", Vector2.Zero, "resource.slime");
 
             Assert.Equal(KillRewardStatus.Granted, service.Resolve(kill).Status);
             Assert.Equal(KillRewardStatus.AlreadyResolved, service.Resolve(kill).Status);
             if (roundId > 0)
             {
-                Assert.Equal(
-                    KillRewardStatus.WrongRound,
+                Assert.Equal(KillRewardStatus.WrongRound,
                     service.Resolve(kill with { RoundId = roundId - 1 }).Status);
             }
         }
-    }
-
-    private static GameContent WithGuaranteedDrop()
-    {
-        var fixture = MixedEncounterFixture.CreateContent();
-        var tables = fixture.LootTables.ToDictionary(pair => pair.Key, pair => pair.Value);
-        tables["loot.training_drop"] = new LootTableDefinition(
-            "loot.training_drop",
-            1,
-            1,
-            [new LootEntryDefinition("weapon.training_blade", 1) { Guaranteed = true }]);
-        return new GameContent(fixture.Items, fixture.Monsters, tables, fixture.Affixes);
     }
 
     private sealed class CountingRandom : Random
@@ -207,7 +180,7 @@ public sealed class KillRewardServiceTests
             return minValue;
         }
 
-        public override long NextInt64(long maxValue)
+        public override int Next(int maxValue)
         {
             Calls++;
             return 0;

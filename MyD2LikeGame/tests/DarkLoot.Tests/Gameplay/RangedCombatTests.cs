@@ -330,6 +330,6 @@ public sealed class RangedCombatTests
         var content = MixedEncounterFixture.CreateContent();
         var monsters = content.Monsters.ToDictionary(pair => pair.Key, pair => pair.Value);
         monsters["monster.skeleton_archer"] = change(monsters["monster.skeleton_archer"]);
-        return new GameContent(content.Items, monsters, content.LootTables, content.Affixes);
+        return content with { Monsters = monsters };
     }
 }

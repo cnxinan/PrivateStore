@@ -57,21 +57,21 @@ internal static class MixedEncounterFixture
                 100,
                 contactDamage,
                 60,
-                "loot.training_empty"),
+                "resource.slime"),
             ["monster.fast_wolf"] = new(
                 "monster.fast_wolf",
                 "Fast Wolf",
                 100,
                 0,
                 140,
-                "loot.training_empty"),
+                "resource.wolf"),
             ["monster.skeleton_archer"] = new(
                 "monster.skeleton_archer",
                 "Skeleton Archer",
                 100,
                 0,
                 70,
-                "loot.training_empty",
+                "resource.skeleton",
                 MonsterBehavior.Archer,
                 new RangedAttackDefinition(260, 240, 1.5f, .3f, 5))
         };
@@ -79,8 +79,54 @@ internal static class MixedEncounterFixture
         {
             ["loot.training_empty"] = new("loot.training_empty", 0, 0, [])
         };
+        var materials = new Dictionary<string, MaterialDefinition>
+        {
+            ["material.slime"] = new("material.slime", "Slime"),
+            ["material.hide"] = new("material.hide", "Hide"),
+            ["material.bone"] = new("material.bone", "Bone")
+        };
+        var recipes = new Dictionary<string, RecipeDefinition>
+        {
+            ["recipe.magic_blade"] = new(
+                "recipe.magic_blade",
+                "Magic Blade",
+                "weapon.training_blade",
+                ItemRarity.Magic,
+                [new MaterialCost("material.slime", 1)]),
+            ["recipe.magic_vest"] = new(
+                "recipe.magic_vest",
+                "Magic Vest",
+                "armor.training_vest",
+                ItemRarity.Magic,
+                [new MaterialCost("material.slime", 1)]),
+            ["recipe.rare_blade"] = new(
+                "recipe.rare_blade",
+                "Rare Blade",
+                "weapon.training_blade",
+                ItemRarity.Rare,
+                [new MaterialCost("material.slime", 1)]),
+            ["recipe.rare_vest"] = new(
+                "recipe.rare_vest",
+                "Rare Vest",
+                "armor.training_vest",
+                ItemRarity.Rare,
+                [new MaterialCost("material.slime", 1)])
+        };
+        var resourceLootTables = new Dictionary<string, ResourceLootTableDefinition>
+        {
+            ["resource.slime"] = new(
+                "resource.slime", "material.slime", 1, 1, 0, []),
+            ["resource.wolf"] = new(
+                "resource.wolf", "material.hide", 1, 1, 0, []),
+            ["resource.skeleton"] = new(
+                "resource.skeleton", "material.bone", 1, 1, 0, [])
+        };
 
-        return new GameContent(items, monsters, lootTables, affixes);
+        return new GameContent(
+            items, monsters, lootTables, affixes,
+            MaterialDefinitions: materials,
+            RecipeDefinitions: recipes,
+            ResourceLootTableDefinitions: resourceLootTables);
     }
 
     public static EncounterDefinition CreateEncounter(params MonsterSpawnDefinition[] spawns) =>

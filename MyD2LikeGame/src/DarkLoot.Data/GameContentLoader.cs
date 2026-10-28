@@ -520,11 +520,11 @@ public static class GameContentLoader
         foreach (var loadedMonster in monsters.Values)
         {
             var monster = loadedMonster.Definition;
-            if (!lootTables.ContainsKey(monster.LootTableId))
+            if (!resourceLootTables.ContainsKey(monster.LootTableId))
             {
                 throw Invalid(
                     loadedMonster.SourcePath,
-                    $"Monster '{monster.Id}' references missing loot table " +
+                    $"Monster '{monster.Id}' references missing resource loot table " +
                     $"'{monster.LootTableId}'.");
             }
         }

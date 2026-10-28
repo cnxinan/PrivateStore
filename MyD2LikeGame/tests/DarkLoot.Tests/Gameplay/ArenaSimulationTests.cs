@@ -2,7 +2,9 @@ using System.Numerics;
 using DarkLoot.Data;
 using DarkLoot.Data.Definitions;
 using DarkLoot.Gameplay.Combat;
+using DarkLoot.Gameplay.Crafting;
 using DarkLoot.Gameplay.Items;
+using DarkLoot.Gameplay.Resources;
 
 namespace DarkLoot.Tests.Gameplay;
 
@@ -129,7 +131,7 @@ public sealed class ArenaSimulationTests
     }
 
     [Fact]
-    public void Update_KillsOncePicksUpAndEquipsLootThenResetKeepsWeaponDamage()
+    public void Update_PicksUpLearnsAndCraftsResourcesThenResetKeepsCraftedEquipment()
     {
         var content = CreateContent();
         var simulation = CreateSingleTargetArena(content, new Random(17));
@@ -138,40 +140,40 @@ public sealed class ArenaSimulationTests
         Assert.Equal(2, unarmedAttackCount);
 
         Assert.True(simulation.Monsters[0].IsDefeated);
-        var drop = Assert.Single(simulation.GroundItems);
-        Assert.Equal("item.training_sword", drop.Item.DefinitionId);
+        Assert.Equal(2, simulation.GroundResources.Count);
+        Assert.Contains(simulation.GroundResources,
+            drop => drop.Stack.Kind == ResourceKind.Material && drop.Stack.DefinitionId == "material.slime");
+        Assert.Contains(simulation.GroundResources,
+            drop => drop.Stack.Kind == ResourceKind.Recipe && drop.Stack.DefinitionId == "recipe.training_sword");
 
-        for (var index = 0; index < 20; index++)
-        {
-            simulation.Update(
-                new PlayerIntent(Vector2.Zero, simulation.Monsters[0].Position, true, false),
-                0.1f);
-        }
-
-        Assert.Single(simulation.GroundItems);
-        Assert.Empty(simulation.Player.Inventory.Items);
-
-        simulation.Update(
-            new PlayerIntent(Vector2.UnitY, simulation.Monsters[0].Position, false, false),
-            1f);
         simulation.Update(
             new PlayerIntent(Vector2.Zero, simulation.Player.Position, false, true),
             0f);
-        Assert.Single(simulation.GroundItems);
-        Assert.Empty(simulation.Player.Inventory.Items);
-
         simulation.Update(
-            new PlayerIntent(-Vector2.UnitY, simulation.Monsters[0].Position, false, true),
-            1f);
-        Assert.Empty(simulation.GroundItems);
-        var weapon = Assert.Single(simulation.Player.Inventory.Items);
+            new PlayerIntent(Vector2.Zero, simulation.Player.Position, false, true),
+            0f);
+        Assert.Empty(simulation.GroundResources);
+        Assert.Equal(1, simulation.Player.Resources.GetCount(ResourceKind.Material, "material.slime"));
+        Assert.Equal(1, simulation.Player.Resources.GetCount(ResourceKind.Recipe, "recipe.training_sword"));
+
+        var toSmith = BlacksmithService.Position - simulation.Player.Position;
+        simulation.Update(
+            new PlayerIntent(Vector2.Normalize(toSmith), simulation.Player.Position, false, false),
+            Math.Max(0, (toSmith.Length() - 8) / 180f));
+        Assert.Equal(BlacksmithStatus.Applied,
+            simulation.BlacksmithOperations.Learn(simulation.Player, "recipe.training_sword").Status);
+        var crafted = simulation.BlacksmithOperations.Craft(simulation.Player, "recipe.training_sword");
+        Assert.Equal(BlacksmithStatus.Applied, crafted.Status);
+        var weapon = Assert.IsType<ItemInstance>(crafted.Item);
 
         Assert.Equal(EquipmentChangeResult.Applied,
             simulation.EquipmentOperations.Equip(simulation.Player, weapon.InstanceId));
         Assert.Equal(13, simulation.Player.AttackDamage);
 
         simulation.ResetEncounter();
-        Assert.Empty(simulation.GroundItems);
+        Assert.Empty(simulation.GroundResources);
+        Assert.True(simulation.Blacksmith.HasLearned("recipe.training_sword"));
+        Assert.Equal(0, simulation.Player.Resources.GetCount(ResourceKind.Material, "material.slime"));
         Assert.Equal(12, simulation.Monsters[0].Health);
         Assert.False(simulation.Monsters[0].IsDefeated);
         Assert.Same(weapon, simulation.Player.Inventory.EquippedWeapon);
@@ -181,17 +183,17 @@ public sealed class ArenaSimulationTests
 
         Assert.True(simulation.Monsters[0].IsDefeated);
         Assert.Equal(1, equippedAttackCount);
-        Assert.Single(simulation.GroundItems);
+        Assert.Equal(2, simulation.GroundResources.Count);
     }
 
     [Fact]
-    public void Update_RejectsPickupOfAlreadyOwnedDropAndKeepsItOnTheGround()
+    public void Update_RejectsDuplicateResourcePickupAndKeepsDropOnTheGround()
     {
         var simulation = CreateSingleTargetArena(CreateContent(), new Random(17));
         AdvanceUntilDefeated(simulation);
-        var drop = Assert.Single(simulation.GroundItems);
-        Assert.Equal(EquipmentChangeResult.Applied,
-            simulation.EquipmentOperations.PickUp(simulation.Player, drop.Item));
+        var drop = simulation.GroundResources[0];
+        Assert.Equal(ResourcePickupResult.Applied,
+            simulation.ResourceOperations.PickUp(simulation.Player, drop));
 
         var offset = drop.Position - simulation.Player.Position;
         simulation.Update(
@@ -199,8 +201,9 @@ public sealed class ArenaSimulationTests
             offset.Length() / 180f);
         simulation.Update(new PlayerIntent(Vector2.Zero, drop.Position, false, true), 0);
 
-        Assert.Same(drop, Assert.Single(simulation.GroundItems));
-        Assert.Same(drop.Item, Assert.Single(simulation.Player.Inventory.Items));
+        Assert.Contains(drop, simulation.GroundResources);
+        Assert.Equal(drop.Stack.Quantity,
+            simulation.Player.Resources.GetCount(drop.Stack.Kind, drop.Stack.DefinitionId));
     }
 
     [Fact]
@@ -213,9 +216,9 @@ public sealed class ArenaSimulationTests
         Assert.Equal(EquipmentChangeResult.Applied, simulation.EquipmentOperations.Equip(simulation.Player, sword.InstanceId));
 
         AdvanceUntilDefeated(simulation);
-        Assert.Single(simulation.GroundItems);
+        Assert.Equal(2, simulation.GroundResources.Count);
         simulation.ResetEncounter();
-        Assert.Empty(simulation.GroundItems);
+        Assert.Empty(simulation.GroundResources);
 
         var tookDamage = false;
         var sawDeath = false;
@@ -238,7 +241,7 @@ public sealed class ArenaSimulationTests
         Assert.Equal(new Vector2(160, 270), simulation.Player.Position);
         Assert.Equal(new Vector2(480, 270), simulation.Monsters[0].Position);
         Assert.False(simulation.Monsters[0].IsDefeated);
-        Assert.Empty(simulation.GroundItems);
+        Assert.Empty(simulation.GroundResources);
         Assert.Same(sword, simulation.Player.Inventory.EquippedWeapon);
         Assert.Equal(13, simulation.Player.AttackDamage);
     }
@@ -305,7 +308,7 @@ public sealed class ArenaSimulationTests
         var affixes = baseContent.Affixes.ToDictionary(pair => pair.Key, pair => pair.Value);
         affixes["health.dead"] = new(
             "health.dead", "Deadly", ItemStat.MaximumHealth, -200, -200, [ItemSlot.Armor]);
-        var content = new GameContent(items, baseContent.Monsters, baseContent.LootTables, affixes);
+        var content = baseContent with { Items = items, AffixDefinitions = affixes };
         var simulation = CreateSingleTargetArena(content, new Random(17));
         var item = new ItemInstance(
             Guid.NewGuid(), "item.armor_dead", ItemRarity.Magic,
@@ -399,13 +402,14 @@ public sealed class ArenaSimulationTests
     }
 
     [Fact]
-    public void Constructor_ReportsMissingLootTableId()
+    public void Constructor_ReportsMissingResourceLootTableId()
     {
         var completeContent = CreateContent();
         var content = new GameContent(
             completeContent.Items,
             completeContent.Monsters,
-            new Dictionary<string, LootTableDefinition>());
+            completeContent.LootTables,
+            ResourceLootTableDefinitions: new Dictionary<string, ResourceLootTableDefinition>());
 
         var error = Assert.Throws<ArgumentException>(
             () => new ArenaSimulation(
@@ -414,7 +418,7 @@ public sealed class ArenaSimulationTests
                 MixedEncounterFixture.CreateEncounter(
                     new MonsterSpawnDefinition("single", "monster.training_slime", 480, 270))));
 
-        Assert.Contains("loot.training_slime", error.Message);
+        Assert.Contains("resource.slime", error.Message);
     }
 
     private static int AdvanceUntilDefeated(ArenaSimulation simulation)
@@ -476,18 +480,37 @@ public sealed class ArenaSimulationTests
                 12,
                 contactDamage,
                 monsterSpeed,
-                "loot.training_slime")
+                "resource.slime")
         };
         var lootTables = new Dictionary<string, LootTableDefinition>
         {
-            ["loot.training_slime"] = new(
-                "loot.training_slime",
+            ["loot.test_equipment"] = new(
+                "loot.test_equipment",
                 1,
                 1,
                 [new LootEntryDefinition("item.training_sword", 1)])
         };
+        var resources = new Dictionary<string, ResourceLootTableDefinition>
+        {
+            ["resource.slime"] = new(
+                "resource.slime", "material.slime", 1, 1, 100, ["recipe.training_sword"])
+        };
+        var materials = new Dictionary<string, MaterialDefinition>
+        {
+            ["material.slime"] = new("material.slime", "Slime")
+        };
+        var recipes = new Dictionary<string, RecipeDefinition>
+        {
+            ["recipe.training_sword"] = new(
+                "recipe.training_sword", "Training Sword Recipe", "item.training_sword",
+                ItemRarity.Common, [new MaterialCost("material.slime", 1)])
+        };
 
-        return new GameContent(items, monsters, lootTables);
+        return new GameContent(
+            items, monsters, lootTables,
+            MaterialDefinitions: materials,
+            RecipeDefinitions: recipes,
+            ResourceLootTableDefinitions: resources);
     }
 
     private static GameContent CreateGearContent()
@@ -503,13 +526,21 @@ public sealed class ArenaSimulationTests
         {
             ["monster.training_slime"] = new(
                 "monster.training_slime", "Training Slime", 100, 10, 100,
-                "loot.training_slime")
+                "resource.slime")
         };
         var lootTables = new Dictionary<string, LootTableDefinition>
         {
-            ["loot.training_slime"] = new(
-                "loot.training_slime", 1, 1,
+            ["loot.test_equipment"] = new(
+                "loot.test_equipment", 1, 1,
                 [new LootEntryDefinition("item.training_sword", 1)])
+        };
+        var resources = new Dictionary<string, ResourceLootTableDefinition>
+        {
+            ["resource.slime"] = new("resource.slime", "material.slime", 1, 1, 0, [])
+        };
+        var materials = new Dictionary<string, MaterialDefinition>
+        {
+            ["material.slime"] = new("material.slime", "Slime")
         };
         var affixes = new Dictionary<string, AffixDefinition>
         {
@@ -518,7 +549,10 @@ public sealed class ArenaSimulationTests
             ["crit.max"] = new("crit.max", "Lucky", ItemStat.CriticalChance, 100, 100, [ItemSlot.Weapon]),
             ["crit.mid"] = new("crit.mid", "Fortunate", ItemStat.CriticalChance, 50, 50, [ItemSlot.Weapon])
         };
-        return new GameContent(items, monsters, lootTables, affixes);
+        return new GameContent(
+            items, monsters, lootTables, affixes,
+            MaterialDefinitions: materials,
+            ResourceLootTableDefinitions: resources);
     }
 
     private sealed class CountingRandom : Random

@@ -38,7 +38,7 @@ internal static class GameText
     public const string NoAffixes = "无词缀";
     public const string Rolls = "词缀：";
     public const string Comparison = "攻击 {0}  生命 {1}  暴击 {2}%";
-    public const string Pickup = "E 拾取：{0} {1}";
+    public const string Pickup = "E 拾取：{0} ×{1}";
     public const string Monster = "{0} {1}/{2}";
     public const string CriticalHit = "暴击！-{0}";
     public const string Hit = "命中 -{0}";

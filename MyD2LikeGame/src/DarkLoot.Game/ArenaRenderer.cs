@@ -6,7 +6,7 @@ using DarkLoot.Engine.Animation;
 using DarkLoot.Engine.Camera;
 using DarkLoot.Engine.Rendering;
 using DarkLoot.Gameplay.Combat;
-using DarkLoot.Gameplay.Items;
+using DarkLoot.Gameplay.Resources;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using NumericsVector = System.Numerics.Vector2;
@@ -33,16 +33,19 @@ public sealed class ArenaRenderer
             shapes.Line(batch, origin + new Vector2(0, y), origin + new Vector2(960, y), new Color(38, 53, 45), 1);
         }
 
-        var lootRows = new List<Rectangle>(arena.GroundItems.Count);
+        var lootRows = new List<Rectangle>(arena.GroundResources.Count);
         var viewport = batch.GraphicsDevice.Viewport;
         var lootBounds = new Rectangle(8, 124, viewport.Width - 16, viewport.Height - 170);
-        foreach (var drop in arena.GroundItems)
+        foreach (var drop in arena.GroundResources)
         {
             var position = camera.WorldToScreen(drop.Position);
-            var definition = content.Items[drop.Item.DefinitionId];
-            var color = InventoryPanel.RarityColor(drop.Item.Rarity);
-            var label = string.Format(GameText.Pickup, GameText.Rarity(drop.Item.Rarity),
-                ItemNameFormatter.GetDisplayName(drop.Item, definition, content));
+            var (name, color) = drop.Stack.Kind switch
+            {
+                ResourceKind.Material => (content.Materials[drop.Stack.DefinitionId].Name, Color.LightGray),
+                ResourceKind.Recipe => (content.Recipes[drop.Stack.DefinitionId].Name, Color.MediumPurple),
+                _ => throw new ArgumentOutOfRangeException(nameof(drop), drop.Stack.Kind, "Unknown resource kind.")
+            };
+            var label = string.Format(GameText.Pickup, name, drop.Stack.Quantity);
             var labelWidth = Math.Min(400, font.MeasureString(label).X);
             var row = LootLabelLayout.Place(
                 new Rectangle((int)position.X - 13, (int)position.Y - 13,

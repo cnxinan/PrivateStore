@@ -272,7 +272,7 @@ public sealed class InventoryServiceTests
         var affixes = fixture.Affixes.ToDictionary(pair => pair.Key, pair => pair.Value);
         affixes["affix.vital"] = new(
             "affix.vital", "Vital", ItemStat.MaximumHealth, -200, 50, [ItemSlot.Armor]);
-        return new GameContent(fixture.Items, fixture.Monsters, fixture.LootTables, affixes);
+        return fixture with { AffixDefinitions = affixes };
     }
 
     [Fact]

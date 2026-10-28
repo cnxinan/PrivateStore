@@ -4,5 +4,5 @@
   "maxHealth": 10,
   "contactDamage": 3,
   "moveSpeed": 55,
-  "lootTableId": "loot.training_slime"
+  "lootTableId": "resource.slime"
 }

@@ -4,6 +4,6 @@
   "maxHealth": 20,
   "contactDamage": 5,
   "moveSpeed": 140,
-  "lootTableId": "loot.training_slime",
+  "lootTableId": "resource.wolf",
   "behavior": "Chase"
 }

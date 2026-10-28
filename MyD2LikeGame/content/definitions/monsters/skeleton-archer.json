@@ -4,7 +4,7 @@
   "maxHealth": 20,
   "contactDamage": 0,
   "moveSpeed": 70,
-  "lootTableId": "loot.training_slime",
+  "lootTableId": "resource.skeleton",
   "behavior": "Archer",
   "rangedAttack": {
     "range": 260,

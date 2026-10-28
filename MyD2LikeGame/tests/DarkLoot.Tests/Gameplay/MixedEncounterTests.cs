@@ -2,6 +2,7 @@ using System.Numerics;
 using DarkLoot.Data.Definitions;
 using DarkLoot.Gameplay.Combat;
 using DarkLoot.Gameplay.Items;
+using DarkLoot.Gameplay.Resources;
 
 namespace DarkLoot.Tests.Gameplay;
 
@@ -100,12 +101,17 @@ public sealed class MixedEncounterTests
         monsters["monster.training_slime"] = monsters["monster.training_slime"] with
         {
             MaxHealth = 1,
-            LootTableId = "loot.order"
+            LootTableId = "resource.slime"
         };
-        var tables = fixture.LootTables.ToDictionary(pair => pair.Key, pair => pair.Value);
-        tables["loot.order"] = new LootTableDefinition(
-            "loot.order", 1, 1, [new LootEntryDefinition("weapon.training_blade", 1)]);
-        var content = new DarkLoot.Data.GameContent(fixture.Items, monsters, tables, fixture.Affixes);
+        var resourceTables = fixture.ResourceLootTables.ToDictionary(pair => pair.Key, pair => pair.Value);
+        resourceTables["resource.slime"] = new ResourceLootTableDefinition(
+            "resource.slime", "material.slime", 1, 2, 20,
+            ["recipe.magic_blade", "recipe.magic_vest", "recipe.rare_blade", "recipe.rare_vest"]);
+        var content = fixture with
+        {
+            Monsters = monsters,
+            ResourceLootTableDefinitions = resourceTables
+        };
         var random = new OrderedRandom();
         var arena = new ArenaSimulation(content, random,
             MixedEncounterFixture.CreateEncounter(
@@ -123,14 +129,23 @@ public sealed class MixedEncounterTests
 
         Assert.Equal(new[]
         {
-            "crit:100", "count:1:2", "entry:1",
-            "crit:100", "count:1:2", "entry:1"
+            "crit:100", "count:1:3", "recipe:100", "recipe-index:4",
+            "crit:100", "count:1:3", "recipe:100", "recipe-index:4"
         }, random.Calls);
         Assert.Equal(new[] { "first", "second" },
             arena.LastSwingHits.Select(hit => hit.MonsterInstanceId));
-        Assert.Equal(new[] { new Vector2(190, 265), new Vector2(190, 275) },
-            arena.GroundItems.Select(drop => drop.Position));
-        Assert.Equal(2, arena.GroundItems.Count);
+        Assert.Equal(new[] { new Vector2(190, 265), new Vector2(190, 265),
+            new Vector2(190, 275), new Vector2(190, 275) },
+            arena.GroundResources.Select(drop => drop.Position));
+        Assert.Equal(
+            new[]
+            {
+                new ResourceStack(ResourceKind.Material, "material.slime", 1),
+                new ResourceStack(ResourceKind.Recipe, "recipe.magic_blade", 1),
+                new ResourceStack(ResourceKind.Material, "material.slime", 1),
+                new ResourceStack(ResourceKind.Recipe, "recipe.magic_blade", 1)
+            },
+            arena.GroundResources.Select(drop => drop.Stack));
     }
 
     [Fact]
@@ -186,12 +201,8 @@ public sealed class MixedEncounterTests
             100,
             1,
             140,
-            "loot.training_empty");
-        var content = new DarkLoot.Data.GameContent(
-            fixtureContent.Items,
-            monsters,
-            fixtureContent.LootTables,
-            fixtureContent.Affixes);
+            "resource.wolf");
+        var content = fixtureContent with { Monsters = monsters };
         var arena = new ArenaSimulation(
             content,
             new Random(17),
@@ -223,7 +234,7 @@ public sealed class MixedEncounterTests
         Assert.All(arena.Monsters, monster => Assert.Equal(100, monster.Health));
         Assert.Equal(new[] { new Vector2(160, 270), new Vector2(160, 270) },
             arena.Monsters.Select(monster => monster.Position));
-        Assert.Empty(arena.GroundItems);
+        Assert.Empty(arena.GroundResources);
     }
 
     [Fact]
@@ -255,11 +266,7 @@ public sealed class MixedEncounterTests
             MoveSpeed = .01f
         };
         var arena = new ArenaSimulation(
-            new DarkLoot.Data.GameContent(
-                fixtureContent.Items,
-                monsters,
-                fixtureContent.LootTables,
-                fixtureContent.Affixes),
+            fixtureContent with { Monsters = monsters },
             new Random(17),
             MixedEncounterFixture.CreateEncounter(
                 new MonsterSpawnDefinition("front", "monster.training_slime", 190, 270),
@@ -308,18 +315,14 @@ public sealed class MixedEncounterTests
         {
             ContactDamage = 2
         };
-        var content = new DarkLoot.Data.GameContent(
-            fixtureContent.Items,
-            monsters,
-            new Dictionary<string, LootTableDefinition>
-            {
-                ["loot.training_empty"] = new(
-                    "loot.training_empty",
-                    1,
-                    1,
-                    [new LootEntryDefinition("weapon.training_blade", 1) { Guaranteed = true }])
-            },
-            fixtureContent.Affixes);
+        var resourceTables = fixtureContent.ResourceLootTables.ToDictionary(pair => pair.Key, pair => pair.Value);
+        resourceTables["resource.slime"] = new ResourceLootTableDefinition(
+            "resource.slime", "material.slime", 1, 1, 0, []);
+        var content = fixtureContent with
+        {
+            Monsters = monsters,
+            ResourceLootTableDefinitions = resourceTables
+        };
         var arena = new ArenaSimulation(
             content,
             new Random(17),
@@ -338,7 +341,7 @@ public sealed class MixedEncounterTests
         Assert.Equal(100, arena.Player.Health);
         arena.Update(new PlayerIntent(Vector2.Zero, new Vector2(300, 270), false, false), .02f);
 
-        Assert.Single(arena.GroundItems);
+        Assert.Single(arena.GroundResources);
         Assert.Single(arena.Projectiles);
         var playerPosition = arena.Player.Position;
         var playerHealth = arena.Player.Health;
@@ -348,7 +351,7 @@ public sealed class MixedEncounterTests
 
         arena.ResetEncounter();
 
-        Assert.Empty(arena.GroundItems);
+        Assert.Empty(arena.GroundResources);
         Assert.Empty(arena.Projectiles);
         Assert.Equal(arena.Monsters.Count, arena.RemainingMonsters);
         Assert.Equal(playerPosition, arena.Player.Position);
@@ -359,7 +362,7 @@ public sealed class MixedEncounterTests
     }
 
     [Fact]
-    public void Update_ThreeDefeatedInstancesEachDropOneDistinctItemExactlyOnce()
+    public void Update_ThreeDefeatedInstancesEachDropOneDistinctResourceExactlyOnce()
     {
         var fixtureContent = MixedEncounterFixture.CreateContent();
         var monsters = fixtureContent.Monsters.ToDictionary(pair => pair.Key, pair => pair.Value);
@@ -367,18 +370,7 @@ public sealed class MixedEncounterTests
         {
             MaxHealth = 10
         };
-        var content = new DarkLoot.Data.GameContent(
-            fixtureContent.Items,
-            monsters,
-            new Dictionary<string, LootTableDefinition>
-            {
-                ["loot.training_empty"] = new(
-                    "loot.training_empty",
-                    1,
-                    1,
-                    [new LootEntryDefinition("weapon.training_blade", 1) { Guaranteed = true }])
-            },
-            fixtureContent.Affixes);
+        var content = fixtureContent with { Monsters = monsters };
         var arena = new ArenaSimulation(
             content,
             new Random(17),
@@ -393,10 +385,10 @@ public sealed class MixedEncounterTests
         }
 
         Assert.Equal(0, arena.RemainingMonsters);
-        Assert.Equal(3, arena.GroundItems.Count);
-        Assert.Equal(3, arena.GroundItems.Select(item => item.Item.InstanceId).Distinct().Count());
-        Assert.All(arena.GroundItems, item =>
-            Assert.Equal("weapon.training_blade", item.Item.DefinitionId));
+        Assert.Equal(3, arena.GroundResources.Count);
+        Assert.Equal(3, arena.GroundResources.Select(drop => drop.DropId).Distinct().Count());
+        Assert.All(arena.GroundResources, drop =>
+            Assert.Equal(new ResourceStack(ResourceKind.Material, "material.slime", 1), drop.Stack));
     }
 
     [Fact]
@@ -406,30 +398,22 @@ public sealed class MixedEncounterTests
         var monsters = fixtureContent.Monsters.ToDictionary(pair => pair.Key, pair => pair.Value);
         monsters["monster.training_slime"] = monsters["monster.training_slime"] with
         {
-            LootTableId = "loot.weapon"
+            LootTableId = "resource.weapon"
         };
         monsters["monster.fast_wolf"] = monsters["monster.fast_wolf"] with
         {
-            LootTableId = "loot.armor"
+            LootTableId = "resource.armor"
         };
-        var lootTables = new Dictionary<string, LootTableDefinition>
+        var resourceTables = fixtureContent.ResourceLootTables.ToDictionary(pair => pair.Key, pair => pair.Value);
+        resourceTables["resource.weapon"] = new ResourceLootTableDefinition(
+            "resource.weapon", "material.slime", 1, 1, 0, []);
+        resourceTables["resource.armor"] = new ResourceLootTableDefinition(
+            "resource.armor", "material.hide", 1, 1, 0, []);
+        var content = fixtureContent with
         {
-            ["loot.weapon"] = new(
-                "loot.weapon",
-                1,
-                1,
-                [new LootEntryDefinition("weapon.training_blade", 1)]),
-            ["loot.armor"] = new(
-                "loot.armor",
-                1,
-                1,
-                [new LootEntryDefinition("armor.training_vest", 1)])
+            Monsters = monsters,
+            ResourceLootTableDefinitions = resourceTables
         };
-        var content = new DarkLoot.Data.GameContent(
-            fixtureContent.Items,
-            monsters,
-            lootTables,
-            fixtureContent.Affixes);
         var arena = new ArenaSimulation(
             content,
             new Random(17),
@@ -449,8 +433,8 @@ public sealed class MixedEncounterTests
         Assert.True(arena.IsCleared);
         Assert.Equal(0, arena.RemainingMonsters);
         Assert.Equal(
-            new[] { "armor.training_vest", "weapon.training_blade" },
-            arena.GroundItems.Select(item => item.Item.DefinitionId).Order(StringComparer.Ordinal));
+            new[] { "material.hide", "material.slime" },
+            arena.GroundResources.Select(drop => drop.Stack.DefinitionId).Order(StringComparer.Ordinal));
     }
 
     [Fact]
@@ -473,12 +457,13 @@ public sealed class MixedEncounterTests
             new MonsterSpawnDefinition("wolf.2", "monster.fast_wolf", 650, 360),
             new MonsterSpawnDefinition("archer.1", "monster.skeleton_archer", 820, 150),
             new MonsterSpawnDefinition("archer.2", "monster.skeleton_archer", 820, 390));
-        var content = new DarkLoot.Data.GameContent(
-            fixtureContent.Items,
-            fixtureContent.Monsters,
-            fixtureContent.LootTables,
-            fixtureContent.Affixes,
-            new Dictionary<string, EncounterDefinition> { ["encounter.training_arena"] = encounter });
+        var content = fixtureContent with
+        {
+            EncounterDefinitions = new Dictionary<string, EncounterDefinition>
+            {
+                ["encounter.training_arena"] = encounter
+            }
+        };
 
         var arena = new ArenaSimulation(content, new Random(17));
 
@@ -500,10 +485,13 @@ public sealed class MixedEncounterTests
     private sealed class OrderedRandom : Random
     {
         public List<string> Calls { get; } = [];
+        private int _hundredDraws;
 
         public override int Next(int maxValue)
         {
-            Calls.Add($"crit:{maxValue}");
+            Calls.Add(maxValue == 100
+                ? (_hundredDraws++ % 2 == 0 ? $"crit:{maxValue}" : $"recipe:{maxValue}")
+                : $"recipe-index:{maxValue}");
             return 0;
         }
 
@@ -511,12 +499,6 @@ public sealed class MixedEncounterTests
         {
             Calls.Add($"count:{minValue}:{maxValue}");
             return minValue;
-        }
-
-        public override long NextInt64(long maxValue)
-        {
-            Calls.Add($"entry:{maxValue}");
-            return 0;
         }
     }
 }

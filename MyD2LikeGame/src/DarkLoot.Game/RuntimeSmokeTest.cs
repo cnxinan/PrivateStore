@@ -10,6 +10,7 @@ using DarkLoot.Engine.Camera;
 using DarkLoot.Engine.Input;
 using DarkLoot.Gameplay.Combat;
 using DarkLoot.Gameplay.Items;
+using DarkLoot.Gameplay.Resources;
 using Microsoft.Xna.Framework.Graphics;
 using NumericsVector = System.Numerics.Vector2;
 
@@ -45,6 +46,7 @@ internal sealed class RuntimeSmokeTest
     private AffixRoll[] _weaponRolls = [];
     private AffixRoll[] _armorRolls = [];
     private ItemInstance[] _pickupItems = [];
+    private ResourceStack[] _pickupResources = [];
     private bool _deathContactExpected;
     private NumericsVector _deathPosition;
     private int _deathUpdates;
@@ -168,6 +170,8 @@ internal sealed class RuntimeSmokeTest
             .Select(field => (string)field.GetRawConstantValue()!).ToList();
         strings.AddRange(content.Items.Values.Select(item => item.Name));
         strings.AddRange(content.Monsters.Values.Select(monster => monster.Name));
+        strings.AddRange(content.Materials.Values.Select(material => material.Name));
+        strings.AddRange(content.Recipes.Values.Select(recipe => recipe.Name));
         strings.AddRange(content.Affixes.Values.Select(affix => affix.Name));
         strings.AddRange(Enum.GetValues<ItemSlot>().Select(GameText.Slot));
         strings.AddRange(Enum.GetValues<ItemRarity>().Select(GameText.Rarity));
@@ -207,7 +211,7 @@ internal sealed class RuntimeSmokeTest
                 layouts.Add((string.Format(GameText.Item, GameText.Rarity(rarity), name,
                     GameText.Slot(definition.Slot), GameText.Equipped), 600, 21));
                 layouts.Add((InventoryPanel.FormatRolls(item, content), 336, 21));
-                layouts.Add((string.Format(GameText.Pickup, GameText.Rarity(rarity), name), 400, 22));
+                layouts.Add((string.Format(GameText.Pickup, name, 1), 400, 22));
                 layouts.Add((string.Format(GameText.SlotLine, GameText.Slot(definition.Slot),
                     $"{GameText.Rarity(rarity)} {name}"), 616, 22));
                 combinations++;
@@ -231,6 +235,10 @@ internal sealed class RuntimeSmokeTest
         {
             layouts.Add((string.Format(GameText.Monster, monster.Name, monster.MaxHealth, monster.MaxHealth), 280, 22));
         }
+        layouts.AddRange(content.Materials.Values.Select(material =>
+            (string.Format(GameText.Pickup, material.Name, int.MaxValue), 400f, 22f)));
+        layouts.AddRange(content.Recipes.Values.Select(recipe =>
+            (string.Format(GameText.Pickup, recipe.Name, int.MaxValue), 400f, 22f)));
         layouts.Add((string.Format(GameText.Hit, int.MaxValue), 200, 22));
         layouts.Add((string.Format(GameText.CriticalHit, int.MaxValue), 200, 22));
         layouts.Add((GameText.Swing, 200, 22));
@@ -302,7 +310,7 @@ internal sealed class RuntimeSmokeTest
             case SmokeStage.TakeArrow:
                 break;
             case SmokeStage.Pickup:
-                var drop = arena.GroundItems.FirstOrDefault();
+                var drop = arena.GroundResources.FirstOrDefault();
                 if (drop is not null)
                 {
                     movement = Towards(arena.Player.Position, drop.Position, 18);
@@ -376,7 +384,7 @@ internal sealed class RuntimeSmokeTest
                         ? Towards(arena.Player.Position, new NumericsVector(215, 180), 10)
                         : Towards(arena.Player.Position, target.Position, 40);
                     attack = movement == NumericsVector.Zero;
-                    if (arena.GroundItems.Count > 0)
+                    if (arena.GroundResources.Count > 0)
                     {
                         // Keep dodging locked arrows so one can coexist with the next windup.
                         movement = Towards(arena.Player.Position,
@@ -385,7 +393,7 @@ internal sealed class RuntimeSmokeTest
                     }
                     if (!arena.Player.IsDead && !arena.Player.Reaction.IsActive &&
                         _updates - _lastSwingUpdate >= 4 &&
-                        arena.Projectiles.Count > 0 && arena.GroundItems.Count > 0 &&
+                        arena.Projectiles.Count > 0 && arena.GroundResources.Count > 0 &&
                         arena.Monsters.Any(monster => monster.IsWindingUp &&
                             monster.WindupRemaining > .100001f))
                     {
@@ -538,7 +546,7 @@ internal sealed class RuntimeSmokeTest
                 $"new death starts visible at actual death position; actor={death.ActorId}");
             if (death.ActorId != "player" && !_sawMonsterLootBeforeFade)
             {
-                Check(arena.GroundItems.Count > 0 &&
+                Check(arena.GroundResources.Count > 0 &&
                       arena.Events.Any(item => item.ActorId == death.ActorId &&
                           item.Kind is CombatEventKind.Damaged or CombatEventKind.Died),
                     "actual monster death resolved ground loot before its corpse faded");
@@ -641,16 +649,15 @@ internal sealed class RuntimeSmokeTest
                 {
                     Check(_sawArrow && _healthBefore - arena.Player.Health is 5 or 10,
                         $"TakeArrow real re-aimed projectile hit; health={_healthBefore}->{arena.Player.Health}");
-                    _pickupItems = arena.GroundItems.Select(drop => drop.Item).ToArray();
-                    Check(_pickupItems.Length == 4, "fixture generated actual two-slot multi-kill loot");
+                    _pickupResources = arena.GroundResources.Select(drop => drop.Stack).ToArray();
+                    Check(_pickupResources.Length > 0, "fixture generated monster crafting resources");
                     Enter(SmokeStage.Pickup);
                 }
                 break;
-            case SmokeStage.Pickup when arena.GroundItems.Count == 0:
-                Check(_pickupItems.All(item => arena.Player.Inventory.Items.Contains(item)) &&
-                      arena.Player.Inventory.Items.Select(item => content.Items[item.DefinitionId].Slot)
-                          .Distinct().Count() == 2,
-                    "Pickup transferred both slots with original item identities and rolls");
+            case SmokeStage.Pickup when arena.GroundResources.Count == 0:
+                Check(_pickupResources.GroupBy(stack => (stack.Kind, stack.DefinitionId)).All(group =>
+                        arena.Player.Resources.GetCount(group.Key.Kind, group.Key.DefinitionId) >= group.Sum(stack => stack.Quantity)),
+                    "Pickup transferred each generated resource stack into the resource bag");
                 _healthBefore = arena.Player.Health;
                 Enter(SmokeStage.Equip);
                 break;
@@ -733,7 +740,7 @@ internal sealed class RuntimeSmokeTest
                         "accepted swing retains locked direction when aim changes during pause");
                     _pausedPlayerPose = playerPose;
                     _pausedMonsterPoses = arena.Monsters.Select(monster => monsterPose(monster.InstanceId)).ToArray();
-                    Check(arena.Projectiles.Count > 0 && arena.GroundItems.Count > 0 &&
+                    Check(arena.Projectiles.Count > 0 && arena.GroundResources.Count > 0 &&
                           arena.Monsters.Any(monster => monster.IsWindingUp),
                         "PauseWithArrow opened real inventory with nonempty arrows, active windup and ground loot");
                     _pauseSnapshot = Snapshot(arena);
@@ -759,12 +766,12 @@ internal sealed class RuntimeSmokeTest
                     Check(!panel.IsOpen && Snapshot(arena) != _pauseSnapshot &&
                           arena.Player.AttackSequence == _sequence,
                         "closing inventory resumed live arrow/windup but retained pre-pause swing cooldown");
-                    Check(arena.GroundItems.Count > 0 && arena.Projectiles.Count > 0,
+                    Check(arena.GroundResources.Count > 0 && arena.Projectiles.Count > 0,
                         "R cleanup precondition still has real ground loot and arrows after resume");
                     _phase = 1;
                     break;
                 }
-                Check(arena.Projectiles.Count == 0 && arena.GroundItems.Count == 0 &&
+                Check(arena.Projectiles.Count == 0 && arena.GroundResources.Count == 0 &&
                       arena.RemainingMonsters == 6 &&
                       arena.Monsters.All(monster => monster.Health == monster.MaxHealth && !monster.IsWindingUp) &&
                       arena.LastSwingHits.Count == 0 &&
@@ -813,7 +820,7 @@ internal sealed class RuntimeSmokeTest
                           arena.Player.DeathRemaining == 0 &&
                           Math.Abs(arena.Player.InvulnerabilityRemaining - .8f) < .00001f &&
                           arena.Monsters.All(monster => monster.Health == monster.MaxHealth && !monster.IsWindingUp) &&
-                          arena.Projectiles.Count == 0 && arena.GroundItems.Count == 0 &&
+                          arena.Projectiles.Count == 0 && arena.GroundResources.Count == 0 &&
                           arena.LastSwingHits.Count == 0 && arena.Events.Count == 0,
                         "DeathRespawn after 0.6s restored spawn/current maximum health, six clean monsters and full 0.8s protection");
                     Check(_sawDeathHud && _sawMonsterProgressWhileDead && _sawArrowProgressWhileDead,
@@ -825,7 +832,7 @@ internal sealed class RuntimeSmokeTest
             case SmokeStage.PauseWithReaction:
                 if (_phase == 0 && arena.Monsters.Any(monster =>
                         monster.Id == "monster.training_slime" && monster.IsDefeated) &&
-                    arena.GroundItems.Count > 0)
+                    arena.GroundResources.Count > 0)
                 {
                     Check(arena.Events.Any(item => item.Kind == CombatEventKind.Died &&
                               arena.Monsters.Any(monster => monster.InstanceId == item.ActorId)) &&
@@ -853,7 +860,7 @@ internal sealed class RuntimeSmokeTest
                           playerPose.WhiteMix > 0 && playerPose.Scale.Y < 1 &&
                           hitTexts.Any(text => text.ActorId == "player") &&
                           arena.Monsters.Any(monster => monster.IsDefeated) &&
-                          arena.GroundItems.Count > 0,
+                          arena.GroundResources.Count > 0,
                         "PauseWithReaction froze actual hurt pose, stun, immunity, damage feedback, corpse and loot");
                     _pausedPlayerPose = playerPose;
                     _pausedMonsterPoses = arena.Monsters.Select(monster => monsterPose(monster.InstanceId)).ToArray();
@@ -906,7 +913,7 @@ internal sealed class RuntimeSmokeTest
                           !arena.Player.Reaction.IsActive && !arena.Player.IsInvulnerable &&
                           arena.RemainingMonsters == arena.Monsters.Count &&
                           arena.Monsters.All(monster => !monster.IsDefeated && !monster.Reaction.IsActive) &&
-                          arena.GroundItems.Count == 0 && arena.Projectiles.Count == 0 &&
+                          arena.GroundResources.Count == 0 && arena.Projectiles.Count == 0 &&
                           arena.LastSwingHits.Count == 0 && swingRemaining == 0 && hitTexts.Count == 0 &&
                           playerPose.Offset == NumericsVector.Zero && playerPose.AttackProgress == 0,
                         "R while stunned and in inventory cleared feedback without healing or unpausing");
@@ -1034,7 +1041,7 @@ internal sealed class RuntimeSmokeTest
             $"{monster.InstanceId}:{monster.Position}:{monster.Health}:{monster.Reaction.RemainingSeconds:R}:{monster.IsWindingUp}:" +
             $"{monster.WindupRemaining:R}:{monster.LockedAimDirection}")) + "|" +
         string.Join(";", arena.Projectiles.Select(arrow => arrow.ToString())) + "|" +
-        string.Join(";", arena.GroundItems.Select(drop => drop.Item.InstanceId));
+        string.Join(";", arena.GroundResources.Select(drop => drop.DropId));
 
     private bool WasBlockedArrowRemoved(ArenaSimulation arena)
     {
