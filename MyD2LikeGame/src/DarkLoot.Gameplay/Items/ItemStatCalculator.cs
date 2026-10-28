@@ -156,13 +156,7 @@ public sealed class ItemStatCalculator
                 nameof(item));
         }
 
-        var requiredRolls = item.Rarity switch
-        {
-            ItemRarity.Common => 0,
-            ItemRarity.Magic => 1,
-            ItemRarity.Rare => 2,
-            _ => throw new ArgumentOutOfRangeException(nameof(item))
-        };
+        var requiredRolls = EquipmentFactory.AffixCount(item.Rarity);
         if (item.Rolls is null ||
             item.Rolls.Any(roll => roll is null) ||
             item.Rolls.Count != requiredRolls ||
@@ -178,7 +172,6 @@ public sealed class ItemStatCalculator
             if (roll is null ||
                 string.IsNullOrWhiteSpace(roll.AffixId) ||
                 !content.Affixes.TryGetValue(roll.AffixId, out var affix) ||
-                affix is null ||
                 !IsValidAffix(roll.AffixId, affix) ||
                 affix.Stat != roll.Stat ||
                 !affix.Slots.Contains(definition.Slot) ||
@@ -192,9 +185,11 @@ public sealed class ItemStatCalculator
         }
     }
 
-    private static bool IsValidAffix(string key, AffixDefinition affix)
+    internal static bool IsValidAffix(string key, AffixDefinition? affix)
     {
-        return string.Equals(key, affix.Id, StringComparison.Ordinal) &&
+        return affix is not null &&
+               !string.IsNullOrWhiteSpace(affix.Id) &&
+               string.Equals(key, affix.Id, StringComparison.Ordinal) &&
                !string.IsNullOrWhiteSpace(affix.Name) &&
                affix.Stat is ItemStat.Attack or ItemStat.MaximumHealth or ItemStat.CriticalChance &&
                affix.NameKind is AffixNameKind.Prefix or AffixNameKind.Suffix &&
@@ -208,7 +203,7 @@ public sealed class ItemStatCalculator
                 (affix.MinValue >= -100 && affix.MaxValue <= 100));
     }
 
-    private static ItemDefinition ResolveItemDefinition(GameContent content, string definitionId)
+    internal static ItemDefinition ResolveItemDefinition(GameContent content, string definitionId)
     {
         if (string.IsNullOrWhiteSpace(definitionId))
         {

@@ -8,6 +8,48 @@ namespace DarkLoot.Tests.Gameplay;
 public sealed class LootGeneratorTests
 {
     [Fact]
+    public void Generate_PreservesGuaranteedAndWeightedDropRandomCallOrder()
+    {
+        var content = MixedEncounterFixture.CreateContent();
+        var table = new LootTableDefinition(
+            "loot.order", 2, 2,
+            [
+                new LootEntryDefinition("armor.training_vest", 1) { Guaranteed = true },
+                new LootEntryDefinition("weapon.training_blade", 1)
+            ],
+            [new RarityWeightDefinition(ItemRarity.Rare, 1)]);
+        var random = new CallOrderRandom();
+
+        var items = new LootGenerator().Generate(table, content, random);
+
+        Assert.Equal(
+            new[] { "armor.training_vest", "weapon.training_blade" },
+            items.Select(item => item.DefinitionId));
+        Assert.Equal(
+            new[]
+            {
+                "range:2:3", "rarity", "index:2", "range:10:31",
+                "index:1", "range:3:9", "index:1", "rarity",
+                "index:3", "range:50:51", "index:2", "range:3:9"
+            },
+            random.Calls);
+        Assert.Equal(
+            new[]
+            {
+                new AffixRoll("affix.vital", ItemStat.MaximumHealth, 30),
+                new AffixRoll("affix.lucky", ItemStat.CriticalChance, 8)
+            },
+            items[0].Rolls);
+        Assert.Equal(
+            new[]
+            {
+                new AffixRoll("affix.test_crit", ItemStat.CriticalChance, 50),
+                new AffixRoll("affix.lucky", ItemStat.CriticalChance, 8)
+            },
+            items[1].Rolls);
+    }
+
+    [Fact]
     public void Generate_WithSameSeed_ReturnsSameItemDefinitionsFromContent()
     {
         var content = CreateContent();
@@ -345,6 +387,29 @@ public sealed class LootGeneratorTests
         Assert.NotNull(directory);
         return GameContentLoader.LoadDirectory(
             Path.Combine(directory!.FullName, "content", "definitions"));
+    }
+
+    private sealed class CallOrderRandom : Random
+    {
+        public List<string> Calls { get; } = [];
+
+        public override double NextDouble()
+        {
+            Calls.Add("rarity");
+            return 0;
+        }
+
+        public override long NextInt64(long maxValue)
+        {
+            Calls.Add($"index:{maxValue}");
+            return maxValue - 1;
+        }
+
+        public override long NextInt64(long minValue, long maxValue)
+        {
+            Calls.Add($"range:{minValue}:{maxValue}");
+            return maxValue - 1;
+        }
     }
 
     private sealed class ScriptedRandom(params long[] values) : Random

@@ -8,6 +8,8 @@ public sealed class LootGenerator
 {
     public const int MaxAffixMagnitude = AffixDefinition.MaxMagnitude;
 
+    private readonly EquipmentFactory _equipmentFactory = new();
+
     public IReadOnlyList<ItemInstance> Generate(
         LootTableDefinition table,
         GameContent content,
@@ -193,7 +195,7 @@ public sealed class LootGenerator
 
             foreach (var slot in eligibleSlots)
             {
-                var required = AffixCount(rarityWeight.Rarity);
+                var required = EquipmentFactory.AffixCount(rarityWeight.Rarity);
                 var eligible = content.Affixes.Values.Count(affix =>
                     affix.Slots.Contains(slot));
                 if (eligible < required)
@@ -210,21 +212,7 @@ public sealed class LootGenerator
     {
         foreach (var (key, affix) in content.Affixes)
         {
-            if (affix is null ||
-                string.IsNullOrWhiteSpace(affix.Id) ||
-                !string.Equals(key, affix.Id, StringComparison.Ordinal) ||
-                string.IsNullOrWhiteSpace(affix.Name) ||
-                affix.Stat is not (ItemStat.Attack or ItemStat.MaximumHealth or ItemStat.CriticalChance) ||
-                affix.NameKind is not (AffixNameKind.Prefix or AffixNameKind.Suffix) ||
-                affix.Slots is null ||
-                affix.Slots.Count == 0 ||
-                affix.Slots.Any(slot => slot is not (ItemSlot.Weapon or ItemSlot.Armor)) ||
-                affix.Slots.Distinct().Count() != affix.Slots.Count ||
-                affix.MinValue > affix.MaxValue ||
-                Math.Abs((long)affix.MinValue) > MaxAffixMagnitude ||
-                Math.Abs((long)affix.MaxValue) > MaxAffixMagnitude ||
-                (affix.Stat == ItemStat.CriticalChance &&
-                 (affix.MinValue < -100 || affix.MaxValue > 100)))
+            if (!ItemStatCalculator.IsValidAffix(key, affix))
             {
                 throw new ArgumentException(
                     $"Game content has an invalid affix definition '{key}' referenced by loot table '{table.Id}'.");
@@ -250,16 +238,14 @@ public sealed class LootGenerator
         throw new InvalidOperationException("Loot entry weight selection exceeded its validated range.");
     }
 
-    private static ItemInstance GenerateItem(
+    private ItemInstance GenerateItem(
         LootEntryDefinition entry,
         LootTableDefinition table,
         GameContent content,
         Random random)
     {
-        var definition = content.Items[entry.ItemId];
-        var rarity = SelectRarity(table.RarityWeights, random);
-        var rolls = RollAffixes(definition.Slot, rarity, content, random);
-        return new ItemInstance(Guid.NewGuid(), entry.ItemId, rarity, rolls);
+        return _equipmentFactory.Create(
+            entry.ItemId, SelectRarity(table.RarityWeights, random), content, random);
     }
 
     private static ItemRarity SelectRarity(
@@ -286,43 +272,4 @@ public sealed class LootGenerator
         throw new InvalidOperationException(
             "Rarity weight selection exceeded its validated range.");
     }
-
-    private static IReadOnlyList<AffixRoll> RollAffixes(
-        ItemSlot slot,
-        ItemRarity rarity,
-        GameContent content,
-        Random random)
-    {
-        var count = AffixCount(rarity);
-        if (count == 0)
-        {
-            return Array.Empty<AffixRoll>();
-        }
-
-        var eligible = content.Affixes.Values
-            .Where(affix => affix.Slots.Contains(slot))
-            .OrderBy(affix => affix.Id, StringComparer.Ordinal)
-            .ToList();
-        var rolls = new List<AffixRoll>(count);
-        for (var index = 0; index < count; index++)
-        {
-            var chosenIndex = (int)random.NextInt64(eligible.Count);
-            var definition = eligible[chosenIndex];
-            eligible.RemoveAt(chosenIndex);
-            var value = (int)random.NextInt64(
-                definition.MinValue,
-                (long)definition.MaxValue + 1);
-            rolls.Add(new AffixRoll(definition.Id, definition.Stat, value));
-        }
-
-        return rolls.AsReadOnly();
-    }
-
-    private static int AffixCount(ItemRarity rarity) => rarity switch
-    {
-        ItemRarity.Common => 0,
-        ItemRarity.Magic => 1,
-        ItemRarity.Rare => 2,
-        _ => throw new ArgumentOutOfRangeException(nameof(rarity), rarity, "Unknown item rarity.")
-    };
 }
