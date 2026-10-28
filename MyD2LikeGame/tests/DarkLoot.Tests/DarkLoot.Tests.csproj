@@ -17,6 +17,7 @@
   <ItemGroup>
     <Using Include="Xunit" />
     <Compile Include="..\..\src\DarkLoot.Game\ActorPresentation.cs" Link="Game\ActorPresentation.cs" />
+    <Compile Include="..\..\src\DarkLoot.Game\GameText.cs" Link="Game\GameText.cs" />
   </ItemGroup>
 
   <ItemGroup>

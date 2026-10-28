@@ -23,6 +23,7 @@ public sealed class DarkLootGame : MonoGameGame
     private readonly HudRenderer _hud = new();
     private readonly InventoryPanel _inventory = new();
     private readonly FrameRateCounter _frameRate = new();
+    private readonly WindowActivityGate _activityGate = new();
     private readonly Stopwatch _renderClock = Stopwatch.StartNew();
     private readonly RuntimeSmokeTest? _smoke;
     private SpriteBatch _batch = null!;
@@ -31,7 +32,6 @@ public sealed class DarkLootGame : MonoGameGame
     private GameContent _content = null!;
     private GameContent _productionContent = null!;
     private ArenaSimulation _arena = null!;
-    private bool _wasActive;
 
     public DarkLootGame(bool smokeTest)
     {
@@ -83,25 +83,31 @@ public sealed class DarkLootGame : MonoGameGame
     {
         // Poll while unfocused too, so returning to the window cannot replay stale clicks.
         var captured = _input.Capture(_camera);
-        if (_smoke is null && (!IsActive || !_wasActive))
+        if (!_activityGate.CanAdvance(IsActive))
         {
-            _wasActive = IsActive;
             base.Update(gameTime);
             return;
         }
-        _wasActive = IsActive;
         var input = _smoke?.NextInput(
             _arena,
             _inventory,
             _content,
-            GraphicsDevice.Viewport.Width) ?? captured;
+            GraphicsDevice.Viewport.Width,
+            _presentation.SwingRemaining) ?? captured;
         if (input.ExitPressed)
         {
             Exit();
             return;
         }
         ApplyInput(input, _smoke is null ? Math.Min((float)gameTime.ElapsedGameTime.TotalSeconds, .1f) : .1f);
-        _smoke?.AfterUpdate(_arena, _inventory, _content, _presentation.PlayerPose, _presentation.GetMonsterPose);
+        _smoke?.AfterUpdate(
+            _arena,
+            _inventory,
+            _content,
+            _presentation.PlayerPose,
+            _presentation.GetMonsterPose,
+            _presentation.SwingRemaining,
+            _presentation.HitTexts);
         base.Update(gameTime);
     }
 

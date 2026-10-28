@@ -30,7 +30,10 @@ dotnet publish src\DarkLoot.Game --configuration Release --output artifacts\publ
 蓝色代表玩家，战利品按品质着色，暴击使用橙红色闪光反馈。
 绿色圆形是史莱姆，长身、尖耳和尾巴的是迅捷狼，灰色骷髅与弓是骷髅弓手；
 每只存活怪物独立显示名称和生命条，群体挥击在各目标旁独立显示伤害和暴击。
-角色有呼吸、行走、挥击或拉弓动作；受击闪白并轻微压缩，保护期低频明暗变化。
+角色有呼吸、行走、挥击或拉弓动作；玩家和怪物受击都会进入短暂硬直并向受击方向击退，
+受击闪白并轻微压缩。玩家硬直 0.15 秒、击退 18 单位，命中保护 0.5 秒；
+怪物硬直 0.12 秒、击退 10 单位。死亡等待 0.6 秒后复活，并获得 0.8 秒保护。
+这些程序化姿态只负责表现，不改变碰撞、攻击、箭矢或掉落规则。
 怪物死亡原地缩小淡出 0.3 秒，人物原地倾倒淡出 0.6 秒；掉落与击杀立即结算。
 名字、血条和拾取位置保持真实坐标，不随动画偏移。背包暂停及窗口失焦同时冻结表现，
 背包内按 R 立即清理旧动作和伤害提示，但不推进动画时间。
@@ -98,3 +101,4 @@ keyboard/mouse input and human visual review remain unverified. Startup errors a
 executable to `startup-error.log` (smoke failures to `smoke-test.log`).
 Run `.\artifacts\publish\DarkLoot.Game.exe --smoke-test` after publishing to validate the copied atlas
 and definitions too. Diagnostic logs remain in English.
+自动烟测不能代替人工视觉与手感验收；本次只执行自动化验证，没有进行人工游戏手感或窗口焦点实测。

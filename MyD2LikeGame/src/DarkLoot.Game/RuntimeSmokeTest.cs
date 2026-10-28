@@ -20,7 +20,7 @@ internal sealed class RuntimeSmokeTest
     private enum SmokeStage
     {
         Approach, MultiHit, DodgeArrow, TakeArrow, ClearEncounter, Pickup,
-        Equip, PauseWithArrow, RestartCleanup, DeathRespawn, Complete
+        Equip, PauseWithArrow, RestartCleanup, DeathRespawn, PauseWithReaction, Complete
     }
 
     private readonly string _logPath;
@@ -58,6 +58,32 @@ internal sealed class RuntimeSmokeTest
     private bool _sawIsolatedPoses;
     private bool _sawPartialDeathPixels;
     private bool _sawPlayerDeathPixels;
+    private bool _sawDeathHud;
+    private bool _sawPlayerHurtKnockback;
+    private bool _sawIgnoredArrowDuringImmunity;
+    private bool _sawMonsterLootBeforeFade;
+    private bool _sawMonsterProgressWhileDead;
+    private bool _sawArrowProgressWhileDead;
+    private bool _sawReactionPause;
+    private bool _sawResetWhileStunned;
+    private ProjectileState[] _projectilesBeforeUpdate = [];
+    private NumericsVector[] _monsterPositionsBeforeUpdate = [];
+    private NumericsVector _playerPositionBeforeUpdate;
+    private int _healthBeforeUpdate;
+    private bool _playerWasDeadBeforeUpdate;
+    private long _playerDamageUpdate = -1;
+    private NumericsVector _playerPositionAtDamage;
+    private float _pauseReactionRemaining;
+    private float _pauseImmunityRemaining;
+    private NumericsVector _pausePosition;
+    private double _pauseSwingRemaining;
+    private ActorHitText[] _pauseHitTexts = [];
+    private bool _sawPlayerHitTextAtReset;
+    private string? _interruptedArcherId;
+    private bool _sawArcherRecoveryWindup;
+    private bool _sawArcherRecoveryLaunch;
+    private int _recoveryDodgeUpdates;
+    private string[] _windingArcherIdsBeforeUpdate = [];
 
     public RuntimeSmokeTest(string logPath)
     {
@@ -77,7 +103,7 @@ internal sealed class RuntimeSmokeTest
             "unmodified production content loads six configured spawns");
         var monsters = production.Monsters.ToDictionary(pair => pair.Key, pair => pair.Value with
         {
-            MaxHealth = pair.Value.Behavior == MonsterBehavior.Archer ? 30 :
+            MaxHealth = pair.Value.Behavior == MonsterBehavior.Archer ? 60 :
                 pair.Key == "monster.fast_wolf" ? 60 : 10,
             MoveSpeed = .01f,
             ContactDamage = pair.Key == "monster.fast_wolf" ? 200 : 0
@@ -118,7 +144,7 @@ internal sealed class RuntimeSmokeTest
                 new("smoke.wolf.1", "monster.fast_wolf", 285, 260),
                 new("smoke.wolf.2", "monster.fast_wolf", 285, 280),
                 new("smoke.archer.1", "monster.skeleton_archer", 380, 270),
-                new("smoke.archer.2", "monster.skeleton_archer", 420, 270)
+                new("smoke.archer.2", "monster.skeleton_archer", 388, 270)
             ]
         };
         return (content, encounter);
@@ -188,12 +214,17 @@ internal sealed class RuntimeSmokeTest
             }
         }
 
-        layouts.AddRange(new[] { GameText.Movement, GameText.Controls, GameText.Victory, GameText.Objective, GameText.Cleared }
+        layouts.AddRange(new[]
+            {
+                GameText.Movement, GameText.Controls, GameText.DeathControls, GameText.DeathWorld,
+                GameText.Victory, GameText.Objective, GameText.Cleared
+            }
             .Select(text => (text, 1080f, 22f)));
         layouts.AddRange(new[] { GameText.Inventory, GameText.Paused, GameText.Empty }
             .Select(text => (text, 616f, 22f)));
         layouts.Add((string.Format(GameText.Enemies, 6, 6), 240, 22));
         layouts.Add((string.Format(GameText.Hud, int.MaxValue, int.MaxValue, int.MaxValue, 100, 9999d), 1080, 22));
+        layouts.Add((string.Format(GameText.DeathHud, float.MaxValue, 9999d), 1080, 22));
         layouts.Add((string.Format(GameText.Totals, int.MaxValue, int.MaxValue, 100), 616, 22));
         layouts.Add((string.Format(GameText.Comparison, "+2147483647", "-2147483647", "+100"), 256, 21));
         foreach (var monster in content.Monsters.Values)
@@ -224,11 +255,24 @@ internal sealed class RuntimeSmokeTest
         Log($"PASS Chinese presentation complete; layouts={layouts.Count}; minimumScale={minimumScale:F3}");
     }
 
-    public GameInputSnapshot NextInput(ArenaSimulation arena, InventoryPanel panel, GameContent content, int width)
+    public GameInputSnapshot NextInput(
+        ArenaSimulation arena,
+        InventoryPanel panel,
+        GameContent content,
+        int width,
+        double swingRemaining)
     {
         _resetBeforeUpdate = arena.ResetSequence;
         _attackBeforeUpdate = arena.Player.AttackSequence;
         _healthBeforeSwing = arena.Monsters.ToDictionary(monster => monster.InstanceId, monster => monster.Health);
+        _projectilesBeforeUpdate = arena.Projectiles.ToArray();
+        _monsterPositionsBeforeUpdate = arena.Monsters.Select(monster => monster.Position).ToArray();
+        _playerPositionBeforeUpdate = arena.Player.Position;
+        _healthBeforeUpdate = arena.Player.Health;
+        _playerWasDeadBeforeUpdate = arena.Player.IsDead;
+        _windingArcherIdsBeforeUpdate = arena.Monsters
+            .Where(monster => monster.Behavior == MonsterBehavior.Archer && monster.IsWindingUp)
+            .Select(monster => monster.InstanceId).ToArray();
         _updates++;
         if (++_stageUpdates > 450 || _updates > 2400)
         {
@@ -297,17 +341,24 @@ internal sealed class RuntimeSmokeTest
                     if (arena.RemainingMonsters == 1 && target.Behavior == MonsterBehavior.Archer)
                     {
                         movement = Towards(arena.Player.Position, target.Position, 30);
-                        attack = false;
-                        if (_phase == 0 && movement == NumericsVector.Zero && target.IsWindingUp)
+                        if (_interruptedArcherId == target.InstanceId)
                         {
-                            var locked = target.LockedAimDirection;
-                            movement = new NumericsVector(-locked.Y, locked.X);
-                            _phase = 1;
+                            attack = _sawArcherRecoveryLaunch && movement == NumericsVector.Zero;
+                            if (!_sawArcherRecoveryLaunch && _sawArcherRecoveryWindup &&
+                                _recoveryDodgeUpdates < 2)
+                            {
+                                movement = new NumericsVector(-target.LockedAimDirection.Y,
+                                    target.LockedAimDirection.X);
+                                _recoveryDodgeUpdates++;
+                            }
+                            else if (!_sawArcherRecoveryLaunch)
+                            {
+                                movement = NumericsVector.Zero;
+                            }
                         }
-                        else if (_phase == 1)
+                        else
                         {
-                            movement = NumericsVector.Zero;
-                            attack = arena.Projectiles.Any(arrow => arrow.SourceInstanceId == target.InstanceId);
+                            attack = movement == NumericsVector.Zero && target.IsWindingUp;
                         }
                     }
                 }
@@ -388,14 +439,96 @@ internal sealed class RuntimeSmokeTest
                     NumericsVector.Distance(arena.Player.Position + movement * 18, arena.Monsters[2].Position) < 24 &&
                     arena.Monsters[2].ContactDamage >= _healthBefore;
                 break;
+            case SmokeStage.PauseWithReaction:
+                if (_phase == 0)
+                {
+                    var target = arena.Monsters.First(monster =>
+                        monster.Id == "monster.training_slime" && !monster.IsDefeated);
+                    aim = target.Position;
+                    movement = Towards(arena.Player.Position, target.Position, 40);
+                    attack = movement == NumericsVector.Zero;
+                }
+                else if (_phase == 1)
+                {
+                    aim = arena.Player.Position - NumericsVector.UnitX * 100;
+                    attack = arena.Projectiles.Any(projectile =>
+                        CrossesPlayer(projectile, arena.Player.Position, arena.Player.Position));
+                }
+                else if (_phase == 2 || _phase == 4 || _phase == 5)
+                {
+                    toggle = true;
+                    restart = _phase == 5;
+                }
+                if (_phase == 5)
+                {
+                    Check(!panel.IsOpen && arena.Player.Reaction.IsActive &&
+                          arena.Player.IsInvulnerable,
+                        "R request begins from a live stunned player with immunity");
+                }
+                break;
         }
         return new GameInputSnapshot(movement, aim, pointer, attack, pickup, toggle, restart, false,
             AttackHeld: attack && !panel.IsOpen);
     }
 
-    public void AfterUpdate(ArenaSimulation arena, InventoryPanel panel, GameContent content,
-        ActorPose playerPose, Func<string, ActorPose> monsterPose)
+    public void AfterUpdate(
+        ArenaSimulation arena,
+        InventoryPanel panel,
+        GameContent content,
+        ActorPose playerPose,
+        Func<string, ActorPose> monsterPose,
+        double swingRemaining,
+        IReadOnlyList<ActorHitText> hitTexts)
     {
+        var playerDamage = arena.Events.FirstOrDefault(item =>
+            item.Kind == CombatEventKind.Damaged && item.ActorId == "player");
+        if (playerDamage is not null)
+        {
+            _playerDamageUpdate = _updates;
+            _playerPositionAtDamage = arena.Player.Position;
+        }
+        else if (_playerDamageUpdate >= 0 && _updates > _playerDamageUpdate &&
+                 arena.Player.Reaction.IsActive &&
+                 arena.Player.Position != _playerPositionAtDamage)
+        {
+            _sawPlayerHurtKnockback = true;
+            Check(true, "actual player damage produced active stun and real knockback displacement");
+            _playerDamageUpdate = -1;
+        }
+
+        if (!arena.Player.IsDead && arena.Player.IsInvulnerable &&
+            arena.Player.Health == _healthBeforeUpdate &&
+            !arena.Events.Any(item => item.Kind == CombatEventKind.Damaged && item.ActorId == "player") &&
+            WasBlockedArrowRemoved(arena))
+        {
+            _sawIgnoredArrowDuringImmunity = true;
+            Check(true, "a second real arrow was removed during active immunity without extending damage");
+        }
+
+        if (_playerWasDeadBeforeUpdate && arena.Player.IsDead)
+        {
+            _sawMonsterProgressWhileDead |= arena.Monsters
+                .Select((monster, index) => monster.Position != _monsterPositionsBeforeUpdate[index])
+                .Any(changed => changed);
+            _sawArrowProgressWhileDead |= _projectilesBeforeUpdate.Any(before => arena.Projectiles.Any(current =>
+                current.SourceInstanceId == before.SourceInstanceId && current.Position != before.Position));
+        }
+
+        if (arena.Player.IsDead)
+        {
+            var header = HudRenderer.PlayerHeader(arena, 0);
+            Check(header == string.Format(GameText.DeathHud, arena.Player.DeathRemaining, 0d) &&
+                  !header.Contains("生命", StringComparison.Ordinal),
+                "death HUD shows the actual countdown instead of a misleading life total");
+            if (!_sawDeathHud)
+            {
+                Check(HudRenderer.MovementInstructions(arena) == GameText.DeathControls &&
+                      HudRenderer.ControlInstructions(arena) == GameText.DeathWorld,
+                    "death HUD explains disabled controls and continuing enemies");
+                _sawDeathHud = true;
+            }
+        }
+
         foreach (var death in arena.Events.Where(item => item.Kind == CombatEventKind.Died))
         {
             var pose = death.ActorId == "player" ? playerPose : monsterPose(death.ActorId);
@@ -403,11 +536,53 @@ internal sealed class RuntimeSmokeTest
                 arena.Monsters.Single(monster => monster.InstanceId == death.ActorId).Position;
             Check(pose.Opacity == 1 && pose.Scale == NumericsVector.One && anchor == death.Position,
                 $"new death starts visible at actual death position; actor={death.ActorId}");
+            if (death.ActorId != "player" && !_sawMonsterLootBeforeFade)
+            {
+                Check(arena.GroundItems.Count > 0 &&
+                      arena.Events.Any(item => item.ActorId == death.ActorId &&
+                          item.Kind is CombatEventKind.Damaged or CombatEventKind.Died),
+                    "actual monster death resolved ground loot before its corpse faded");
+                _sawMonsterLootBeforeFade = true;
+            }
+        }
+
+        foreach (var damage in arena.Events.Where(item =>
+                     item.Kind == CombatEventKind.Damaged && item.ActorId != "player"))
+        {
+            if (_windingArcherIdsBeforeUpdate.Contains(damage.ActorId, StringComparer.Ordinal))
+            {
+                var archer = arena.Monsters.Single(monster => monster.InstanceId == damage.ActorId);
+                if (!archer.IsDefeated && archer.Behavior == MonsterBehavior.Archer &&
+                    archer.Reaction.IsActive && !archer.IsWindingUp)
+                {
+                    _interruptedArcherId = archer.InstanceId;
+                    _sawArcherRecoveryWindup = false;
+                    _sawArcherRecoveryLaunch = false;
+                    _recoveryDodgeUpdates = 0;
+                    Check(true, $"real accepted melee interrupted archer windup; archer={archer.InstanceId}");
+                }
+            }
+        }
+
+        if (_interruptedArcherId is not null)
+        {
+            var archer = arena.Monsters.Single(monster => monster.InstanceId == _interruptedArcherId);
+            _sawArcherRecoveryWindup |= !archer.Reaction.IsActive && archer.IsWindingUp;
+            if (!_sawArcherRecoveryLaunch && _sawArcherRecoveryWindup &&
+                arena.Events.Any(item => item.Kind == CombatEventKind.ArrowLaunched &&
+                    item.ActorId == _interruptedArcherId) &&
+                arena.Projectiles.Any(item => item.SourceInstanceId == _interruptedArcherId))
+            {
+                _sawArcherRecoveryLaunch = true;
+                Check(true, $"interrupted archer recovered, completed a fresh windup and launched; archer={_interruptedArcherId}");
+            }
         }
         var partialDeath = arena.Monsters.FirstOrDefault(monster => monster.IsDefeated &&
             monsterPose(monster.InstanceId).Opacity is > 0 and < 1);
         if (partialDeath is not null)
         {
+            Check(_sawMonsterLootBeforeFade,
+                "monster death fade begins only after live loot resolution");
             _sawPartialDeath = true;
             Check(monsterPose(partialDeath.InstanceId).Scale.X is > 0 and < 1,
                 "partial monster death retains nonzero geometry");
@@ -641,6 +816,103 @@ internal sealed class RuntimeSmokeTest
                           arena.Projectiles.Count == 0 && arena.GroundItems.Count == 0 &&
                           arena.LastSwingHits.Count == 0 && arena.Events.Count == 0,
                         "DeathRespawn after 0.6s restored spawn/current maximum health, six clean monsters and full 0.8s protection");
+                    Check(_sawDeathHud && _sawMonsterProgressWhileDead && _sawArrowProgressWhileDead,
+                        "DeathRespawn showed countdown while both monsters and arrows advanced through the corpse");
+                    CheckGear(arena);
+                    Enter(SmokeStage.PauseWithReaction);
+                }
+                break;
+            case SmokeStage.PauseWithReaction:
+                if (_phase == 0 && arena.Monsters.Any(monster =>
+                        monster.Id == "monster.training_slime" && monster.IsDefeated) &&
+                    arena.GroundItems.Count > 0)
+                {
+                    Check(arena.Events.Any(item => item.Kind == CombatEventKind.Died &&
+                              arena.Monsters.Any(monster => monster.InstanceId == item.ActorId)) &&
+                          _sawMonsterLootBeforeFade,
+                        "PauseWithReaction setup killed a real slime and retained its generated loot");
+                    _phase = 1;
+                }
+                else if (_phase == 1 && playerDamage is not null)
+                {
+                    Check(arena.Player.Reaction.IsActive && arena.Player.IsInvulnerable &&
+                          arena.Player.Health < _healthBeforeUpdate &&
+                          arena.Player.AttackSequence == _attackBeforeUpdate + 1 &&
+                          arena.Events.Any(item => item.Kind == CombatEventKind.Damaged &&
+                              item.ActorId == "player") &&
+                          arena.Events.Any(item => item.Kind == CombatEventKind.Swing &&
+                              item.ActorId == "player") &&
+                          arena.Projectiles.Count < _projectilesBeforeUpdate.Length,
+                        "PauseWithReaction setup combined a real arrow hit, accepted swing, stun and immunity");
+                    _phase = 2;
+                }
+                else if (_phase == 2 && panel.IsOpen)
+                {
+                    Check(arena.Player.Reaction.RemainingSeconds > 0 &&
+                          arena.Player.InvulnerabilityRemaining > 0 &&
+                          playerPose.WhiteMix > 0 && playerPose.Scale.Y < 1 &&
+                          hitTexts.Any(text => text.ActorId == "player") &&
+                          arena.Monsters.Any(monster => monster.IsDefeated) &&
+                          arena.GroundItems.Count > 0,
+                        "PauseWithReaction froze actual hurt pose, stun, immunity, damage feedback, corpse and loot");
+                    _pausedPlayerPose = playerPose;
+                    _pausedMonsterPoses = arena.Monsters.Select(monster => monsterPose(monster.InstanceId)).ToArray();
+                    _pauseSnapshot = Snapshot(arena);
+                    _pauseReactionRemaining = arena.Player.Reaction.RemainingSeconds;
+                    _pauseImmunityRemaining = arena.Player.InvulnerabilityRemaining;
+                    _pausePosition = arena.Player.Position;
+                    _pauseSwingRemaining = swingRemaining;
+                    _pauseHitTexts = hitTexts.ToArray();
+                    _healthBeforeRestart = arena.Player.Health;
+                    _pausedUpdates = 0;
+                    _sawReactionPause = true;
+                    _phase = 3;
+                    break;
+                }
+                else if (_phase == 3)
+                {
+                    Check(panel.IsOpen && Snapshot(arena) == _pauseSnapshot &&
+                          playerPose == _pausedPlayerPose &&
+                          arena.Monsters.Select(monster => monsterPose(monster.InstanceId))
+                              .SequenceEqual(_pausedMonsterPoses) &&
+                          swingRemaining == _pauseSwingRemaining &&
+                          hitTexts.SequenceEqual(_pauseHitTexts),
+                        $"PauseWithReaction froze every actor, timer, arrow, corpse, loot and pose; update={++_pausedUpdates}");
+                    if (_pausedUpdates == 20)
+                    {
+                        _phase = 4;
+                    }
+                    break;
+                }
+                else if (_phase == 4 && !panel.IsOpen)
+                {
+                    Check(Snapshot(arena) != _pauseSnapshot && arena.Player.Reaction.IsActive &&
+                          arena.Player.Reaction.RemainingSeconds < _pauseReactionRemaining &&
+                          arena.Player.InvulnerabilityRemaining < _pauseImmunityRemaining &&
+                          arena.Player.Position != _pausePosition &&
+                          arena.Player.Health == _healthBeforeRestart &&
+                          _sawIgnoredArrowDuringImmunity &&
+                          hitTexts.Any(text => text.ActorId == "player"),
+                        "closing inventory resumed knockback, stun, immunity and damage feedback; ignored arrow was removed");
+                    _sawPlayerHitTextAtReset = hitTexts.Any(text => text.ActorId == "player");
+                    _sawPlayerHurtKnockback = true;
+                    _phase = 5;
+                    break;
+                }
+                else if (_phase == 5)
+                {
+                    Check(panel.IsOpen && arena.ResetSequence == _resetBeforeUpdate + 1 &&
+                          arena.Player.Health == _healthBeforeRestart &&
+                          !arena.Player.Reaction.IsActive && !arena.Player.IsInvulnerable &&
+                          arena.RemainingMonsters == arena.Monsters.Count &&
+                          arena.Monsters.All(monster => !monster.IsDefeated && !monster.Reaction.IsActive) &&
+                          arena.GroundItems.Count == 0 && arena.Projectiles.Count == 0 &&
+                          arena.LastSwingHits.Count == 0 && swingRemaining == 0 && hitTexts.Count == 0 &&
+                          playerPose.Offset == NumericsVector.Zero && playerPose.AttackProgress == 0,
+                        "R while stunned and in inventory cleared feedback without healing or unpausing");
+                    _sawResetWhileStunned = true;
+                    Check(_sawPlayerHitTextAtReset,
+                        "R cleared actual player damage feedback after the stun pause");
                     CheckGear(arena);
                     Enter(SmokeStage.Complete);
                 }
@@ -677,7 +949,7 @@ internal sealed class RuntimeSmokeTest
         if (!_sawPlayerDeathPixels && arena.Player.IsDead &&
             presentation.PlayerPose.Opacity is > .4f and < .9f)
         {
-            Check(BodyPixels(device, camera.WorldToScreen(arena.Player.Position))
+            Check(ActorPixels(device, camera.WorldToScreen(arena.Player.Position))
                     .Any(pixel => pixel.B > pixel.R + 20 && pixel.B > pixel.G + 8),
                 "real Draw backbuffer retains blue partial-death player geometry at death anchor");
             _sawPlayerDeathPixels = true;
@@ -707,6 +979,11 @@ internal sealed class RuntimeSmokeTest
             "real Draw received killed-target and independent critical feedback; death cleared swing flash");
         Check(_sawPartialDeath && _sawIsolatedPoses && _sawPartialDeathPixels && _sawPlayerDeathPixels,
             "real smoke observed partial death geometry and per-instance independent phases/events");
+        Check(_sawDeathHud && _sawPlayerHurtKnockback && _sawIgnoredArrowDuringImmunity &&
+              _sawMonsterLootBeforeFade && _sawMonsterProgressWhileDead &&
+              _sawArrowProgressWhileDead && _sawReactionPause &&
+              _sawResetWhileStunned && _sawArcherRecoveryLaunch,
+            "named lifecycle acceptance observed actual hurt, immunity, ignored arrow, corpse loot, death, respawn, pause, reset and archer recovery");
         Check(_draws > 20 && double.IsFinite(framesPerSecond) && framesPerSecond > 0,
             $"actual graphics Draw FPS={framesPerSecond:F1}; draws={_draws}");
         Log($"PASS mixed smoke Complete; updates={_updates}; draws={_draws}; completionArrow={_sawCompletionArrow}");
@@ -717,6 +994,16 @@ internal sealed class RuntimeSmokeTest
     {
         var pixels = new Microsoft.Xna.Framework.Color[25];
         var bounds = new Microsoft.Xna.Framework.Rectangle((int)anchor.X - 2, (int)anchor.Y - 2, 5, 5);
+        device.GetBackBufferData(bounds, pixels, 0, pixels.Length);
+        return pixels;
+    }
+
+    private static Microsoft.Xna.Framework.Color[] ActorPixels(GraphicsDevice device, Microsoft.Xna.Framework.Vector2 anchor)
+    {
+        const int size = 31;
+        var pixels = new Microsoft.Xna.Framework.Color[size * size];
+        var bounds = new Microsoft.Xna.Framework.Rectangle(
+            (int)anchor.X - size / 2, (int)anchor.Y - size / 2, size, size);
         device.GetBackBufferData(bounds, pixels, 0, pixels.Length);
         return pixels;
     }
@@ -741,11 +1028,53 @@ internal sealed class RuntimeSmokeTest
 
     private static string Snapshot(ArenaSimulation arena) =>
         $"{arena.Player.Position}|{arena.Player.Health}|{arena.Player.AttackSequence}|" +
+        $"{arena.Player.Reaction.RemainingSeconds:R}|{arena.Player.InvulnerabilityRemaining:R}|" +
+        $"{arena.Player.DeathRemaining:R}|" +
         string.Join(";", arena.Monsters.Select(monster =>
-            $"{monster.InstanceId}:{monster.Position}:{monster.Health}:{monster.IsWindingUp}:" +
+            $"{monster.InstanceId}:{monster.Position}:{monster.Health}:{monster.Reaction.RemainingSeconds:R}:{monster.IsWindingUp}:" +
             $"{monster.WindupRemaining:R}:{monster.LockedAimDirection}")) + "|" +
         string.Join(";", arena.Projectiles.Select(arrow => arrow.ToString())) + "|" +
         string.Join(";", arena.GroundItems.Select(drop => drop.Item.InstanceId));
+
+    private bool WasBlockedArrowRemoved(ArenaSimulation arena)
+    {
+        foreach (var before in _projectilesBeforeUpdate)
+        {
+            if (arena.Projectiles.Any(current =>
+                    current.SourceInstanceId == before.SourceInstanceId) ||
+                !CrossesPlayer(before, _playerPositionBeforeUpdate, arena.Player.Position))
+            {
+                continue;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool CrossesPlayer(
+        ProjectileState projectile,
+        NumericsVector previousPosition,
+        NumericsVector currentPosition)
+    {
+        var end = projectile.Position + projectile.Direction * (projectile.Speed * .1f);
+        foreach (var playerPosition in new[] { previousPosition, currentPosition })
+        {
+            var travel = end - projectile.Position;
+            var lengthSquared = travel.LengthSquared();
+            var t = lengthSquared == 0
+                ? 0
+                : Math.Clamp(NumericsVector.Dot(playerPosition - projectile.Position, travel) / lengthSquared, 0, 1);
+            var nearest = projectile.Position + travel * t;
+            if (NumericsVector.DistanceSquared(nearest, playerPosition) <= 14 * 14)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     private static NumericsVector Towards(NumericsVector position, NumericsVector target, float stop) =>
         NumericsVector.Distance(position, target) > stop ? NumericsVector.Normalize(target - position) : NumericsVector.Zero;

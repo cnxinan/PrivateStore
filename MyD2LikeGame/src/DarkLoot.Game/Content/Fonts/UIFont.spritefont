@@ -129,6 +129,29 @@
       <CharacterRegion><Start>&#65288;</Start><End>&#65289;</End></CharacterRegion>
       <CharacterRegion><Start>&#65292;</Start><End>&#65292;</End></CharacterRegion>
       <CharacterRegion><Start>&#65306;</Start><End>&#65306;</End></CharacterRegion>
+      <CharacterRegion><Start>&#12289;</Start><End>&#12289;</End></CharacterRegion>
+      <CharacterRegion><Start>&#19982;</Start><End>&#19982;</End></CharacterRegion>
+      <CharacterRegion><Start>&#20173;</Start><End>&#20173;</End></CharacterRegion>
+      <CharacterRegion><Start>&#20250;</Start><End>&#20250;</End></CharacterRegion>
+      <CharacterRegion><Start>&#20498;</Start><End>&#20498;</End></CharacterRegion>
+      <CharacterRegion><Start>&#24453;</Start><End>&#24453;</End></CharacterRegion>
+      <CharacterRegion><Start>&#25110;</Start><End>&#25110;</End></CharacterRegion>
+      <CharacterRegion><Start>&#25171;</Start><End>&#25171;</End></CharacterRegion>
+      <CharacterRegion><Start>&#25442;</Start><End>&#25442;</End></CharacterRegion>
+      <CharacterRegion><Start>&#25928;</Start><End>&#25928;</End></CharacterRegion>
+      <CharacterRegion><Start>&#26102;</Start><End>&#26102;</End></CharacterRegion>
+      <CharacterRegion><Start>&#26399;</Start><End>&#26399;</End></CharacterRegion>
+      <CharacterRegion><Start>&#27963;</Start><End>&#27963;</End></CharacterRegion>
+      <CharacterRegion><Start>&#30690;</Start><End>&#30690;</End></CharacterRegion>
+      <CharacterRegion><Start>&#31186;</Start><End>&#31186;</End></CharacterRegion>
+      <CharacterRegion><Start>&#31561;</Start><End>&#31561;</End></CharacterRegion>
+      <CharacterRegion><Start>&#31661;</Start><End>&#31661;</End></CharacterRegion>
+      <CharacterRegion><Start>&#32487;</Start><End>&#32487;</End></CharacterRegion>
+      <CharacterRegion><Start>&#33258;</Start><End>&#33258;</End></CharacterRegion>
+      <CharacterRegion><Start>&#34892;</Start><End>&#34892;</End></CharacterRegion>
+      <CharacterRegion><Start>&#35831;</Start><End>&#35831;</End></CharacterRegion>
+      <CharacterRegion><Start>&#38388;</Start><End>&#38388;</End></CharacterRegion>
+      <CharacterRegion><Start>&#65307;</Start><End>&#65307;</End></CharacterRegion>
     </CharacterRegions>
   </Asset>
 </XnaContent>
