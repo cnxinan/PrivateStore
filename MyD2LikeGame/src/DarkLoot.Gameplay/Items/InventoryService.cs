@@ -69,4 +69,52 @@ public sealed class InventoryService
         player.Health = Math.Min(player.Health, candidate.MaximumHealth);
         return EquipmentChangeResult.Applied;
     }
+
+    internal EquipmentChangeResult ReplaceOwned(PlayerState player, ItemInstance replacement)
+    {
+        ArgumentNullException.ThrowIfNull(player);
+        ArgumentNullException.ThrowIfNull(replacement);
+        if (replacement.InstanceId == Guid.Empty)
+        {
+            throw new ArgumentException("Item instance ID must not be empty.", nameof(replacement));
+        }
+
+        if (player.IsDead)
+        {
+            return EquipmentChangeResult.PlayerDead;
+        }
+
+        var original = player.Inventory.Find(replacement.InstanceId);
+        if (original is null)
+        {
+            return EquipmentChangeResult.NotOwned;
+        }
+
+        if (!string.Equals(original.DefinitionId, replacement.DefinitionId, StringComparison.Ordinal))
+        {
+            throw new ArgumentException("Replacement must preserve the item definition.", nameof(replacement));
+        }
+
+        var oldSlot = _calculator.GetContribution(original, _content).Slot;
+        var newSlot = _calculator.GetContribution(replacement, _content).Slot;
+        if (oldSlot != newSlot)
+        {
+            throw new ArgumentException("Replacement must preserve the item slot.", nameof(replacement));
+        }
+
+        var inventory = player.Inventory;
+        var equipped = inventory.EquippedWeaponId == replacement.InstanceId ||
+            inventory.EquippedArmorId == replacement.InstanceId;
+        var candidate = equipped
+            ? _calculator.Preview(
+                player.BaseAttackDamage, player.BaseMaximumHealth,
+                inventory, _content, newSlot, replacement)
+            : _calculator.Calculate(
+                player.BaseAttackDamage, player.BaseMaximumHealth,
+                inventory.EquippedWeapon, inventory.EquippedArmor, _content);
+
+        inventory.ReplaceSnapshot(replacement);
+        player.Health = Math.Min(player.Health, candidate.MaximumHealth);
+        return EquipmentChangeResult.Applied;
+    }
 }

@@ -41,6 +41,17 @@ public sealed class Inventory
         return _items.FirstOrDefault(item => item.InstanceId == instanceId);
     }
 
+    internal void ReplaceSnapshot(ItemInstance replacement)
+    {
+        var index = _items.FindIndex(item => item.InstanceId == replacement.InstanceId);
+        if (index < 0)
+        {
+            throw new InvalidOperationException("Cannot replace an item that is not owned.");
+        }
+
+        _items[index] = replacement;
+    }
+
     internal void Equip(ItemSlot slot, Guid instanceId)
     {
         switch (slot)

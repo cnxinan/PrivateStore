@@ -73,7 +73,12 @@ public sealed class PlayerLifecycleTests
         Assert.Equal(EquipmentChangeResult.PlayerDead,
             arena.EquipmentOperations.PickUp(arena.Player,
                 new ItemInstance(Guid.NewGuid(), "armor.training_vest")));
+        var replacement = new ItemInstance(weapon.InstanceId, weapon.DefinitionId,
+            ItemRarity.Magic, [new AffixRoll("affix.keen", ItemStat.Attack, 5)]);
+        Assert.Equal(EquipmentChangeResult.PlayerDead,
+            arena.EquipmentOperations.ReplaceOwned(arena.Player, replacement));
         Assert.Equal(weapon, Assert.Single(arena.Player.Inventory.Items));
+        Assert.Same(weapon, arena.Player.Inventory.Find(weapon.InstanceId));
         Assert.Null(arena.Player.Inventory.EquippedWeapon);
         Assert.Equal(0, arena.Player.Health);
         arena.Update(Idle, .6f);
