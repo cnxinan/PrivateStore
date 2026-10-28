@@ -1,0 +1,13 @@
+{
+  "id": "resource.skeleton",
+  "materialId": "material.bone",
+  "minQuantity": 1,
+  "maxQuantity": 2,
+  "recipeChancePercent": 20,
+  "recipeIds": [
+    "recipe.magic_blade",
+    "recipe.magic_vest",
+    "recipe.rare_blade",
+    "recipe.rare_vest"
+  ]
+}

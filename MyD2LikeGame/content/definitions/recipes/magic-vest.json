@@ -1,0 +1,10 @@
+{
+  "id": "recipe.magic_vest",
+  "name": "魔法护甲配方",
+  "itemId": "armor.training_vest",
+  "rarity": "Magic",
+  "costs": [
+    { "materialId": "material.hide", "quantity": 2 },
+    { "materialId": "material.slime", "quantity": 1 }
+  ]
+}

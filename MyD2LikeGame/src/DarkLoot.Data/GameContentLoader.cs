@@ -52,15 +52,41 @@ public static class GameContentLoader
             "encounters",
             definition => definition.Id,
             ValidateEncounter);
+        var materials = LoadDefinitions<MaterialDefinition>(
+            definitionsRoot,
+            "materials",
+            definition => definition.Id,
+            ValidateMaterial);
+        var recipes = LoadDefinitions<RecipeDefinition>(
+            definitionsRoot,
+            "recipes",
+            definition => definition.Id,
+            ValidateRecipe);
+        var resourceLootTables = LoadDefinitions<ResourceLootTableDefinition>(
+            definitionsRoot,
+            "resource-loot-tables",
+            definition => definition.Id,
+            ValidateResourceLootTable);
 
-        ValidateReferences(items, affixes, monsters, lootTables, encounters);
+        ValidateReferences(
+            items,
+            affixes,
+            monsters,
+            lootTables,
+            encounters,
+            materials,
+            recipes,
+            resourceLootTables);
 
         return new GameContent(
             AsReadOnly(items),
             AsReadOnly(monsters),
             AsReadOnly(lootTables),
             AsReadOnly(affixes),
-            AsReadOnly(encounters));
+            AsReadOnly(encounters),
+            AsReadOnly(materials),
+            AsReadOnly(recipes),
+            AsReadOnly(resourceLootTables));
     }
 
     private static Dictionary<string, LoadedDefinition<T>> LoadDefinitions<T>(
@@ -303,6 +329,96 @@ public static class GameContentLoader
         }
     }
 
+    private static void ValidateMaterial(MaterialDefinition definition, string path)
+    {
+        RequireText(definition.Id, path, nameof(definition.Id));
+        RequireText(definition.Name, path, nameof(definition.Name));
+    }
+
+    private static void ValidateRecipe(RecipeDefinition definition, string path)
+    {
+        RequireText(definition.Id, path, nameof(definition.Id));
+        RequireText(definition.Name, path, nameof(definition.Name));
+        RequireText(definition.ItemId, path, nameof(definition.ItemId));
+
+        if (definition.Rarity is not (ItemRarity.Common or ItemRarity.Magic or ItemRarity.Rare))
+        {
+            throw Invalid(path, $"Recipe '{definition.Id}' has unsupported {nameof(definition.Rarity)}.");
+        }
+
+        if (definition.Costs is null || definition.Costs.Count == 0)
+        {
+            throw Invalid(path, $"{nameof(definition.Costs)} must contain at least one cost.");
+        }
+
+        var materialIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var cost in definition.Costs)
+        {
+            if (cost is null)
+            {
+                throw Invalid(path, $"{nameof(definition.Costs)} must not contain null values.");
+            }
+
+            RequireText(cost.MaterialId, path, nameof(cost.MaterialId));
+            if (cost.Quantity <= 0)
+            {
+                throw Invalid(path, $"{nameof(cost.Quantity)} must be positive.");
+            }
+
+            if (!materialIds.Add(cost.MaterialId))
+            {
+                throw Invalid(
+                    path,
+                    $"Recipe '{definition.Id}' has duplicate cost material '{cost.MaterialId}'.");
+            }
+        }
+    }
+
+    private static void ValidateResourceLootTable(
+        ResourceLootTableDefinition definition,
+        string path)
+    {
+        RequireText(definition.Id, path, nameof(definition.Id));
+        RequireText(definition.MaterialId, path, nameof(definition.MaterialId));
+
+        if (definition.MinQuantity < 1 || definition.MaxQuantity < definition.MinQuantity)
+        {
+            throw Invalid(
+                path,
+                $"{nameof(definition.MinQuantity)} must be at least 1 and no greater than " +
+                $"{nameof(definition.MaxQuantity)}.");
+        }
+
+        if (definition.RecipeChancePercent is < 0 or > 100)
+        {
+            throw Invalid(
+                path,
+                $"{nameof(definition.RecipeChancePercent)} must be between 0 and 100.");
+        }
+
+        if (definition.RecipeIds is null)
+        {
+            throw Invalid(path, $"{nameof(definition.RecipeIds)} is required.");
+        }
+
+        if (definition.RecipeChancePercent > 0 && definition.RecipeIds.Count == 0)
+        {
+            throw Invalid(
+                path,
+                $"{nameof(definition.RecipeIds)} must not be empty when recipe chance is positive.");
+        }
+
+        var recipeIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var recipeId in definition.RecipeIds)
+        {
+            RequireText(recipeId, path, nameof(definition.RecipeIds));
+            if (!recipeIds.Add(recipeId))
+            {
+                throw Invalid(path, $"Duplicate recipe candidate ID '{recipeId}'.");
+            }
+        }
+    }
+
     private static void ValidateLootTable(
         LootTableDefinition definition,
         string path)
@@ -396,7 +512,10 @@ public static class GameContentLoader
         IReadOnlyDictionary<string, LoadedDefinition<AffixDefinition>> affixes,
         IReadOnlyDictionary<string, LoadedDefinition<MonsterDefinition>> monsters,
         IReadOnlyDictionary<string, LoadedDefinition<LootTableDefinition>> lootTables,
-        IReadOnlyDictionary<string, LoadedDefinition<EncounterDefinition>> encounters)
+        IReadOnlyDictionary<string, LoadedDefinition<EncounterDefinition>> encounters,
+        IReadOnlyDictionary<string, LoadedDefinition<MaterialDefinition>> materials,
+        IReadOnlyDictionary<string, LoadedDefinition<RecipeDefinition>> recipes,
+        IReadOnlyDictionary<string, LoadedDefinition<ResourceLootTableDefinition>> resourceLootTables)
     {
         foreach (var loadedMonster in monsters.Values)
         {
@@ -464,6 +583,67 @@ public static class GameContentLoader
                         loadedEncounter.SourcePath,
                         $"Encounter '{loadedEncounter.Definition.Id}' references missing monster " +
                         $"'{spawn.MonsterId}'.");
+                }
+            }
+        }
+
+        foreach (var loadedRecipe in recipes.Values)
+        {
+            var recipe = loadedRecipe.Definition;
+            if (!items.TryGetValue(recipe.ItemId, out var item))
+            {
+                throw Invalid(
+                    loadedRecipe.SourcePath,
+                    $"Recipe '{recipe.Id}' references missing item '{recipe.ItemId}'.");
+            }
+
+            foreach (var cost in recipe.Costs)
+            {
+                if (!materials.ContainsKey(cost.MaterialId))
+                {
+                    throw Invalid(
+                        loadedRecipe.SourcePath,
+                        $"Recipe '{recipe.Id}' references missing material '{cost.MaterialId}'.");
+                }
+            }
+
+            var requiredAffixes = recipe.Rarity switch
+            {
+                ItemRarity.Common => 0,
+                ItemRarity.Magic => 1,
+                ItemRarity.Rare => 2,
+                _ => throw new InvalidOperationException("Validated recipe rarity was not supported.")
+            };
+            var slot = item.Definition.Slot;
+            var count = affixes.Values.Count(loaded =>
+                loaded.Definition.Slots.Contains(slot));
+            if (count < requiredAffixes)
+            {
+                throw Invalid(
+                    loadedRecipe.SourcePath,
+                    $"Recipe '{recipe.Id}' for item '{recipe.ItemId}' requires " +
+                    $"{requiredAffixes} eligible {slot} affixes, but only {count} exist.");
+            }
+        }
+
+        foreach (var loadedResourceLootTable in resourceLootTables.Values)
+        {
+            var table = loadedResourceLootTable.Definition;
+            if (!materials.ContainsKey(table.MaterialId))
+            {
+                throw Invalid(
+                    loadedResourceLootTable.SourcePath,
+                    $"Resource loot table '{table.Id}' references missing material " +
+                    $"'{table.MaterialId}'.");
+            }
+
+            foreach (var recipeId in table.RecipeIds)
+            {
+                if (!recipes.ContainsKey(recipeId))
+                {
+                    throw Invalid(
+                        loadedResourceLootTable.SourcePath,
+                        $"Resource loot table '{table.Id}' references missing recipe '{recipeId}'.");
                 }
             }
         }

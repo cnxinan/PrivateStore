@@ -67,6 +67,29 @@ internal static class ContentFixture
         return root;
     }
 
+    public static string CreateWithCraftingDefinitions(
+        IEnumerable<string>? materialJsons = null,
+        IEnumerable<string>? recipeJsons = null,
+        IEnumerable<string>? resourceLootTableJsons = null,
+        IEnumerable<string>? affixJsons = null)
+    {
+        var root = Create(
+            itemJson: ValidItemJson,
+            monsterJson: ValidMonsterJson,
+            lootTableJson: ValidLootTableJson);
+
+        WriteDefinitions(root, "materials", materialJsons ?? [ValidMaterialJson], "material");
+        WriteDefinitions(root, "recipes", recipeJsons ?? [ValidRecipeJson], "recipe");
+        WriteDefinitions(
+            root,
+            "resource-loot-tables",
+            resourceLootTableJsons ?? [ValidResourceLootTableJson],
+            "resource");
+        WriteDefinitions(root, "affixes", affixJsons ?? ValidAffixJsons, "affix");
+
+        return root;
+    }
+
     public static string CreateMalformedItem()
     {
         return Create(
@@ -237,6 +260,36 @@ internal static class ContentFixture
             File.WriteAllText(Path.Combine(directoryPath, fileName), json);
         }
     }
+
+    private static void WriteDefinitions(
+        string root,
+        string directory,
+        IEnumerable<string> definitions,
+        string filePrefix)
+    {
+        var index = 0;
+        foreach (var json in definitions)
+        {
+            WriteDefinition(root, directory, $"{filePrefix}-{index++}.json", json);
+        }
+    }
+
+    private static readonly string[] ValidAffixJsons =
+    [
+        """{"id":"affix.weapon_one","name":"锋锐","stat":"Attack","minValue":1,"maxValue":2,"slots":["Weapon"]}""",
+        """{"id":"affix.weapon_two","name":"迅捷","stat":"CriticalChance","minValue":1,"maxValue":2,"slots":["Weapon"]}""",
+        """{"id":"affix.armor_one","name":"强健","stat":"MaximumHealth","minValue":1,"maxValue":2,"slots":["Armor"]}""",
+        """{"id":"affix.armor_two","name":"坚韧","stat":"CriticalChance","minValue":1,"maxValue":2,"slots":["Armor"]}"""
+    ];
+
+    private const string ValidMaterialJson =
+        """{"id":"material.slime","name":"黏液"}""";
+
+    private const string ValidRecipeJson =
+        """{"id":"recipe.magic_blade","name":"魔法武器配方","itemId":"item.training_sword","rarity":"Magic","costs":[{"materialId":"material.slime","quantity":1}]}""";
+
+    private const string ValidResourceLootTableJson =
+        """{"id":"resource.slime","materialId":"material.slime","minQuantity":1,"maxQuantity":2,"recipeChancePercent":20,"recipeIds":["recipe.magic_blade"]}""";
 
     private const string ValidItemJson = """
         {

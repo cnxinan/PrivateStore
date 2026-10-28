@@ -1,0 +1,11 @@
+{
+  "id": "recipe.rare_vest",
+  "name": "稀有护甲配方",
+  "itemId": "armor.training_vest",
+  "rarity": "Rare",
+  "costs": [
+    { "materialId": "material.hide", "quantity": 4 },
+    { "materialId": "material.bone", "quantity": 2 },
+    { "materialId": "material.slime", "quantity": 2 }
+  ]
+}

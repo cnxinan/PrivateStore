@@ -1,0 +1,11 @@
+{
+  "id": "recipe.rare_blade",
+  "name": "稀有武器配方",
+  "itemId": "weapon.training_blade",
+  "rarity": "Rare",
+  "costs": [
+    { "materialId": "material.bone", "quantity": 4 },
+    { "materialId": "material.hide", "quantity": 2 },
+    { "materialId": "material.slime", "quantity": 2 }
+  ]
+}

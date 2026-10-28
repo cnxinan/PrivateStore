@@ -1,0 +1,10 @@
+{
+  "id": "recipe.magic_blade",
+  "name": "魔法武器配方",
+  "itemId": "weapon.training_blade",
+  "rarity": "Magic",
+  "costs": [
+    { "materialId": "material.bone", "quantity": 2 },
+    { "materialId": "material.slime", "quantity": 1 }
+  ]
+}
