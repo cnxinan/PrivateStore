@@ -18,6 +18,12 @@ public sealed class ArenaSimulation
     private const float AttackCooldownSeconds = 0.35f;
     private const float MonsterContactRange = 24f;
     private const float MonsterContactCooldownSeconds = 0.8f;
+    private const float PlayerHitstunSeconds = .15f;
+    private const float PlayerKnockbackDistance = 18f;
+    private const float PlayerHitImmunitySeconds = .5f;
+    private const float MonsterHitstunSeconds = .12f;
+    private const float MonsterKnockbackDistance = 10f;
+    private const float TimerEpsilon = .000001f;
     private const float PickupRange = 36f;
     private const string TrainingEncounterId = "encounter.training_arena";
     private static readonly Vector2 PlayerSpawn = new(160f, 270f);
@@ -34,6 +40,8 @@ public sealed class ArenaSimulation
     private readonly ReadOnlyCollection<GroundItem> _readOnlyGroundItems;
     private readonly MonsterBehaviorSystem _monsterBehaviorSystem = new();
     private readonly ProjectileSystem _projectileSystem = new();
+    private readonly List<CombatEvent> _events = [];
+    private readonly ReadOnlyCollection<CombatEvent> _readOnlyEvents;
     private float _attackCooldown;
     private float _monsterContactCooldown;
 
@@ -59,11 +67,13 @@ public sealed class ArenaSimulation
         _readOnlyMonsters = _monsters.AsReadOnly();
         _readOnlyLastSwingHits = _lastSwingHits.AsReadOnly();
         _readOnlyGroundItems = _groundItems.AsReadOnly();
+        _readOnlyEvents = _events.AsReadOnly();
         var instanceIds = new HashSet<string>(StringComparer.Ordinal);
         foreach (var spawn in encounter.Spawns)
         {
             if (spawn is null ||
                 string.IsNullOrWhiteSpace(spawn.InstanceId) ||
+                spawn.InstanceId == "player" ||
                 string.IsNullOrWhiteSpace(spawn.MonsterId) ||
                 !float.IsFinite(spawn.X) || spawn.X is < 0 or > ArenaWidth ||
                 !float.IsFinite(spawn.Y) || spawn.Y is < 0 or > ArenaHeight ||
@@ -130,6 +140,10 @@ public sealed class ArenaSimulation
 
     public IReadOnlyList<ProjectileState> Projectiles => _projectileSystem.Projectiles;
 
+    public IReadOnlyList<CombatEvent> Events => _readOnlyEvents;
+
+    public Vector2 SwingDirection { get; private set; } = Vector2.UnitX;
+
     public bool TryEquip(Guid instanceId) => Player.TryEquip(instanceId);
 
     public void Update(PlayerIntent intent, float elapsedSeconds)
@@ -142,25 +156,44 @@ public sealed class ArenaSimulation
                 "Elapsed time must be finite and non-negative.");
         }
 
+        _events.Clear();
         _attackCooldown = Math.Max(0, _attackCooldown - elapsedSeconds);
         _monsterContactCooldown = Math.Max(0, _monsterContactCooldown - elapsedSeconds);
+        var immunityRemaining = Player.InvulnerabilityRemaining - elapsedSeconds;
+        Player.InvulnerabilityRemaining = immunityRemaining > TimerEpsilon ? immunityRemaining : 0;
 
-        MovePlayer(intent.MoveDirection, elapsedSeconds);
+        var playerActionSeconds = Math.Max(0, elapsedSeconds - Player.Reaction.RemainingSeconds);
+        Player.Position = ApplyDisplacement(Player.Position, Player.Reaction.Advance(elapsedSeconds));
+        // Only reactions that existed at frame start consume this frame's time.
+        var monsterFrames = _monsters.Select(monster =>
+        {
+            var stunnedSeconds = Math.Min(elapsedSeconds, monster.Reaction.RemainingSeconds);
+            monster.Position = ApplyDisplacement(monster.Position, monster.Reaction.Advance(elapsedSeconds));
+            if (monster.HasLaunched)
+            {
+                monster.RemainingUntilNextLaunch = Math.Max(
+                    0, monster.RemainingUntilNextLaunch - stunnedSeconds);
+            }
+
+            return (Monster: monster, ActionSeconds: Math.Max(0, elapsedSeconds - stunnedSeconds));
+        }).ToArray();
+
+        MovePlayer(intent.MoveDirection, playerActionSeconds);
         UpdateFacing(intent.AimWorldPosition);
-        TryAttack(intent.AttackPressed);
+        TryAttack(intent.AttackPressed && !Player.Reaction.IsActive);
 
         if (_projectileSystem.Update(elapsedSeconds, Player.Position, ApplyProjectileDamage))
         {
             return;
         }
 
-        foreach (var monster in _monsters)
+        foreach (var (monster, actionSeconds) in monsterFrames)
         {
             _monsterBehaviorSystem.Update(
                 monster,
                 Player.Position,
-                elapsedSeconds,
-                _projectileSystem.Spawn);
+                actionSeconds,
+                LaunchProjectile);
         }
 
         if (TryMonsterContactDamage())
@@ -168,15 +201,25 @@ public sealed class ArenaSimulation
             return;
         }
 
-        if (intent.PickupPressed)
+        if (intent.PickupPressed && !Player.Reaction.IsActive)
         {
             TryPickUpNearestItem();
         }
     }
 
-    public void ResetEncounter()
+    public void ResetEncounter() => ResetEncounter(clearEvents: true);
+
+    private void ResetEncounter(bool clearEvents)
     {
         ResetSequence++;
+        if (clearEvents)
+        {
+            _events.Clear();
+        }
+
+        Player.Reaction.Clear();
+        Player.InvulnerabilityRemaining = 0;
+        SwingDirection = Vector2.UnitX;
         _groundItems.Clear();
         ResetMonsters();
         _attackCooldown = 0;
@@ -219,20 +262,20 @@ public sealed class ArenaSimulation
         Player.LastHitWasCritical = false;
         Player.AttackSequence++;
         _attackCooldown = AttackCooldownSeconds;
+        SwingDirection = Player.Facing;
+        _events.Add(new CombatEvent(
+            CombatEventKind.Swing, "player", Player.Position, SwingDirection, 0, false));
 
-        foreach (var monster in _monsters)
-        {
-            if (monster.IsDefeated ||
-                !CombatRules.IsInMeleeRange(
+        var targets = _monsters.Where(monster =>
+            !monster.IsDefeated &&
+                CombatRules.IsInMeleeRange(
                     Player.Position,
-                    Player.Facing,
+                    SwingDirection,
                     monster.Position,
                     MeleeRange,
-                    MeleeHalfAngleDegrees))
-            {
-                continue;
-            }
-
+                    MeleeHalfAngleDegrees)).ToArray();
+        foreach (var monster in targets)
+        {
             var critical = Player.CriticalChance switch
             {
                 0 => false,
@@ -251,11 +294,26 @@ public sealed class ArenaSimulation
                 Player.LastHitWasCritical = critical;
             }
 
+            if (appliedDamage <= 0)
+            {
+                continue;
+            }
+
+            var direction = HitReactionState.NormalizeDirection(monster.Position - Player.Position);
+            _events.Add(new CombatEvent(
+                CombatEventKind.Damaged, monster.InstanceId, monster.Position, direction, appliedDamage, critical));
+            monster.CancelWindup();
             if (monster.IsDefeated && !monster.DeathResolved)
             {
                 monster.DeathResolved = true;
-                monster.CancelWindup();
+                monster.Reaction.Clear();
+                _events.Add(new CombatEvent(
+                    CombatEventKind.Died, monster.InstanceId, monster.Position, direction, appliedDamage, critical));
                 GenerateMonsterLoot(monster);
+            }
+            else if (!monster.IsDefeated)
+            {
+                monster.Reaction.Begin(direction, MonsterKnockbackDistance, MonsterHitstunSeconds);
             }
         }
     }
@@ -278,7 +336,7 @@ public sealed class ArenaSimulation
 
         foreach (var monster in _monsters)
         {
-            if (monster.IsDefeated ||
+            if (monster.IsDefeated || monster.Reaction.IsActive ||
                 monster.ContactDamage <= 0 ||
                 Vector2.DistanceSquared(Player.Position, monster.Position) >
                 MonsterContactRange * MonsterContactRange)
@@ -286,9 +344,18 @@ public sealed class ArenaSimulation
                 continue;
             }
 
+            var direction = HitReactionState.NormalizeDirection(Player.Position - monster.Position);
+            var appliedDamage = ApplyPlayerDamage(monster.ContactDamage, direction, out var died);
+            if (appliedDamage <= 0)
+            {
+                continue;
+            }
+
             _monsterContactCooldown = MonsterContactCooldownSeconds;
-            Player.Health = Math.Max(0, Player.Health - monster.ContactDamage);
-            if (Player.Health == 0)
+            monster.Facing = direction;
+            _events.Add(new CombatEvent(
+                CombatEventKind.ContactAttack, monster.InstanceId, monster.Position, direction, appliedDamage, false));
+            if (died)
             {
                 RespawnAfterDeath();
                 return true;
@@ -333,19 +400,56 @@ public sealed class ArenaSimulation
         Player.Position = PlayerSpawn;
         Player.Health = Player.MaximumHealth;
         Player.Facing = Vector2.UnitX;
-        ResetEncounter();
+        ResetEncounter(clearEvents: false);
     }
 
-    private bool ApplyProjectileDamage(int damage)
+    private bool ApplyProjectileDamage(ProjectileState projectile)
     {
-        Player.Health = Math.Max(0, Player.Health - damage);
-        if (Player.Health == 0)
+        ApplyPlayerDamage(projectile.Damage, projectile.Direction, out var died);
+        if (died)
         {
             RespawnAfterDeath();
             return true;
         }
 
         return false;
+    }
+
+    private int ApplyPlayerDamage(int damage, Vector2 direction, out bool died)
+    {
+        died = false;
+        if (damage <= 0 || Player.Health <= 0 || Player.IsInvulnerable)
+        {
+            return 0;
+        }
+
+        var appliedDamage = Math.Min(damage, Player.Health);
+        direction = HitReactionState.NormalizeDirection(direction);
+        Player.Health -= appliedDamage;
+        _events.Add(new CombatEvent(
+            CombatEventKind.Damaged, "player", Player.Position, direction, appliedDamage, false));
+        died = Player.Health == 0;
+        if (died)
+        {
+            Player.Reaction.Clear();
+            _events.Add(new CombatEvent(
+                CombatEventKind.Died, "player", Player.Position, direction, appliedDamage, false));
+        }
+        else
+        {
+            Player.Reaction.Begin(direction, PlayerKnockbackDistance, PlayerHitstunSeconds);
+            Player.InvulnerabilityRemaining = PlayerHitImmunitySeconds;
+        }
+
+        return appliedDamage;
+    }
+
+    private void LaunchProjectile(ProjectileState projectile)
+    {
+        _projectileSystem.Spawn(projectile);
+        _events.Add(new CombatEvent(
+            CombatEventKind.ArrowLaunched, projectile.SourceInstanceId, projectile.Position,
+            projectile.Direction, projectile.Damage, false));
     }
 
     private void ResetMonsters()
@@ -356,6 +460,8 @@ public sealed class ArenaSimulation
             monster.Position = monster.SpawnPosition;
             monster.Health = monster.MaxHealth;
             monster.DeathResolved = false;
+            monster.Reaction.Clear();
+            monster.Facing = Vector2.UnitX;
             monster.ResetBehaviorTimers();
         }
 
@@ -425,6 +531,9 @@ public sealed class ArenaSimulation
             (float)Math.Clamp(x, 0d, ArenaWidth),
             (float)Math.Clamp(y, 0d, ArenaHeight));
     }
+
+    private static Vector2 ApplyDisplacement(Vector2 position, Vector2 delta) =>
+        MoveAndClamp(position, delta, 1, 1);
 
     private static Vector2 NormalizeFinite(Vector2 vector)
     {

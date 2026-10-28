@@ -53,7 +53,7 @@ public sealed class ProjectileSystem
     public bool Update(
         float elapsedSeconds,
         Vector2 playerPosition,
-        Func<int, bool> applyDamage)
+        Func<ProjectileState, bool> applyDamage)
     {
         ArgumentNullException.ThrowIfNull(applyDamage);
         if (!float.IsFinite(elapsedSeconds) || elapsedSeconds < 0)
@@ -82,9 +82,8 @@ public sealed class ProjectileSystem
                 SegmentHitsPlayer(clippedStart, clippedEnd, playerPosition))
             {
                 _projectiles.RemoveAt(index);
-                if (applyDamage(projectile.Damage))
+                if (applyDamage(projectile))
                 {
-                    Clear();
                     return true;
                 }
 

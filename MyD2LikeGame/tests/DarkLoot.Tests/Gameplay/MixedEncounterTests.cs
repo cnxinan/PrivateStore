@@ -20,6 +20,13 @@ public sealed class MixedEncounterTests
 
         Assert.Equal(100, arena.Player.Health);
         Assert.Equal(1, arena.Player.AttackSequence);
+        Assert.Single(arena.LastSwingHits);
+        Assert.Equal(0, arena.ResetSequence);
+        Assert.True(arena.Monsters[0].Reaction.IsActive);
+
+        arena.Update(new PlayerIntent(Vector2.Zero, new Vector2(300, 270), false, false), .12f);
+
+        Assert.Equal(100, arena.Player.Health);
         Assert.Empty(arena.LastSwingHits);
         Assert.Equal(1, arena.ResetSequence);
         arena.ResetEncounter();
@@ -74,6 +81,9 @@ public sealed class MixedEncounterTests
             new[] { new MeleeHit("first", 30, true), new MeleeHit("second", 15, false) },
             arena.LastSwingHits);
         Assert.Equal(new[] { 70, 85 }, arena.Monsters.Select(monster => monster.Health));
+        Assert.Equal(arena.LastSwingHits, arena.Events
+            .Where(combatEvent => combatEvent.Kind == CombatEventKind.Damaged)
+            .Select(combatEvent => new MeleeHit(combatEvent.ActorId, combatEvent.Damage, combatEvent.WasCritical)));
     }
 
     [Fact]
@@ -209,6 +219,11 @@ public sealed class MixedEncounterTests
         for (var swing = 0; swing < 10; swing++)
         {
             arena.Update(new PlayerIntent(Vector2.Zero, new Vector2(300, 270), true, false), .35f);
+            if (swing < 9)
+            {
+                // Follow the accepted knockback so the nearly stationary target stays in reach.
+                arena.Update(new PlayerIntent(Vector2.UnitX, new Vector2(300, 270), false, false), 10f / 180);
+            }
         }
 
         Assert.Equal(1, arena.RemainingMonsters);
@@ -268,7 +283,11 @@ public sealed class MixedEncounterTests
         Assert.True(arena.TryEquip(weapon.InstanceId));
 
         arena.Update(new PlayerIntent(Vector2.Zero, new Vector2(300, 270), true, false), .3f);
+        Assert.Equal(100, arena.Player.Health);
+        Assert.True(arena.Monsters[2].Reaction.IsActive);
         arena.Update(new PlayerIntent(Vector2.UnitY, new Vector2(300, 270), false, false), .1f);
+        Assert.Equal(100, arena.Player.Health);
+        arena.Update(new PlayerIntent(Vector2.Zero, new Vector2(300, 270), false, false), .02f);
 
         Assert.Single(arena.GroundItems);
         Assert.Single(arena.Projectiles);
@@ -371,7 +390,10 @@ public sealed class MixedEncounterTests
 
         for (var swing = 0; swing < 10; swing++)
         {
-            arena.Update(new PlayerIntent(Vector2.Zero, new Vector2(300, 270), true, false), .35f);
+            arena.Update(new PlayerIntent(Vector2.Zero, new Vector2(300, 270), true, false), 0);
+            // Finish knockback, then let survivors chase before the next accepted swing.
+            arena.Update(new PlayerIntent(Vector2.Zero, new Vector2(300, 270), false, false), .12f);
+            arena.Update(new PlayerIntent(Vector2.Zero, new Vector2(300, 270), false, false), .23f);
         }
         arena.Update(new PlayerIntent(Vector2.Zero, new Vector2(300, 270), true, false), .35f);
 

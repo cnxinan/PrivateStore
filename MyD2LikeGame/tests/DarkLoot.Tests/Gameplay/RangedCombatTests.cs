@@ -24,6 +24,7 @@ public sealed class RangedCombatTests
         behavior.Update(archer, new Vector2(160, 360), .15f, launched.Add);
 
         Assert.Equal(Vector2.Normalize(playerPosition - new Vector2(250, 270)), archer.LockedAimDirection);
+        Assert.Equal(archer.LockedAimDirection, archer.Facing);
         Assert.Empty(launched);
 
         behavior.Update(archer, new Vector2(160, 360), .149f, launched.Add);
@@ -102,7 +103,7 @@ public sealed class RangedCombatTests
             new Vector2(160, 270),
             damage =>
             {
-                appliedDamage.Add(damage);
+                appliedDamage.Add(damage.Damage);
                 return false;
             });
 
@@ -120,7 +121,7 @@ public sealed class RangedCombatTests
 
         projectiles.Update(1f, new Vector2(160, 270), damage =>
         {
-            appliedDamage += damage;
+            appliedDamage += damage.Damage;
             return false;
         });
 
@@ -143,7 +144,7 @@ public sealed class RangedCombatTests
 
         projectiles.Update(1f, new Vector2(960, 270), amount =>
         {
-            damage += amount;
+            damage += amount.Damage;
             return false;
         });
 
@@ -152,7 +153,7 @@ public sealed class RangedCombatTests
         projectiles.Spawn(new ProjectileState("nearby", new Vector2(150, 270), Vector2.UnitX, 240, 5));
         projectiles.Update(0, new Vector2(160, 270), amount =>
         {
-            damage += amount;
+            damage += amount.Damage;
             return false;
         });
 
@@ -182,7 +183,7 @@ public sealed class RangedCombatTests
     }
 
     [Fact]
-    public void Update_TwoArrowsCauseOneAtomicDeathAndResetClearsStaleDamage()
+    public void Update_TwoArrowsApplyOneHitThenLaterLethalVolleyResetsAtomically()
     {
         var content = WithArcherDamage(50);
         var arena = new ArenaSimulation(
@@ -197,13 +198,24 @@ public sealed class RangedCombatTests
 
         arena.Update(new PlayerIntent(Vector2.Zero, new Vector2(300, 270), false, false), .5f);
 
-        Assert.Equal(100, arena.Player.Health);
+        Assert.Equal(50, arena.Player.Health);
+        Assert.Equal(0, arena.ResetSequence);
+        Assert.True(arena.Player.IsInvulnerable);
+        Assert.Single(arena.Events, item => item.Kind == CombatEventKind.Damaged);
         Assert.All(arena.Monsters, monster => Assert.Equal(monster.MaxHealth, monster.Health));
         Assert.Empty(arena.Projectiles);
 
         arena.Update(new PlayerIntent(Vector2.Zero, new Vector2(300, 270), false, false), 0);
 
+        Assert.Equal(50, arena.Player.Health);
+        Assert.Empty(arena.Projectiles);
+        arena.Update(new PlayerIntent(Vector2.Zero, new Vector2(300, 270), false, false), 1f);
+        Assert.Equal(2, arena.Projectiles.Count);
+        arena.Update(new PlayerIntent(Vector2.Zero, new Vector2(300, 270), false, false), .5f);
+
         Assert.Equal(100, arena.Player.Health);
+        Assert.Equal(1, arena.ResetSequence);
+        Assert.Single(arena.Events, item => item.Kind == CombatEventKind.Died);
         Assert.Empty(arena.Projectiles);
     }
 
@@ -249,7 +261,14 @@ public sealed class RangedCombatTests
 
         arena.Update(new PlayerIntent(Vector2.Zero, new Vector2(300, 270), false, false), .1f);
 
+        Assert.Equal(93, arena.Player.Health);
+        Assert.True(arena.Player.IsInvulnerable);
+        Assert.DoesNotContain(arena.Events, item => item.Kind == CombatEventKind.ContactAttack);
+
+        arena.Update(new PlayerIntent(Vector2.Zero, new Vector2(300, 270), false, false), .4f);
+
         Assert.Equal(91, arena.Player.Health);
+        Assert.Single(arena.Events, item => item.Kind == CombatEventKind.ContactAttack);
     }
 
     [Fact]

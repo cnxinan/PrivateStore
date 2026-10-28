@@ -103,6 +103,18 @@ public sealed class ArenaSimulationTests
             100f);
 
         Assert.Equal(simulation.Player.Position, simulation.Monsters[0].Position);
+        Assert.True(simulation.Player.Reaction.IsActive);
+        simulation.Update(
+            new PlayerIntent(Vector2.Zero, simulation.Player.Position, true, false),
+            0f);
+
+        Assert.Equal(12, simulation.Monsters[0].Health);
+        Assert.Equal(0, simulation.Player.AttackSequence);
+        simulation.Update(
+            new PlayerIntent(Vector2.Zero, simulation.Player.Position, false, false),
+            .15f);
+        Assert.False(simulation.Player.Reaction.IsActive);
+        Assert.Equal(simulation.Player.Position, simulation.Monsters[0].Position);
         simulation.Update(
             new PlayerIntent(Vector2.Zero, simulation.Player.Position, true, false),
             0f);

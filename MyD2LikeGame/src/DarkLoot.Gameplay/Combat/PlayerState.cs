@@ -30,6 +30,12 @@ public sealed class PlayerState
 
     public int Health { get; internal set; }
 
+    public HitReactionState Reaction { get; } = new();
+
+    public float InvulnerabilityRemaining { get; internal set; }
+
+    public bool IsInvulnerable => InvulnerabilityRemaining > 0;
+
     public int BaseAttackDamage { get; }
 
     public int BaseMaximumHealth { get; }

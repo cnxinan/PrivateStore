@@ -26,6 +26,18 @@ public sealed class MonsterBehaviorSystem
             return;
         }
 
+        if (monster.Reaction.IsActive)
+        {
+            monster.CancelWindup();
+            if (monster.HasLaunched)
+            {
+                monster.RemainingUntilNextLaunch = Math.Max(
+                    0, monster.RemainingUntilNextLaunch - elapsedSeconds);
+            }
+
+            return;
+        }
+
         var deltaX = (double)playerPosition.X - monster.Position.X;
         var deltaY = (double)playerPosition.Y - monster.Position.Y;
         var distanceSquared = deltaX * deltaX + deltaY * deltaY;
@@ -34,6 +46,11 @@ public sealed class MonsterBehaviorSystem
             : null;
         var inRange = rangedAttack is not null &&
             distanceSquared <= (double)rangedAttack.Range * rangedAttack.Range;
+
+        if (distanceSquared > 0 && !monster.IsWindingUp)
+        {
+            monster.Facing = NormalizeFinite(new Vector2((float)deltaX, (float)deltaY));
+        }
 
         if (distanceSquared > 0 && !inRange)
         {
@@ -113,6 +130,7 @@ public sealed class MonsterBehaviorSystem
         monster.IsWindingUp = true;
         monster.WindupRemaining = remaining;
         monster.LockedAimDirection = aimDirection;
+        monster.Facing = aimDirection;
     }
 
     private static void AdvanceWindup(

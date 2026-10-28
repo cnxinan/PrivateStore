@@ -28,6 +28,10 @@ public sealed class MonsterState
 
     public int Health { get; internal set; }
 
+    public HitReactionState Reaction { get; } = new();
+
+    public Vector2 Facing { get; internal set; } = Vector2.UnitX;
+
     public int MaxHealth { get; }
 
     public int ContactDamage { get; }
