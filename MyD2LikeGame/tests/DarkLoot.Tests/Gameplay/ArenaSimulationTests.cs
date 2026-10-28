@@ -166,9 +166,8 @@ public sealed class ArenaSimulationTests
         Assert.Empty(simulation.GroundItems);
         var weapon = Assert.Single(simulation.Player.Inventory.Items);
 
-        var inventoryService = new InventoryService();
-        Assert.True(inventoryService.TryEquip(
-            simulation.Player.Inventory, weapon.InstanceId, content));
+        Assert.Equal(EquipmentChangeResult.Applied,
+            simulation.EquipmentOperations.Equip(simulation.Player, weapon.InstanceId));
         Assert.Equal(13, simulation.Player.AttackDamage);
 
         simulation.ResetEncounter();
@@ -190,11 +189,9 @@ public sealed class ArenaSimulationTests
     {
         var content = CreateContent();
         var simulation = CreateSingleTargetArena(content, new Random(17));
-        var inventoryService = new InventoryService();
         var sword = new ItemInstance(Guid.NewGuid(), "item.training_sword");
-        Assert.True(inventoryService.TryPickUp(simulation.Player.Inventory, sword));
-        Assert.True(inventoryService.TryEquip(
-            simulation.Player.Inventory, sword.InstanceId, content));
+        Assert.Equal(EquipmentChangeResult.Applied, simulation.EquipmentOperations.PickUp(simulation.Player, sword));
+        Assert.Equal(EquipmentChangeResult.Applied, simulation.EquipmentOperations.Equip(simulation.Player, sword.InstanceId));
 
         AdvanceUntilDefeated(simulation);
         Assert.Single(simulation.GroundItems);
@@ -253,35 +250,34 @@ public sealed class ArenaSimulationTests
     }
 
     [Fact]
-    public void TryEquip_ClampsHealthImmediatelyAndNeverHealsWhenMaximumChanges()
+    public void Equip_ClampsHealthImmediatelyAndNeverHealsWhenMaximumChanges()
     {
         var content = CreateGearContent();
         var simulation = CreateSingleTargetArena(content, new Random(17));
-        var service = new InventoryService();
         var highArmor = new ItemInstance(
             Guid.NewGuid(), "item.armor_high", ItemRarity.Magic,
             [new AffixRoll("health.high", ItemStat.MaximumHealth, 50)]);
         var lowArmor = new ItemInstance(
             Guid.NewGuid(), "item.armor_low", ItemRarity.Magic,
             [new AffixRoll("health.low", ItemStat.MaximumHealth, -50)]);
-        Assert.True(service.TryPickUp(simulation.Player.Inventory, highArmor));
-        Assert.True(service.TryPickUp(simulation.Player.Inventory, lowArmor));
-        Assert.True(simulation.TryEquip(highArmor.InstanceId));
+        Assert.Equal(EquipmentChangeResult.Applied, simulation.EquipmentOperations.PickUp(simulation.Player, highArmor));
+        Assert.Equal(EquipmentChangeResult.Applied, simulation.EquipmentOperations.PickUp(simulation.Player, lowArmor));
+        Assert.Equal(EquipmentChangeResult.Applied, simulation.EquipmentOperations.Equip(simulation.Player, highArmor.InstanceId));
 
         simulation.Update(new PlayerIntent(Vector2.Zero, simulation.Monsters[0].Position, false, false), 3f);
         Assert.Equal(90, simulation.Player.Health);
         Assert.Equal(150, simulation.Player.MaximumHealth);
 
-        Assert.True(simulation.TryEquip(lowArmor.InstanceId));
+        Assert.Equal(EquipmentChangeResult.Applied, simulation.EquipmentOperations.Equip(simulation.Player, lowArmor.InstanceId));
         Assert.Equal(50, simulation.Player.Health);
         Assert.Equal(50, simulation.Player.MaximumHealth);
-        Assert.True(simulation.TryEquip(highArmor.InstanceId));
+        Assert.Equal(EquipmentChangeResult.Applied, simulation.EquipmentOperations.Equip(simulation.Player, highArmor.InstanceId));
         Assert.Equal(50, simulation.Player.Health);
         Assert.Equal(150, simulation.Player.MaximumHealth);
     }
 
     [Fact]
-    public void TryEquip_RejectsHealthOverflowBeforeChangingEquipment()
+    public void Equip_RejectsHealthOverflowBeforeChangingEquipment()
     {
         var baseContent = CreateGearContent();
         var items = baseContent.Items.ToDictionary(pair => pair.Key, pair => pair.Value);
@@ -295,11 +291,14 @@ public sealed class ArenaSimulationTests
         var item = new ItemInstance(
             Guid.NewGuid(), "item.armor_dead", ItemRarity.Magic,
             [new AffixRoll("health.dead", ItemStat.MaximumHealth, -200)]);
-        Assert.True(new InventoryService().TryPickUp(simulation.Player.Inventory, item));
+        Assert.Equal(EquipmentChangeResult.Applied, simulation.EquipmentOperations.PickUp(simulation.Player, item));
 
-        Assert.Throws<ArgumentOutOfRangeException>(() => simulation.TryEquip(item.InstanceId));
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+            simulation.EquipmentOperations.Equip(simulation.Player, item.InstanceId));
 
         Assert.Null(simulation.Player.Inventory.EquippedArmor);
+        Assert.Null(simulation.Player.Inventory.EquippedArmorId);
+        Assert.Same(item, simulation.Player.Inventory.Find(item.InstanceId));
         Assert.Equal(100, simulation.Player.Health);
     }
 
@@ -309,12 +308,11 @@ public sealed class ArenaSimulationTests
         var content = CreateGearContent();
         var random = new CountingRandom();
         var simulation = CreateSingleTargetArena(content, random);
-        var service = new InventoryService();
         var weapon = new ItemInstance(
             Guid.NewGuid(), "item.crit_weapon", ItemRarity.Magic,
             [new AffixRoll("crit.max", ItemStat.CriticalChance, 100)]);
-        Assert.True(service.TryPickUp(simulation.Player.Inventory, weapon));
-        Assert.True(simulation.TryEquip(weapon.InstanceId));
+        Assert.Equal(EquipmentChangeResult.Applied, simulation.EquipmentOperations.PickUp(simulation.Player, weapon));
+        Assert.Equal(EquipmentChangeResult.Applied, simulation.EquipmentOperations.Equip(simulation.Player, weapon.InstanceId));
 
         for (var index = 0; index < 20 && simulation.Player.LastHitDamage == 0; index++)
         {
@@ -335,12 +333,11 @@ public sealed class ArenaSimulationTests
         var content = CreateGearContent();
         var random = new CountingRandom();
         var simulation = CreateSingleTargetArena(content, random);
-        var service = new InventoryService();
         var weapon = new ItemInstance(
             Guid.NewGuid(), "item.crit_weapon", ItemRarity.Magic,
             [new AffixRoll("crit.mid", ItemStat.CriticalChance, 50)]);
-        Assert.True(service.TryPickUp(simulation.Player.Inventory, weapon));
-        Assert.True(simulation.TryEquip(weapon.InstanceId));
+        Assert.Equal(EquipmentChangeResult.Applied, simulation.EquipmentOperations.PickUp(simulation.Player, weapon));
+        Assert.Equal(EquipmentChangeResult.Applied, simulation.EquipmentOperations.Equip(simulation.Player, weapon.InstanceId));
 
         simulation.Update(
             new PlayerIntent(Vector2.Zero, simulation.Monsters[0].Position, true, false),

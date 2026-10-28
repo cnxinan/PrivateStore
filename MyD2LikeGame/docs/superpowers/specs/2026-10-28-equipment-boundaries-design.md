@@ -69,6 +69,21 @@ PlayerState保留战斗状态和只读属性访问；必要的状态协调通过
 内部集合写权限只授予装备操作实现；测试和smoke也走同一操作入口，
 不保留绕过校验的生产旁路。只读展示和纯计算无需绕进命令框架。
 
+### Task 2已落地入口
+
+通过只读的`ArenaSimulation.EquipmentOperations`取得绑定当前内容的
+`InventoryService`，调用`PickUp(PlayerState, ItemInstance)`或
+`Equip(PlayerState, Guid)`，返回`EquipmentChangeResult`：
+`Applied`、`PlayerDead`、`NotOwned`或`DuplicateInstance`。
+非法单件装备在拾取时即抛出异常；最终总属性校验在穿戴提交前完成。
+只有`Applied`拾取会移除地面装备。UI不负责调整生命。
+
+`Inventory.Items`仍为只读有序集合，`Find(Guid)`为公开只读查询；
+`EquippedWeaponId`和`EquippedArmorId`是槽位身份的唯一来源，
+只读对象属性从背包解析。旧`TryPickUp`、`TryEquip`和服务内计算转发
+已移除，纯计算使用`ItemStatCalculator`。同ID替换和独立奖励服务
+不属于Task 2，尚未在本步实现。
+
 ## 击杀奖励
 
 战斗产生独立于动画的击杀记录：

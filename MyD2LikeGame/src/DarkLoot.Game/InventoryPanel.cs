@@ -24,7 +24,9 @@ public sealed class InventoryPanel
     public Rectangle RowBounds(int width, int visibleIndex) =>
         new(width - 648, 234 + visibleIndex * 56, 616, 50);
 
-    public void Update(GameInputSnapshot input, PlayerState player, GameContent content, int width)
+    public void Update(
+        GameInputSnapshot input, PlayerState player, GameContent content, int width,
+        InventoryService operations)
     {
         if (player.IsDead)
         {
@@ -57,7 +59,15 @@ public sealed class InventoryPanel
                     input.PointerScreenPosition.X,
                     input.PointerScreenPosition.Y))
             {
-                player.TryEquip(inventory.Items[row + _firstRow].InstanceId);
+                var result = operations.Equip(player, inventory.Items[row + _firstRow].InstanceId);
+                switch (result)
+                {
+                    case EquipmentChangeResult.Applied:
+                    case EquipmentChangeResult.PlayerDead:
+                        break;
+                    default:
+                        throw new InvalidOperationException($"Inventory row equip was rejected: {result}.");
+                }
                 break;
             }
         }

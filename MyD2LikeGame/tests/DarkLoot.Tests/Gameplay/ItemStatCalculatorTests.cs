@@ -45,7 +45,7 @@ public sealed class ItemStatCalculatorTests
     }
 
     [Fact]
-    public void Calculate_CombinesEquippedSlotsAndPreviewSubstitutesOnlyRequestedSlot()
+    public void Calculate_CombinesSnapshotsAndKeepsUnchangedWeaponContribution()
     {
         var content = new GameContent(
             new Dictionary<string, ItemDefinition>
@@ -70,21 +70,13 @@ public sealed class ItemStatCalculatorTests
         var replacement = new ItemInstance(
             Guid.NewGuid(), "item.armor", ItemRarity.Magic,
             [new AffixRoll("crit", ItemStat.CriticalChance, 15)]);
-        var inventory = new Inventory();
-        var inventoryService = new InventoryService();
-        Assert.True(inventoryService.TryPickUp(inventory, weapon));
-        Assert.True(inventoryService.TryPickUp(inventory, armor));
-        Assert.True(inventoryService.TryPickUp(inventory, replacement));
-        Assert.True(inventoryService.TryEquip(inventory, weapon.InstanceId, content));
-        Assert.True(inventoryService.TryEquip(inventory, armor.InstanceId, content));
         var calculator = new ItemStatCalculator();
 
         Assert.Equal(new PlayerStatTotals(15, 120, 0),
-            calculator.Calculate(10, 100, inventory.EquippedWeapon, inventory.EquippedArmor, content));
+            calculator.Calculate(10, 100, weapon, armor, content));
         Assert.Equal(new PlayerStatTotals(15, 100, 15),
-            calculator.Preview(10, 100, inventory, content, ItemSlot.Armor, replacement));
-        Assert.Equal(armor, inventory.EquippedArmor);
-        Assert.Equal(weapon, inventory.EquippedWeapon);
+            calculator.Calculate(10, 100, weapon, replacement, content));
+        Assert.Equal(20, Assert.Single(armor.Rolls).Value);
         Assert.Equal(3, Assert.Single(weapon.Rolls).Value);
     }
 

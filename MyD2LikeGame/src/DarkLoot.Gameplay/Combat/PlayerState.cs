@@ -8,7 +8,6 @@ public sealed class PlayerState
 {
     private readonly GameContent _content;
     private readonly ItemStatCalculator _statCalculator;
-    private readonly InventoryService _inventoryService = new();
 
     internal PlayerState(
         GameContent content,
@@ -63,22 +62,6 @@ public sealed class PlayerState
     public long AttackSequence { get; internal set; }
 
     public Inventory Inventory { get; }
-
-    public bool TryEquip(Guid instanceId)
-    {
-        if (IsDead || !_inventoryService.TryEquip(
-                Inventory,
-                instanceId,
-                _content,
-                BaseAttackDamage,
-                BaseMaximumHealth))
-        {
-            return false;
-        }
-
-        Health = Math.Min(Health, MaximumHealth);
-        return true;
-    }
 
     public Vector2 Facing { get; internal set; } = Vector2.UnitX;
 }

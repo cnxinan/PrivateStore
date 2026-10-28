@@ -115,7 +115,9 @@ public sealed class DarkLootGame : MonoGameGame
     {
         if (!_arena.Player.IsDead)
         {
-            _inventory.Update(input, _arena.Player, _content, GraphicsDevice.Viewport.Width);
+            _inventory.Update(
+                input, _arena.Player, _content, GraphicsDevice.Viewport.Width,
+                _arena.EquipmentOperations);
         }
         if (input.RestartPressed && !_arena.Player.IsDead)
         {

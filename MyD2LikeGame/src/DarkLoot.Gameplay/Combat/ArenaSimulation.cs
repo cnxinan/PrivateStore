@@ -32,7 +32,6 @@ public sealed class ArenaSimulation
 
     private readonly GameContent _content;
     private readonly Random _random;
-    private readonly InventoryService _inventoryService = new();
     private readonly ItemStatCalculator _itemStatCalculator = new();
     private readonly LootGenerator _lootGenerator = new();
     private readonly List<MonsterState> _monsters = [];
@@ -66,6 +65,7 @@ public sealed class ArenaSimulation
         }
 
         _content = content;
+        EquipmentOperations = new InventoryService(content);
         _random = random;
         _readOnlyMonsters = _monsters.AsReadOnly();
         _readOnlyLastSwingHits = _lastSwingHits.AsReadOnly();
@@ -147,7 +147,7 @@ public sealed class ArenaSimulation
 
     public Vector2 SwingDirection { get; private set; } = Vector2.UnitX;
 
-    public bool TryEquip(Guid instanceId) => Player.TryEquip(instanceId);
+    public InventoryService EquipmentOperations { get; }
 
     public void Update(PlayerIntent intent, float elapsedSeconds)
     {
@@ -404,9 +404,16 @@ public sealed class ArenaSimulation
         }
 
         var item = _groundItems[nearestIndex].Item;
-        if (_inventoryService.TryPickUp(Player.Inventory, item))
+        switch (EquipmentOperations.PickUp(Player, item))
         {
-            _groundItems.RemoveAt(nearestIndex);
+            case EquipmentChangeResult.Applied:
+                _groundItems.RemoveAt(nearestIndex);
+                break;
+            case EquipmentChangeResult.PlayerDead:
+            case EquipmentChangeResult.DuplicateInstance:
+                break;
+            default:
+                throw new InvalidOperationException("Unexpected pickup result.");
         }
     }
 

@@ -61,19 +61,23 @@ public sealed class PlayerLifecycleTests
     }
 
     [Fact]
-    public void DeadPlayer_CannotEquipThroughEitherEntryPoint()
+    public void DeadPlayer_CannotPickUpOrEquipUntilRespawn()
     {
         var arena = CreateArena();
         var weapon = new ItemInstance(Guid.NewGuid(), "weapon.training_blade");
-        Assert.True(new InventoryService().TryPickUp(arena.Player.Inventory, weapon));
+        Assert.Equal(EquipmentChangeResult.Applied, arena.EquipmentOperations.PickUp(arena.Player, weapon));
         arena.Update(Idle, 0);
 
-        Assert.False(arena.TryEquip(weapon.InstanceId));
-        Assert.False(arena.Player.TryEquip(weapon.InstanceId));
+        Assert.Equal(EquipmentChangeResult.PlayerDead,
+            arena.EquipmentOperations.Equip(arena.Player, weapon.InstanceId));
+        Assert.Equal(EquipmentChangeResult.PlayerDead,
+            arena.EquipmentOperations.PickUp(arena.Player,
+                new ItemInstance(Guid.NewGuid(), "armor.training_vest")));
+        Assert.Equal(weapon, Assert.Single(arena.Player.Inventory.Items));
         Assert.Null(arena.Player.Inventory.EquippedWeapon);
         Assert.Equal(0, arena.Player.Health);
         arena.Update(Idle, .6f);
-        Assert.True(arena.TryEquip(weapon.InstanceId));
+        Assert.Equal(EquipmentChangeResult.Applied, arena.EquipmentOperations.Equip(arena.Player, weapon.InstanceId));
     }
 
     [Fact]
@@ -100,11 +104,10 @@ public sealed class PlayerLifecycleTests
             [new AffixRoll("affix.keen", ItemStat.Attack, 4)]);
         var armor = new ItemInstance(Guid.NewGuid(), "armor.training_vest", ItemRarity.Magic,
             [new AffixRoll("affix.lucky", ItemStat.CriticalChance, 8)]);
-        var inventory = new InventoryService();
-        Assert.True(inventory.TryPickUp(arena.Player.Inventory, weapon));
-        Assert.True(inventory.TryPickUp(arena.Player.Inventory, armor));
-        Assert.True(arena.TryEquip(weapon.InstanceId));
-        Assert.True(arena.TryEquip(armor.InstanceId));
+        Assert.Equal(EquipmentChangeResult.Applied, arena.EquipmentOperations.PickUp(arena.Player, weapon));
+        Assert.Equal(EquipmentChangeResult.Applied, arena.EquipmentOperations.PickUp(arena.Player, armor));
+        Assert.Equal(EquipmentChangeResult.Applied, arena.EquipmentOperations.Equip(arena.Player, weapon.InstanceId));
+        Assert.Equal(EquipmentChangeResult.Applied, arena.EquipmentOperations.Equip(arena.Player, armor.InstanceId));
         arena.Update(Idle with { AimWorldPosition = new Vector2(160, 400), AttackPressed = true }, 0);
 
         Assert.True(arena.Player.IsDead);

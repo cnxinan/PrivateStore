@@ -78,8 +78,8 @@ public sealed class MixedEncounterTests
             "weapon.training_blade",
             ItemRarity.Magic,
             [new AffixRoll("affix.test_crit", ItemStat.CriticalChance, 50)]);
-        Assert.True(new InventoryService().TryPickUp(arena.Player.Inventory, weapon));
-        Assert.True(arena.TryEquip(weapon.InstanceId));
+        Assert.Equal(EquipmentChangeResult.Applied, arena.EquipmentOperations.PickUp(arena.Player, weapon));
+        Assert.Equal(EquipmentChangeResult.Applied, arena.EquipmentOperations.Equip(arena.Player, weapon.InstanceId));
 
         arena.Update(new PlayerIntent(Vector2.Zero, new Vector2(300, 270), true, false), 0);
 
@@ -163,11 +163,10 @@ public sealed class MixedEncounterTests
             "armor.training_vest",
             ItemRarity.Magic,
             [new AffixRoll("affix.vital", ItemStat.MaximumHealth, 30)]);
-        var inventoryService = new InventoryService();
-        Assert.True(inventoryService.TryPickUp(arena.Player.Inventory, weapon));
-        Assert.True(inventoryService.TryPickUp(arena.Player.Inventory, armor));
-        Assert.True(arena.TryEquip(weapon.InstanceId));
-        Assert.True(arena.TryEquip(armor.InstanceId));
+        Assert.Equal(EquipmentChangeResult.Applied, arena.EquipmentOperations.PickUp(arena.Player, weapon));
+        Assert.Equal(EquipmentChangeResult.Applied, arena.EquipmentOperations.PickUp(arena.Player, armor));
+        Assert.Equal(EquipmentChangeResult.Applied, arena.EquipmentOperations.Equip(arena.Player, weapon.InstanceId));
+        Assert.Equal(EquipmentChangeResult.Applied, arena.EquipmentOperations.Equip(arena.Player, armor.InstanceId));
 
         arena.Update(new PlayerIntent(Vector2.Zero, new Vector2(300, 270), false, true), 0);
 
@@ -288,8 +287,8 @@ public sealed class MixedEncounterTests
                 new MonsterSpawnDefinition("archer", "monster.skeleton_archer", 500, 270),
                 new MonsterSpawnDefinition("contact", "monster.fast_wolf", 160, 270)));
         var weapon = new ItemInstance(Guid.NewGuid(), "weapon.training_blade");
-        Assert.True(new InventoryService().TryPickUp(arena.Player.Inventory, weapon));
-        Assert.True(arena.TryEquip(weapon.InstanceId));
+        Assert.Equal(EquipmentChangeResult.Applied, arena.EquipmentOperations.PickUp(arena.Player, weapon));
+        Assert.Equal(EquipmentChangeResult.Applied, arena.EquipmentOperations.Equip(arena.Player, weapon.InstanceId));
 
         arena.Update(new PlayerIntent(Vector2.Zero, new Vector2(300, 270), true, false), .3f);
         Assert.Equal(100, arena.Player.Health);
