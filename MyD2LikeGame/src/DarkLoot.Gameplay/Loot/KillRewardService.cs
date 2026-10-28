@@ -32,7 +32,9 @@ public sealed class KillRewardService
 
     public void BeginRound(long roundId)
     {
-        if (roundId < 0 || (_roundId is { } previous && roundId <= previous))
+        if (roundId < 0 ||
+            (_roundId is null && roundId != 0) ||
+            (_roundId is { } previous && roundId <= previous))
         {
             throw new ArgumentOutOfRangeException(nameof(roundId), "Round IDs must increase.");
         }

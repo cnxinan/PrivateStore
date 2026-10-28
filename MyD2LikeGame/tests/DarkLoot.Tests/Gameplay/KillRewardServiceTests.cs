@@ -118,15 +118,31 @@ public sealed class KillRewardServiceTests
     public void BeginRound_RequiresStrictlyIncreasingNonNegativeIdsWithoutClearingCurrentRound()
     {
         var service = new KillRewardService(MixedEncounterFixture.CreateContent(), new Random(17));
-        var kill = new KillRecord(1, "slime.1", Vector2.Zero, "loot.training_empty");
+        service.BeginRound(0);
+        var firstKill = new KillRecord(0, "slime.1", Vector2.Zero, "loot.training_empty");
+        Assert.Equal(KillRewardStatus.Granted, service.Resolve(firstKill).Status);
         service.BeginRound(1);
-        Assert.Equal(KillRewardStatus.Granted, service.Resolve(kill).Status);
+        var currentKill = firstKill with { RoundId = 1 };
+        Assert.Equal(KillRewardStatus.Granted, service.Resolve(currentKill).Status);
 
         Assert.Throws<ArgumentOutOfRangeException>(() => service.BeginRound(1));
         Assert.Throws<ArgumentOutOfRangeException>(() => service.BeginRound(0));
         Assert.Throws<ArgumentOutOfRangeException>(() => service.BeginRound(-1));
 
-        Assert.Equal(KillRewardStatus.AlreadyResolved, service.Resolve(kill).Status);
+        Assert.Equal(KillRewardStatus.AlreadyResolved, service.Resolve(currentKill).Status);
+    }
+
+    [Fact]
+    public void BeginRound_RejectsNonzeroInitialIdWithoutChangingState()
+    {
+        var service = new KillRewardService(MixedEncounterFixture.CreateContent(), new Random(17));
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => service.BeginRound(1));
+
+        service.BeginRound(0);
+        Assert.Equal(
+            KillRewardStatus.Granted,
+            service.Resolve(new KillRecord(0, "slime.1", Vector2.Zero, "loot.training_empty")).Status);
     }
 
     [Fact]
