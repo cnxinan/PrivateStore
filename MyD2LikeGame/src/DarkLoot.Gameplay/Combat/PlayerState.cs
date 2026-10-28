@@ -7,18 +7,19 @@ namespace DarkLoot.Gameplay.Combat;
 public sealed class PlayerState
 {
     private readonly GameContent _content;
-    private readonly InventoryService _inventoryService;
+    private readonly ItemStatCalculator _statCalculator;
+    private readonly InventoryService _inventoryService = new();
 
     internal PlayerState(
         GameContent content,
-        InventoryService inventoryService,
+        ItemStatCalculator statCalculator,
         Vector2 position,
         int health,
         int baseMaximumHealth,
         int baseAttackDamage)
     {
         _content = content;
-        _inventoryService = inventoryService;
+        _statCalculator = statCalculator;
         Position = position;
         Health = health;
         BaseMaximumHealth = baseMaximumHealth;
@@ -45,7 +46,9 @@ public sealed class PlayerState
     public int BaseMaximumHealth { get; }
 
     public PlayerStatTotals Stats =>
-        _inventoryService.GetTotals(BaseAttackDamage, BaseMaximumHealth, Inventory, _content);
+        _statCalculator.Calculate(
+            BaseAttackDamage, BaseMaximumHealth,
+            Inventory.EquippedWeapon, Inventory.EquippedArmor, _content);
 
     public int AttackDamage => Stats.AttackDamage;
 

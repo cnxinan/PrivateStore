@@ -662,7 +662,7 @@ internal sealed class RuntimeSmokeTest
                 {
                     break;
                 }
-                var preview = new InventoryService().GetTotalsWithReplacement(
+                var preview = new ItemStatCalculator().Preview(
                     arena.Player.BaseAttackDamage, arena.Player.BaseMaximumHealth,
                     arena.Player.Inventory, content, slot, equipped);
                 Check(arena.Player.Stats == preview && arena.Player.Health == _healthBefore,

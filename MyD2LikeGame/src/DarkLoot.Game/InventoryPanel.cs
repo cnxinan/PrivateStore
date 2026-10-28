@@ -14,7 +14,7 @@ namespace DarkLoot.Game;
 public sealed class InventoryPanel
 {
     private const int VisibleRows = 8;
-    private readonly InventoryService _service = new();
+    private readonly ItemStatCalculator _calculator = new();
     private int _firstRow;
 
     public bool IsOpen { get; private set; }
@@ -122,7 +122,7 @@ public sealed class InventoryPanel
             GameText.Draw(batch, font, FormatRolls(item, content),
                 new Vector2(rowBounds.X + 8, rowBounds.Y + 25), Color.White, 336, 21);
 
-            var preview = _service.GetTotalsWithReplacement(
+            var preview = _calculator.Preview(
                 player.BaseAttackDamage,
                 player.BaseMaximumHealth,
                 inventory,

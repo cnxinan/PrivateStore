@@ -33,6 +33,7 @@ public sealed class ArenaSimulation
     private readonly GameContent _content;
     private readonly Random _random;
     private readonly InventoryService _inventoryService = new();
+    private readonly ItemStatCalculator _itemStatCalculator = new();
     private readonly LootGenerator _lootGenerator = new();
     private readonly List<MonsterState> _monsters = [];
     private readonly ReadOnlyCollection<MonsterState> _readOnlyMonsters;
@@ -119,7 +120,7 @@ public sealed class ArenaSimulation
 
         Player = new PlayerState(
             content,
-            _inventoryService,
+            _itemStatCalculator,
             PlayerSpawn,
             PlayerMaxHealth,
             PlayerMaxHealth,
