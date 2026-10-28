@@ -21,6 +21,8 @@ public sealed class ArenaSimulation
     private const float PlayerHitstunSeconds = .15f;
     private const float PlayerKnockbackDistance = 18f;
     private const float PlayerHitImmunitySeconds = .5f;
+    private const float PlayerDeathSeconds = .6f;
+    private const float PlayerRespawnImmunitySeconds = .8f;
     private const float MonsterHitstunSeconds = .12f;
     private const float MonsterKnockbackDistance = 10f;
     private const float TimerEpsilon = .000001f;
@@ -157,6 +159,16 @@ public sealed class ArenaSimulation
         }
 
         _events.Clear();
+        if (Player.IsDead)
+        {
+            Player.DeathRemaining = Math.Max(0, Player.DeathRemaining - elapsedSeconds);
+            if (Player.DeathRemaining <= TimerEpsilon)
+            {
+                CompleteRespawn();
+                return;
+            }
+        }
+
         _attackCooldown = Math.Max(0, _attackCooldown - elapsedSeconds);
         _monsterContactCooldown = Math.Max(0, _monsterContactCooldown - elapsedSeconds);
         var immunityRemaining = Player.InvulnerabilityRemaining - elapsedSeconds;
@@ -178,11 +190,14 @@ public sealed class ArenaSimulation
             return (Monster: monster, ActionSeconds: Math.Max(0, elapsedSeconds - stunnedSeconds));
         }).ToArray();
 
-        MovePlayer(intent.MoveDirection, playerActionSeconds);
-        UpdateFacing(intent.AimWorldPosition);
-        TryAttack(intent.AttackPressed && !Player.Reaction.IsActive);
+        if (!Player.IsDead)
+        {
+            MovePlayer(intent.MoveDirection, playerActionSeconds);
+            UpdateFacing(intent.AimWorldPosition);
+            TryAttack(intent.AttackPressed && !Player.Reaction.IsActive);
+        }
 
-        if (_projectileSystem.Update(elapsedSeconds, Player.Position, ApplyProjectileDamage))
+        if (_projectileSystem.Update(elapsedSeconds, Player.Position, !Player.IsDead, ApplyProjectileDamage))
         {
             return;
         }
@@ -196,7 +211,7 @@ public sealed class ArenaSimulation
                 LaunchProjectile);
         }
 
-        if (TryMonsterContactDamage())
+        if (Player.IsDead || TryMonsterContactDamage())
         {
             return;
         }
@@ -207,16 +222,16 @@ public sealed class ArenaSimulation
         }
     }
 
-    public void ResetEncounter() => ResetEncounter(clearEvents: true);
-
-    private void ResetEncounter(bool clearEvents)
+    public void ResetEncounter()
     {
-        ResetSequence++;
-        if (clearEvents)
+        if (Player.IsDead)
         {
-            _events.Clear();
+            return;
         }
 
+        ResetSequence++;
+        _events.Clear();
+        Player.DeathRemaining = 0;
         Player.Reaction.Clear();
         Player.InvulnerabilityRemaining = 0;
         SwingDirection = Vector2.UnitX;
@@ -357,7 +372,6 @@ public sealed class ArenaSimulation
                 CombatEventKind.ContactAttack, monster.InstanceId, monster.Position, direction, appliedDamage, false));
             if (died)
             {
-                RespawnAfterDeath();
                 return true;
             }
 
@@ -395,24 +409,26 @@ public sealed class ArenaSimulation
         }
     }
 
-    private void RespawnAfterDeath()
+    private void EnterDeath()
+    {
+        Player.DeathRemaining = PlayerDeathSeconds;
+        Player.Reaction.Clear();
+        Player.InvulnerabilityRemaining = 0;
+    }
+
+    private void CompleteRespawn()
     {
         Player.Position = PlayerSpawn;
         Player.Health = Player.MaximumHealth;
         Player.Facing = Vector2.UnitX;
-        ResetEncounter(clearEvents: false);
+        ResetEncounter();
+        Player.InvulnerabilityRemaining = PlayerRespawnImmunitySeconds;
     }
 
     private bool ApplyProjectileDamage(ProjectileState projectile)
     {
         ApplyPlayerDamage(projectile.Damage, projectile.Direction, out var died);
-        if (died)
-        {
-            RespawnAfterDeath();
-            return true;
-        }
-
-        return false;
+        return died;
     }
 
     private int ApplyPlayerDamage(int damage, Vector2 direction, out bool died)
@@ -431,7 +447,7 @@ public sealed class ArenaSimulation
         died = Player.Health == 0;
         if (died)
         {
-            Player.Reaction.Clear();
+            EnterDeath();
             _events.Add(new CombatEvent(
                 CombatEventKind.Died, "player", Player.Position, direction, appliedDamage, false));
         }

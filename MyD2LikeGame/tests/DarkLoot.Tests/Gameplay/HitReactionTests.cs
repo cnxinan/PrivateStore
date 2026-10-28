@@ -432,7 +432,7 @@ public sealed class HitReactionTests
     }
 
     [Fact]
-    public void LethalHits_EmitDeathOnceAtDeathPositionWithoutReactionAndStillRespawnImmediately()
+    public void LethalHits_EmitDeathOnceAtDeathPositionWithoutReactionBeforeDelayedRespawn()
     {
         var content = MixedEncounterFixture.CreateContent(contactDamage: 100);
         var monsters = content.Monsters.ToDictionary(pair => pair.Key, pair => pair.Value);
@@ -441,8 +441,8 @@ public sealed class HitReactionTests
             new("target", "monster.fast_wolf", 180, 270),
             new("contact", "monster.training_slime", 140, 270));
         arena.Update(Idle with { AttackPressed = true }, 0);
-        Assert.Equal(100, arena.Player.Health);
-        Assert.Equal(1, arena.ResetSequence);
+        Assert.Equal(0, arena.Player.Health);
+        Assert.Equal(0, arena.ResetSequence);
         Assert.Equal(new[] { "target", "player" },
             arena.Events.Where(item => item.Kind == CombatEventKind.Died).Select(item => item.ActorId));
         Assert.Equal(new Vector2(180, 270), arena.Events.First(item => item.Kind == CombatEventKind.Died).Position);
@@ -450,6 +450,8 @@ public sealed class HitReactionTests
         Assert.All(arena.Monsters, monster => Assert.False(monster.Reaction.IsActive));
         arena.Update(Idle with { MoveDirection = Vector2.UnitY }, 1);
         Assert.DoesNotContain(arena.Events, item => item.Kind == CombatEventKind.Died);
+        Assert.Equal(100, arena.Player.Health);
+        Assert.Equal(1, arena.ResetSequence);
     }
 
     [Fact]
@@ -478,7 +480,7 @@ public sealed class HitReactionTests
         projectiles.Spawn(arrow);
         projectiles.Spawn(arrow with { SourceInstanceId = "second" });
         var received = new List<ProjectileState>();
-        Assert.True(projectiles.Update(0, new Vector2(160, 270), projectile =>
+        Assert.True(projectiles.Update(0, new Vector2(160, 270), true, projectile =>
         {
             received.Add(projectile);
             return true;

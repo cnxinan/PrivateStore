@@ -26,6 +26,11 @@ public sealed class InventoryPanel
 
     public void Update(GameInputSnapshot input, PlayerState player, GameContent content, int width)
     {
+        if (player.IsDead)
+        {
+            return;
+        }
+
         if (input.InventoryTogglePressed)
         {
             IsOpen = !IsOpen;

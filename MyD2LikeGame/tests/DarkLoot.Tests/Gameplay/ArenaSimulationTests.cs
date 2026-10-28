@@ -202,6 +202,7 @@ public sealed class ArenaSimulationTests
         Assert.Empty(simulation.GroundItems);
 
         var tookDamage = false;
+        var sawDeath = false;
         for (var index = 0; index < 1000; index++)
         {
             simulation.Update(
@@ -209,12 +210,14 @@ public sealed class ArenaSimulationTests
                 0.1f);
 
             tookDamage |= simulation.Player.Health < 100;
+            sawDeath |= simulation.Player.IsDead;
             if (tookDamage && simulation.Player.Health == 100)
             {
                 break;
             }
         }
 
+        Assert.True(sawDeath);
         Assert.Equal(100, simulation.Player.Health);
         Assert.Equal(new Vector2(160, 270), simulation.Player.Position);
         Assert.Equal(new Vector2(480, 270), simulation.Monsters[0].Position);

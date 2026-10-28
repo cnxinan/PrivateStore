@@ -53,6 +53,7 @@ public sealed class ProjectileSystem
     public bool Update(
         float elapsedSeconds,
         Vector2 playerPosition,
+        bool playerAlive,
         Func<ProjectileState, bool> applyDamage)
     {
         ArgumentNullException.ThrowIfNull(applyDamage);
@@ -77,7 +78,8 @@ public sealed class ProjectileSystem
             var endY = (double)start.Y +
                 projectile.Direction.Y * (double)projectile.Speed * elapsedSeconds;
 
-            if (TryClipToArena(start, endX, endY, out var clippedStart, out var clippedEnd) &&
+            if (playerAlive &&
+                TryClipToArena(start, endX, endY, out var clippedStart, out var clippedEnd) &&
                 IsFinite(playerPosition) &&
                 SegmentHitsPlayer(clippedStart, clippedEnd, playerPosition))
             {

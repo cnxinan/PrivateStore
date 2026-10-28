@@ -17,8 +17,9 @@ dotnet publish src\DarkLoot.Game --configuration Release --output artifacts\publ
 - 顶部 **FPS** 显示实际绘制帧率，每半秒刷新；背包内仍使用单次点击装备。
 - **E** 拾取附近战利品；**I** 打开或关闭背包，打开时暂停战斗。
 - 背包显示属性变化，点击物品行即可装备到武器或护甲栏；滚轮翻页。
-- **R** 重置整个遭遇，保留玩家位置、当前生命、背包和装备；清除地面掉落及箭矢。
-- **Escape** 退出。死亡后回到出生点并恢复当前生命上限，清空地面掉落及箭矢，保留背包和装备。
+- **R** 存活时重置整个遭遇，保留玩家位置、当前生命、背包和装备；清除地面掉落、箭矢、受击状态和保护期，不额外回血或授予保护。死亡期间无效。
+- **Escape** 随时退出。死亡后保持原位等待 0.6 秒，再回到出生点恢复当前生命上限，获得 0.8 秒保护；重置全部怪物，清空地面掉落及箭矢，保留背包、装备和词缀。
+- 死亡等待期间禁止移动、攻击、拾取、换装和打开背包；怪物与箭矢继续运行，箭矢穿过死者。背包暂停或窗口失焦时，战斗计时冻结。
 
 训练场按 `encounter.training_arena` 配置两只史莱姆、两只迅捷狼和两只骷髅弓手；
 近战挥击命中前方范围内的所有存活敌人，接触伤害共享冷却。每只敌人被击败时有 50% 概率掉落一件训练之刃或训练护甲，两者权重相同；普通、魔法、稀有品质的权重为 1:4:2。
@@ -79,7 +80,8 @@ independent critical/normal target rolls, locked non-homing arrows that miss and
 slots with original identities/rolls, and six kills with a completion Draw while arrows remain in flight.
 The real inventory freezes all monsters, an active windup, in-flight arrows and player health for 20 updates;
 closing it resumes motion while retaining the pre-pause swing cooldown. R must clear nonempty arrows/loot
-without losing gear, and actual lethal contact must respawn at the equipped maximum health with six monsters.
+without losing gear. Actual lethal contact must enter a full 0.6-second death wait, reject dead
+controls/inventory/R, then respawn at the equipped maximum health with six monsters and 0.8-second protection.
 It uses accelerated simulation time, bounds each named stage to 450 updates and the run to 2,400 updates,
 and returns nonzero with the stage/phase on failure (no success fallback). Physical
 keyboard/mouse input and human visual review remain unverified. Startup errors are written beside the

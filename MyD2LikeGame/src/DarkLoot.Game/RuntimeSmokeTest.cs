@@ -44,6 +44,8 @@ internal sealed class RuntimeSmokeTest
     private AffixRoll[] _armorRolls = [];
     private ItemInstance[] _pickupItems = [];
     private bool _deathContactExpected;
+    private NumericsVector _deathPosition;
+    private int _deathUpdates;
     private long _resetBeforeUpdate;
     private long _attackBeforeUpdate;
     private int _lastSwingUpdate;
@@ -315,9 +317,18 @@ internal sealed class RuntimeSmokeTest
                         ? Towards(arena.Player.Position, new NumericsVector(215, 180), 10)
                         : Towards(arena.Player.Position, target.Position, 40);
                     attack = movement == NumericsVector.Zero;
-                    if (_updates - _lastSwingUpdate >= 4 &&
+                    if (arena.GroundItems.Count > 0)
+                    {
+                        // Keep dodging locked arrows so one can coexist with the next windup.
+                        movement = Towards(arena.Player.Position,
+                            new NumericsVector(215, _stageUpdates % 20 < 10 ? 180 : 360), 10);
+                        attack = false;
+                    }
+                    if (!arena.Player.IsDead && !arena.Player.Reaction.IsActive &&
+                        _updates - _lastSwingUpdate >= 4 &&
                         arena.Projectiles.Count > 0 && arena.GroundItems.Count > 0 &&
-                        arena.Monsters.Any(monster => monster.IsWindingUp))
+                        arena.Monsters.Any(monster => monster.IsWindingUp &&
+                            monster.WindupRemaining > .100001f))
                     {
                         movement = NumericsVector.Zero;
                         aim = arena.Player.Position - NumericsVector.UnitX * 100;
@@ -350,6 +361,15 @@ internal sealed class RuntimeSmokeTest
                 }
                 break;
             case SmokeStage.DeathRespawn:
+                if (_phase == 1)
+                {
+                    movement = NumericsVector.UnitY;
+                    attack = true;
+                    pickup = true;
+                    toggle = true;
+                    restart = true;
+                    break;
+                }
                 if (panel.IsOpen)
                 {
                     toggle = true;
@@ -498,7 +518,9 @@ internal sealed class RuntimeSmokeTest
                 else if (_phase == 3 && !panel.IsOpen)
                 {
                     Check(arena.Player.AttackSequence == _sequence + 1 && arena.LastSwingHits.Count == 0,
-                        "accepted later miss cleared old per-target damage before pause");
+                        $"accepted later miss cleared old per-target damage before pause; " +
+                        $"sequence={arena.Player.AttackSequence}/{_sequence}; stun={arena.Player.Reaction.RemainingSeconds}; " +
+                        $"arrows={arena.Projectiles.Count}; hits={FormatHits(arena)}");
                     _sequence = arena.Player.AttackSequence;
                 }
                 else if (_phase == 3 && panel.IsOpen)
@@ -542,15 +564,42 @@ internal sealed class RuntimeSmokeTest
                 Enter(SmokeStage.DeathRespawn);
                 break;
             case SmokeStage.DeathRespawn:
-                if (arena.ResetSequence != _resetBeforeUpdate)
+                if (_phase == 0 && arena.Player.IsDead)
                 {
-                    Check(_deathContactExpected && _healthBefore > 0 && arena.RemainingMonsters == 6 &&
+                    Check(_deathContactExpected && _healthBefore > 0 &&
+                          arena.Player.Health == 0 && Math.Abs(arena.Player.DeathRemaining - .6f) < .00001f &&
+                          arena.ResetSequence == _resetBeforeUpdate &&
+                          arena.Events.Count(item => item.ActorId == "player" && item.Kind == CombatEventKind.Died) == 1 &&
+                          arena.Events.Any(item => item.Kind == CombatEventKind.ContactAttack),
+                        "DeathRespawn actual lethal contact entered explicit death with full 0.6s timer, no early reset");
+                    _deathPosition = arena.Player.Position;
+                    _sequence = arena.Player.AttackSequence;
+                    _phase = 1;
+                }
+                else if (_phase == 1)
+                {
+                    _deathUpdates++;
+                    Check(!panel.IsOpen && arena.Player.AttackSequence == _sequence,
+                        "DeathRespawn dead inventory toggle and attack inputs ignored");
+                    if (arena.Player.IsDead)
+                    {
+                        Check(_deathUpdates < 6 && arena.Player.Position == _deathPosition &&
+                              arena.ResetSequence == _resetBeforeUpdate &&
+                              Math.Abs(arena.Player.DeathRemaining - (.6f - _deathUpdates * .1f)) < .00001f &&
+                              !arena.Events.Any(item => item.ActorId == "player"),
+                            $"DeathRespawn waits with dead movement/R/pickup gated and no duplicate player events; update={_deathUpdates}");
+                        break;
+                    }
+                    Check(_deathUpdates == 6 && arena.ResetSequence == _resetBeforeUpdate + 1 &&
+                          arena.RemainingMonsters == 6 &&
                           arena.Player.Position == new NumericsVector(160, 270) &&
                           arena.Player.Health == arena.Player.MaximumHealth &&
+                          arena.Player.DeathRemaining == 0 &&
+                          Math.Abs(arena.Player.InvulnerabilityRemaining - .8f) < .00001f &&
                           arena.Monsters.All(monster => monster.Health == monster.MaxHealth && !monster.IsWindingUp) &&
                           arena.Projectiles.Count == 0 && arena.GroundItems.Count == 0 &&
-                          arena.LastSwingHits.Count == 0,
-                        "DeathRespawn actual lethal contact restored spawn/current maximum health and six clean monsters");
+                          arena.LastSwingHits.Count == 0 && arena.Events.Count == 0,
+                        "DeathRespawn after 0.6s restored spawn/current maximum health, six clean monsters and full 0.8s protection");
                     CheckGear(arena);
                     Enter(SmokeStage.Complete);
                 }

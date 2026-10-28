@@ -30,6 +30,10 @@ public sealed class PlayerState
 
     public int Health { get; internal set; }
 
+    public bool IsDead => Health == 0;
+
+    public float DeathRemaining { get; internal set; }
+
     public HitReactionState Reaction { get; } = new();
 
     public float InvulnerabilityRemaining { get; internal set; }
@@ -59,7 +63,7 @@ public sealed class PlayerState
 
     public bool TryEquip(Guid instanceId)
     {
-        if (!_inventoryService.TryEquip(
+        if (IsDead || !_inventoryService.TryEquip(
                 Inventory,
                 instanceId,
                 _content,

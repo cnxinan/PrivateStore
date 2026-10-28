@@ -8,7 +8,7 @@ namespace DarkLoot.Tests.Gameplay;
 public sealed class MixedEncounterTests
 {
     [Fact]
-    public void Update_FullHealthLethalContactSignalsResetForPresentationEvenAfterSwing()
+    public void Update_FullHealthLethalContactSignalsDeathThenDelayedResetEvenAfterSwing()
     {
         var arena = new ArenaSimulation(
             MixedEncounterFixture.CreateContent(contactDamage: 100),
@@ -26,6 +26,12 @@ public sealed class MixedEncounterTests
 
         arena.Update(new PlayerIntent(Vector2.Zero, new Vector2(300, 270), false, false), .12f);
 
+        Assert.True(arena.Player.IsDead);
+        Assert.Equal(0, arena.ResetSequence);
+        Assert.Single(arena.Events, item => item.ActorId == "player" && item.Kind == CombatEventKind.Died);
+        arena.ResetEncounter();
+        Assert.Equal(0, arena.ResetSequence);
+        arena.Update(new PlayerIntent(Vector2.Zero, new Vector2(300, 270), false, false), .6f);
         Assert.Equal(100, arena.Player.Health);
         Assert.Empty(arena.LastSwingHits);
         Assert.Equal(1, arena.ResetSequence);
@@ -165,6 +171,9 @@ public sealed class MixedEncounterTests
 
         arena.Update(new PlayerIntent(Vector2.Zero, new Vector2(300, 270), false, true), 0);
 
+        Assert.True(arena.Player.IsDead);
+        Assert.Single(arena.Events, item => item.ActorId == "player" && item.Kind == CombatEventKind.Damaged);
+        arena.Update(new PlayerIntent(Vector2.Zero, new Vector2(300, 270), false, true), .6f);
         Assert.Equal(arena.Player.MaximumHealth, arena.Player.Health);
         Assert.Equal(130, arena.Player.MaximumHealth);
         Assert.Equal(new Vector2(160, 270), arena.Player.Position);

@@ -101,6 +101,7 @@ public sealed class RangedCombatTests
         var playerDied = projectiles.Update(
             1f,
             new Vector2(160, 270),
+            true,
             damage =>
             {
                 appliedDamage.Add(damage.Damage);
@@ -119,7 +120,7 @@ public sealed class RangedCombatTests
         projectiles.Spawn(new ProjectileState("archer", new Vector2(0, 300), Vector2.UnitX, 240, 5));
         var appliedDamage = 0;
 
-        projectiles.Update(1f, new Vector2(160, 270), damage =>
+        projectiles.Update(1f, new Vector2(160, 270), true, damage =>
         {
             appliedDamage += damage.Damage;
             return false;
@@ -130,7 +131,7 @@ public sealed class RangedCombatTests
 
         projectiles.Clear();
         projectiles.Spawn(new ProjectileState("archer", new Vector2(950, 200), Vector2.UnitX, 240, 5));
-        projectiles.Update(.1f, new Vector2(960, 400), _ => false);
+        projectiles.Update(.1f, new Vector2(960, 400), true, _ => false);
 
         Assert.Empty(projectiles.Projectiles);
     }
@@ -142,7 +143,7 @@ public sealed class RangedCombatTests
         projectiles.Spawn(new ProjectileState("edge", new Vector2(950, 270), Vector2.UnitX, 240, 5));
         var damage = 0;
 
-        projectiles.Update(1f, new Vector2(960, 270), amount =>
+        projectiles.Update(1f, new Vector2(960, 270), true, amount =>
         {
             damage += amount.Damage;
             return false;
@@ -151,7 +152,7 @@ public sealed class RangedCombatTests
         Assert.Equal(5, damage);
 
         projectiles.Spawn(new ProjectileState("nearby", new Vector2(150, 270), Vector2.UnitX, 240, 5));
-        projectiles.Update(0, new Vector2(160, 270), amount =>
+        projectiles.Update(0, new Vector2(160, 270), true, amount =>
         {
             damage += amount.Damage;
             return false;
@@ -183,7 +184,7 @@ public sealed class RangedCombatTests
     }
 
     [Fact]
-    public void Update_TwoArrowsApplyOneHitThenLaterLethalVolleyResetsAtomically()
+    public void Update_TwoArrowsApplyOneHitThenLethalVolleyStopsDamageUntilDelayedProtectedRespawn()
     {
         var content = WithArcherDamage(50);
         var arena = new ArenaSimulation(
@@ -213,9 +214,23 @@ public sealed class RangedCombatTests
         Assert.Equal(2, arena.Projectiles.Count);
         arena.Update(new PlayerIntent(Vector2.Zero, new Vector2(300, 270), false, false), .5f);
 
+        Assert.True(arena.Player.IsDead);
+        Assert.Equal(.6f, arena.Player.DeathRemaining, 3);
+        Assert.Equal(0, arena.ResetSequence);
+        Assert.Single(arena.Events, item => item.Kind == CombatEventKind.Died);
+        Assert.Single(arena.Events, item => item.Kind == CombatEventKind.Damaged);
+        Assert.Single(arena.Projectiles);
+        var deathPosition = arena.Player.Position;
+        arena.Update(new PlayerIntent(Vector2.UnitY, new Vector2(300, 270), true, true), .3f);
+        Assert.True(arena.Player.IsDead);
+        Assert.Equal(deathPosition, arena.Player.Position);
+        Assert.Single(arena.Projectiles);
+        Assert.DoesNotContain(arena.Events, item => item.ActorId == "player");
+        arena.Update(new PlayerIntent(Vector2.UnitY, new Vector2(300, 270), true, true), .3f);
         Assert.Equal(100, arena.Player.Health);
         Assert.Equal(1, arena.ResetSequence);
-        Assert.Single(arena.Events, item => item.Kind == CombatEventKind.Died);
+        Assert.Equal(new Vector2(160, 270), arena.Player.Position);
+        Assert.Equal(.8f, arena.Player.InvulnerabilityRemaining, 3);
         Assert.Empty(arena.Projectiles);
     }
 

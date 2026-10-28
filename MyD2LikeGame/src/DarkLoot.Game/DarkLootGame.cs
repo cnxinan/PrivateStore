@@ -109,9 +109,12 @@ public sealed class DarkLootGame : MonoGameGame
     private void ApplyInput(GameInputSnapshot input, float elapsed)
     {
         _aim = input.AimWorldPosition;
-        _inventory.Update(input, _arena.Player, _content, GraphicsDevice.Viewport.Width);
+        if (!_arena.Player.IsDead)
+        {
+            _inventory.Update(input, _arena.Player, _content, GraphicsDevice.Viewport.Width);
+        }
         var previousResetSequence = _arena.ResetSequence;
-        if (input.RestartPressed)
+        if (input.RestartPressed && !_arena.Player.IsDead)
         {
             _arena.ResetEncounter();
         }
