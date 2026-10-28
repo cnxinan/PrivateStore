@@ -25,16 +25,7 @@ public sealed class Inventory
     public ItemInstance? EquippedArmor =>
         EquippedArmorId is { } id ? Find(id) : null;
 
-    internal bool TryAdd(ItemInstance item)
-    {
-        if (_items.Any(existing => existing.InstanceId == item.InstanceId))
-        {
-            return false;
-        }
-
-        _items.Add(item);
-        return true;
-    }
+    internal void AppendValidated(ItemInstance item) => _items.Add(item);
 
     public ItemInstance? Find(Guid instanceId)
     {

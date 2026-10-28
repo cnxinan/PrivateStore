@@ -1,6 +1,7 @@
 using System.Numerics;
 using DarkLoot.Data;
 using DarkLoot.Gameplay.Items;
+using DarkLoot.Gameplay.Resources;
 
 namespace DarkLoot.Gameplay.Combat;
 
@@ -24,6 +25,7 @@ public sealed class PlayerState
         BaseMaximumHealth = baseMaximumHealth;
         BaseAttackDamage = baseAttackDamage;
         Inventory = new Inventory();
+        Resources = new ResourceBag();
     }
 
     public Vector2 Position { get; internal set; }
@@ -62,6 +64,8 @@ public sealed class PlayerState
     public long AttackSequence { get; internal set; }
 
     public Inventory Inventory { get; }
+
+    public ResourceBag Resources { get; }
 
     public Vector2 Facing { get; internal set; } = Vector2.UnitX;
 }

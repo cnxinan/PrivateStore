@@ -16,6 +16,18 @@ public sealed class InventoryService
 
     public EquipmentChangeResult PickUp(PlayerState player, ItemInstance item)
     {
+        var result = ValidateAddition(player, item);
+        if (result != EquipmentChangeResult.Applied)
+        {
+            return result;
+        }
+
+        CommitAddition(player, item);
+        return EquipmentChangeResult.Applied;
+    }
+
+    internal EquipmentChangeResult ValidateAddition(PlayerState player, ItemInstance item)
+    {
         ArgumentNullException.ThrowIfNull(player);
         ArgumentNullException.ThrowIfNull(item);
         if (item.InstanceId == Guid.Empty)
@@ -34,13 +46,11 @@ public sealed class InventoryService
         }
 
         _ = _calculator.GetContribution(item, _content);
-        if (!player.Inventory.TryAdd(item))
-        {
-            throw new InvalidOperationException("Validated item could not be added.");
-        }
-
         return EquipmentChangeResult.Applied;
     }
+
+    internal void CommitAddition(PlayerState player, ItemInstance item) =>
+        player.Inventory.AppendValidated(item);
 
     public EquipmentChangeResult Equip(PlayerState player, Guid instanceId)
     {
