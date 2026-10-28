@@ -94,6 +94,7 @@ public sealed class DarkLootGame : MonoGameGame
         var input = _smoke?.NextInput(
             _arena,
             _inventory,
+            _blacksmith,
             _content,
             GraphicsDevice.Viewport.Width,
             _presentation.SwingRemaining) ?? captured;
@@ -101,6 +102,7 @@ public sealed class DarkLootGame : MonoGameGame
         _smoke?.AfterUpdate(
             _arena,
             _inventory,
+            _blacksmith,
             _content,
             _presentation.PlayerPose,
             _presentation.GetMonsterPose,
@@ -140,6 +142,7 @@ public sealed class DarkLootGame : MonoGameGame
             {
                 _arena.ResetEncounter();
                 _presentation.Reset(_arena);
+                _smoke?.AfterReset(_arena, _presentation);
             }
             var intent = new PlayerIntent(input.MoveDirection, input.AimWorldPosition,
                 input.AttackHeld || input.AttackPressed, input.PickupPressed);
@@ -171,6 +174,7 @@ public sealed class DarkLootGame : MonoGameGame
         _blacksmith.Draw(_batch, _shapes, _font, _arena, _content, GraphicsDevice.Viewport.Width);
         _batch.End();
         base.Draw(gameTime);
+        _smoke?.ValidatePanelPresentation(_font, _arena, _inventory, _blacksmith, _content);
         if (_smoke?.AfterDraw(_arena, _presentation, _camera, GraphicsDevice, _frameRate.FramesPerSecond) == true)
         {
             Exit();

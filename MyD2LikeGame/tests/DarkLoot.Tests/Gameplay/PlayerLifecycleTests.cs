@@ -194,6 +194,95 @@ public sealed class PlayerLifecycleTests
         Assert.True(arena.Player.IsDead);
     }
 
+    [Fact]
+    public void CraftedOwnership_SurvivesDeathAndResetButNotANewScene()
+    {
+        var root = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..");
+        var production = GameContentLoader.LoadDirectory(Path.Combine(root, "content", "definitions"));
+        var monsters = production.Monsters.ToDictionary(pair => pair.Key, pair => pair.Value with
+        {
+            MaxHealth = 1,
+            MoveSpeed = .01f,
+            ContactDamage = pair.Key == "monster.fast_wolf" ? 1000 : 0
+        });
+        var tables = production.ResourceLootTables.ToDictionary(pair => pair.Key, pair => pair.Value with
+        {
+            MinQuantity = 8,
+            MaxQuantity = 8,
+            RecipeChancePercent = 100,
+            RecipeIds = ["recipe.magic_blade"]
+        });
+        var content = production with { Monsters = monsters, ResourceLootTableDefinitions = tables };
+        var encounter = MixedEncounterFixture.CreateEncounter(
+            new("slime", "monster.training_slime", 185, 260),
+            new("bone", "monster.skeleton_archer", 185, 280),
+            new("lethal", "monster.fast_wolf", 800, 270));
+        var arena = new ArenaSimulation(content, new Random(17), encounter);
+        arena.Update(Idle with { AimWorldPosition = new Vector2(200, 270), AttackPressed = true }, 0);
+        Assert.Equal(4, arena.GroundResources.Count);
+        var receipt = arena.GroundResources[0];
+        for (var i = 0; i < 4; i++)
+            arena.Update(Idle with { PickupPressed = true }, 0);
+        Assert.Empty(arena.GroundResources);
+        Assert.Empty(arena.Player.Inventory.Items);
+        Assert.Equal(BlacksmithStatus.Applied,
+            arena.BlacksmithOperations.Learn(arena.Player, "recipe.magic_blade").Status);
+        var crafted = arena.BlacksmithOperations.Craft(arena.Player, "recipe.magic_blade");
+        Assert.Equal(BlacksmithStatus.Applied, crafted.Status);
+        var weapon = Assert.IsType<ItemInstance>(crafted.Item);
+        Assert.Equal(EquipmentChangeResult.Applied, arena.EquipmentOperations.Equip(arena.Player, weapon.InstanceId));
+        var materials = arena.Player.Resources.Materials.ToArray();
+        var recipes = arena.Player.Resources.Recipes.ToArray();
+        var known = arena.Blacksmith.KnownRecipeIds.Order(StringComparer.Ordinal).ToArray();
+        var equipment = arena.Player.Inventory.Items.ToArray();
+        var rolls = weapon.Rolls.ToArray();
+        Assert.NotEmpty(materials);
+        Assert.NotEmpty(recipes);
+        Assert.NotEmpty(known);
+
+        arena.ResetEncounter();
+        AssertRetained();
+        arena.Update(Idle with { AimWorldPosition = new Vector2(200, 270), AttackPressed = true }, 0);
+        Assert.NotEmpty(arena.GroundResources);
+        arena.ResetEncounter();
+        AssertRetained();
+        arena.Update(Idle with { AimWorldPosition = new Vector2(200, 270), AttackPressed = true }, 0);
+        Assert.NotEmpty(arena.GroundResources);
+        var killsBeforeDeath = arena.RemainingMonsters;
+        arena.Update(Idle with { MoveDirection = Vector2.UnitX }, 640f / 180);
+        Assert.True(arena.Player.IsDead);
+        AssertRetained(clearGround: false);
+        arena.Update(Idle, .6f);
+        Assert.False(arena.Player.IsDead);
+        AssertRetained();
+        Assert.True(arena.RemainingMonsters > killsBeforeDeath);
+        Assert.Equal(ResourcePickupResult.AlreadyCollected, arena.ResourceOperations.PickUp(arena.Player, receipt));
+        AssertRetained();
+
+        var fresh = new ArenaSimulation(content, new Random(17), encounter);
+        Assert.Empty(fresh.Player.Resources.Materials);
+        Assert.Empty(fresh.Player.Resources.Recipes);
+        Assert.Empty(fresh.Blacksmith.KnownRecipeIds);
+        Assert.Empty(fresh.Player.Inventory.Items);
+        Assert.Null(fresh.Player.Inventory.EquippedWeapon);
+        Assert.Null(fresh.Player.Inventory.EquippedArmor);
+        Assert.Empty(fresh.GroundResources);
+
+        void AssertRetained(bool clearGround = true)
+        {
+            Assert.Equal(materials, arena.Player.Resources.Materials.ToArray());
+            Assert.Equal(recipes, arena.Player.Resources.Recipes.ToArray());
+            Assert.Equal(known, arena.Blacksmith.KnownRecipeIds.Order(StringComparer.Ordinal));
+            Assert.Equal(equipment, arena.Player.Inventory.Items);
+            Assert.Same(weapon, arena.Player.Inventory.EquippedWeapon);
+            Assert.Equal(rolls, weapon.Rolls);
+            if (clearGround)
+                Assert.Empty(arena.GroundResources);
+            else
+                Assert.NotEmpty(arena.GroundResources);
+        }
+    }
+
     private static ArenaSimulation CreateArena() => new(
         MixedEncounterFixture.CreateContent(contactDamage: 100), new Random(17),
         MixedEncounterFixture.CreateEncounter(

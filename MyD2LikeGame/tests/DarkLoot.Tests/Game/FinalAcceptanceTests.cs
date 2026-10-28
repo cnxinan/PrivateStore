@@ -1,14 +1,90 @@
 using System.Reflection;
 using System.Xml.Linq;
 using DarkLoot.Data;
+using DarkLoot.Data.Definitions;
 using DarkLoot.Engine.Diagnostics;
 using DarkLoot.Game;
+using DarkLoot.Gameplay.Combat;
 using DarkLoot.Gameplay.Crafting;
+using DarkLoot.Gameplay.Items;
 
 namespace DarkLoot.Tests.Game;
 
 public sealed class FinalAcceptanceTests
 {
+    [Fact]
+    public void SmokeInputs_CloseKillPickupLearnCraftEquipLoopWithoutGrantingGearOrKnowledge()
+    {
+        var root = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
+        var artifacts = Path.Combine(root, "artifacts");
+        Directory.CreateDirectory(artifacts);
+        var log = Path.Combine(artifacts, $"crafting-headless-{Guid.NewGuid():N}.log");
+        var production = GameContentLoader.LoadDirectory(Path.Combine(root, "content", "definitions"));
+        var smoke = new RuntimeSmokeTest(log);
+        try
+        {
+            var (content, encounter) = smoke.CreateFixture(production);
+            Assert.Equal(production.Materials, content.Materials);
+            Assert.Equal(production.Recipes, content.Recipes);
+            var arena = new ArenaSimulation(content, smoke.CreateRandom(), encounter);
+            var inventory = new InventoryPanel();
+            var smith = new BlacksmithPanel();
+            var panels = new PanelController();
+            var presentation = new ActorPresentation();
+            presentation.Reset(arena);
+            Assert.Empty(arena.Player.Inventory.Items);
+            Assert.Empty(arena.Blacksmith.KnownRecipeIds);
+            for (var update = 0; update < 600 && (arena.ResetSequence == 0 || !arena.IsCleared); update++)
+            {
+                var input = smoke.NextInput(arena, inventory, smith, content, 1120, presentation.SwingRemaining);
+                var frame = panels.Route(input, arena.Player, arena.BlacksmithOperations);
+                Assert.False(frame.ExitRequested);
+                inventory.SetOpen(frame.ActivePanel == PanelKind.Inventory);
+                smith.SetOpen(frame.ActivePanel == PanelKind.Blacksmith);
+                if (frame.HandlePanelActions)
+                {
+                    if (inventory.IsOpen)
+                        inventory.Update(input, arena.Player, content, 1120, arena.EquipmentOperations);
+                    else if (smith.IsOpen)
+                        smith.Update(input, arena, content, 1120);
+                }
+                if (frame.AdvanceWorld)
+                {
+                    if (frame.RestartRequested)
+                    {
+                        arena.ResetEncounter();
+                        presentation.Reset(arena);
+                        smoke.AfterReset(arena, presentation);
+                    }
+                    arena.Update(new PlayerIntent(input.MoveDirection, input.AimWorldPosition,
+                        input.AttackHeld || input.AttackPressed, input.PickupPressed), .1f);
+                    presentation.Update(arena, .1f);
+                }
+                smoke.AfterUpdate(arena, inventory, smith, content, presentation.PlayerPose,
+                    presentation.GetMonsterPose, presentation.SwingRemaining, presentation.HitTexts);
+            }
+            Assert.Equal(2, arena.Player.Inventory.Items.Count);
+            Assert.NotNull(arena.Player.Inventory.EquippedWeapon);
+            Assert.NotNull(arena.Player.Inventory.EquippedArmor);
+            Assert.Equal(50, arena.Player.CriticalChance);
+            Assert.Equal(120, arena.Player.MaximumHealth);
+            Assert.Equal(1, arena.ResetSequence);
+            Assert.True(arena.IsCleared);
+            Assert.NotEmpty(arena.Projectiles);
+            Assert.Equal(new[] { "recipe.magic_blade", "recipe.magic_vest" },
+                arena.Blacksmith.KnownRecipeIds.Order(StringComparer.Ordinal));
+            Assert.All(arena.Player.Inventory.Items, item =>
+            {
+                Assert.NotEqual(Guid.Empty, item.InstanceId);
+                Assert.Equal(ItemRarity.Magic, item.Rarity);
+            });
+        }
+        finally
+        {
+            File.Delete(log);
+        }
+    }
+
     [Fact]
     public void SmithFeedback_CoversEveryResultAndRejectsUnknownStatus()
     {
@@ -27,12 +103,38 @@ public sealed class FinalAcceptanceTests
             Enumerable.Range(region.Element("Start")!.Value[0],
                 region.Element("End")!.Value[0] - region.Element("Start")!.Value[0] + 1)).ToHashSet();
         var content = GameContentLoader.LoadDirectory(Path.Combine(root, "content", "definitions"));
+        var crafted = content.Recipes.Values.Select(recipe =>
+            new EquipmentFactory().Create(recipe.ItemId, recipe.Rarity, content, new Random(17))).ToArray();
         var texts = typeof(GameText).GetFields(BindingFlags.Public | BindingFlags.Static)
             .Where(field => field.IsLiteral && field.FieldType == typeof(string))
             .Select(field => (string)field.GetRawConstantValue()!)
             .Concat(content.Materials.Values.Select(material => material.Name))
             .Concat(content.Recipes.Values.Select(recipe => recipe.Name))
-            .Concat(Enum.GetValues<BlacksmithStatus>().Select(GameText.SmithStatus));
+            .Concat(content.Items.Values.Select(item => item.Name))
+            .Concat(content.Monsters.Values.Select(monster => monster.Name))
+            .Concat(content.Affixes.Values.Select(affix => affix.Name))
+            .Concat(Enum.GetValues<ItemSlot>().Select(GameText.Slot))
+            .Concat(Enum.GetValues<ItemRarity>().Select(GameText.Rarity))
+            .Concat(Enum.GetValues<ItemStat>().Select(GameText.Stat))
+            .Concat(Enum.GetValues<BlacksmithStatus>().Select(GameText.SmithStatus))
+            .Concat(crafted.SelectMany(item => new[]
+            {
+                string.Format(GameText.Crafted,
+                    ItemNameFormatter.GetDisplayName(item, content.Items[item.DefinitionId], content)),
+                InventoryPanel.FormatRolls(item, content)
+            }))
+            .Concat(content.Recipes.Values.SelectMany(recipe => new[]
+            {
+                string.Format(GameText.Learned, recipe.Name),
+                string.Format(GameText.RecipeResource, recipe.Name, int.MaxValue),
+                string.Format(GameText.RecipeState, GameText.Known, int.MaxValue),
+                string.Format(GameText.ShortageDetails, GameText.InsufficientMaterials,
+                    string.Join("  ", recipe.Costs.Select(cost =>
+                        string.Format(GameText.Shortage, content.Materials[cost.MaterialId].Name, cost.Quantity))))
+            }.Concat(recipe.Costs.Select(cost => string.Format(GameText.MaterialCost,
+                content.Materials[cost.MaterialId].Name, int.MaxValue, cost.Quantity)))))
+            .Concat(content.Materials.Values.Select(material =>
+                string.Format(GameText.MaterialResource, material.Name, int.MaxValue)));
         var missing = texts.SelectMany(text => text).Distinct().Where(character => !covered.Contains(character)).ToArray();
         Assert.True(missing.Length == 0, $"Missing glyphs: {new string(missing)}");
     }

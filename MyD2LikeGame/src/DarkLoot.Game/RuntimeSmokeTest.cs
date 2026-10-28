@@ -9,6 +9,7 @@ using DarkLoot.Engine.Animation;
 using DarkLoot.Engine.Camera;
 using DarkLoot.Engine.Input;
 using DarkLoot.Gameplay.Combat;
+using DarkLoot.Gameplay.Crafting;
 using DarkLoot.Gameplay.Items;
 using DarkLoot.Gameplay.Resources;
 using Microsoft.Xna.Framework.Graphics;
@@ -20,8 +21,9 @@ internal sealed class RuntimeSmokeTest
 {
     private enum SmokeStage
     {
-        Approach, MultiHit, DodgeArrow, TakeArrow, ClearEncounter, Pickup,
-        Equip, PauseWithArrow, RestartCleanup, DeathRespawn, PauseWithReaction, Complete
+        Approach, MultiHit, DodgeArrow, TakeArrow, GatherMaterials, Pickup, ApproachSmith,
+        LearnCraft, InspectResources, Equip, ReopenEncounter, ClearEncounter,
+        PauseWithArrow, RestartCleanup, DeathRespawn, PauseWithReaction, Complete
     }
 
     private readonly string _logPath;
@@ -45,8 +47,17 @@ internal sealed class RuntimeSmokeTest
     private Guid _armor;
     private AffixRoll[] _weaponRolls = [];
     private AffixRoll[] _armorRolls = [];
-    private ItemInstance[] _pickupItems = [];
-    private ResourceStack[] _pickupResources = [];
+    private ItemInstance[] _craftedItems = [];
+    private GroundResource[] _pickupResources = [];
+    private Dictionary<string, int> _retainedMaterials = [];
+    private Dictionary<string, int> _retainedRecipes = [];
+    private string[] _retainedKnowledge = [];
+    private Dictionary<string, int> _materialsBeforeCraft = [];
+    private int _recipesBeforeLearn;
+    private string _smithSnapshot = "";
+    private PlayerStatTotals? _statsBeforeCraft;
+    private PlayerStatTotals? _equipPreview;
+    private bool _sawCleanReset;
     private bool _deathContactExpected;
     private NumericsVector _deathPosition;
     private int _deathUpdates;
@@ -110,16 +121,12 @@ internal sealed class RuntimeSmokeTest
             MoveSpeed = .01f,
             ContactDamage = pair.Key == "monster.fast_wolf" ? 200 : 0
         });
-        var tables = production.LootTables.ToDictionary(pair => pair.Key, pair => pair.Value with
+        var tables = production.ResourceLootTables.ToDictionary(pair => pair.Key, pair => pair.Value with
         {
-            MinDrops = 2,
-            MaxDrops = 2,
-            Entries =
-            [
-                new LootEntryDefinition("weapon.training_blade", 1) { Guaranteed = true },
-                new LootEntryDefinition("armor.training_vest", 1) { Guaranteed = true }
-            ],
-            RarityWeights = [new RarityWeightDefinition(ItemRarity.Magic, 1)]
+            MinQuantity = 8,
+            MaxQuantity = 8,
+            RecipeChancePercent = 100,
+            RecipeIds = [pair.Value.MaterialId == "material.hide" ? "recipe.magic_vest" : "recipe.magic_blade"]
         });
         var affixes = new Dictionary<string, AffixDefinition>
         {
@@ -136,7 +143,12 @@ internal sealed class RuntimeSmokeTest
                 Slots = [ItemSlot.Armor]
             }
         };
-        var content = production with { Monsters = monsters, LootTables = tables, AffixDefinitions = affixes };
+        var content = production with
+        {
+            Monsters = monsters,
+            ResourceLootTableDefinitions = tables,
+            AffixDefinitions = affixes
+        };
         var encounter = configured with
         {
             Spawns =
@@ -296,6 +308,7 @@ internal sealed class RuntimeSmokeTest
     public GameInputSnapshot NextInput(
         ArenaSimulation arena,
         InventoryPanel panel,
+        BlacksmithPanel smith,
         GameContent content,
         int width,
         double swingRemaining)
@@ -324,6 +337,8 @@ internal sealed class RuntimeSmokeTest
         var pickup = false;
         var toggle = false;
         var restart = false;
+        var interact = false;
+        var escape = false;
         var pointer = NumericsVector.Zero;
         switch (_stage)
         {
@@ -347,6 +362,50 @@ internal sealed class RuntimeSmokeTest
                     pickup = true;
                 }
                 break;
+            case SmokeStage.GatherMaterials:
+                var gatherTarget = arena.Monsters.Where(monster => !monster.IsDefeated)
+                    .MinBy(monster => NumericsVector.DistanceSquared(monster.Position, arena.Player.Position));
+                if (gatherTarget is not null)
+                {
+                    aim = gatherTarget.Position;
+                    movement = Towards(arena.Player.Position, gatherTarget.Position, 40);
+                    attack = movement == NumericsVector.Zero;
+                }
+                break;
+            case SmokeStage.ApproachSmith:
+                movement = Towards(arena.Player.Position, BlacksmithService.Position, 28);
+                break;
+            case SmokeStage.LearnCraft:
+                if (_phase == 0)
+                {
+                    interact = true;
+                }
+                else if (_phase == 7)
+                {
+                    toggle = true;
+                }
+                else
+                {
+                    var recipeId = _phase is 3 or 6 ? "recipe.magic_vest" : "recipe.magic_blade";
+                    var recipe = content.Recipes[recipeId];
+                    var row = content.Recipes.Keys.Order(StringComparer.Ordinal).ToList().IndexOf(recipeId);
+                    var learn = _phase is 2 or 3 or 4;
+                    var button = learn ? smith.LearnButtonBounds(width, row) : smith.CraftButtonBounds(width, row);
+                    pointer = new NumericsVector(button.Center.X, button.Center.Y);
+                    attack = true;
+                    _recipesBeforeLearn = arena.Player.Resources.GetCount(ResourceKind.Recipe, recipeId);
+                    _materialsBeforeCraft = arena.Player.Resources.Materials.ToDictionary(pair => pair.Key, pair => pair.Value);
+                    _statsBeforeCraft = arena.Player.Stats;
+                    Check(_phase is 1 or 4 || (learn ? smith.CanLearn(arena, recipe) : smith.CanCraft(arena, recipe)),
+                        $"real smith button is enabled before accepted click; phase={_phase}; recipe={recipeId}");
+                }
+                break;
+            case SmokeStage.InspectResources:
+                var tab = _phase == 2 ? panel.EquipmentTabBounds(width) :
+                    _phase == 1 ? panel.RowBounds(width, 0) : panel.ResourceTabBounds(width);
+                pointer = new NumericsVector(tab.Center.X, tab.Center.Y);
+                attack = true;
+                break;
             case SmokeStage.Equip:
                 if (!panel.IsOpen)
                 {
@@ -358,7 +417,14 @@ internal sealed class RuntimeSmokeTest
                     var row = panel.RowBounds(width, RowForSlot(arena, content, slot));
                     pointer = new NumericsVector(row.Center.X, row.Center.Y);
                     attack = true;
+                    var candidate = arena.Player.Inventory.Items[RowForSlot(arena, content, slot)];
+                    _equipPreview = new ItemStatCalculator().Preview(arena.Player.BaseAttackDamage,
+                        arena.Player.BaseMaximumHealth, arena.Player.Inventory, content, slot, candidate);
                 }
+                break;
+            case SmokeStage.ReopenEncounter:
+                escape = _phase == 0;
+                restart = _phase == 1;
                 break;
             case SmokeStage.ClearEncounter:
                 if (arena.IsCleared)
@@ -446,8 +512,11 @@ internal sealed class RuntimeSmokeTest
                 }
                 break;
             case SmokeStage.RestartCleanup:
-                toggle = true;
                 if (_phase == 0)
+                {
+                    escape = true;
+                }
+                else if (_phase == 1)
                 {
                     attack = true;
                     aim = arena.Player.Position - NumericsVector.UnitX * 100;
@@ -492,26 +561,37 @@ internal sealed class RuntimeSmokeTest
                     attack = arena.Projectiles.Any(projectile =>
                         CrossesPlayer(projectile, arena.Player.Position, arena.Player.Position));
                 }
-                else if (_phase == 2 || _phase == 4 || _phase == 5)
+                else if (_phase == 2)
                 {
                     toggle = true;
-                    restart = _phase == 5;
                 }
-                if (_phase == 5)
+                else if (_phase == 4)
                 {
+                    restart = true;
+                }
+                else if (_phase == 5)
+                {
+                    escape = true;
+                }
+                else if (_phase == 7)
+                {
+                    restart = true;
                     Check(!panel.IsOpen && arena.Player.Reaction.IsActive &&
                           arena.Player.IsInvulnerable,
                         "R request begins from a live stunned player with immunity");
                 }
                 break;
         }
-        return new GameInputSnapshot(movement, aim, pointer, attack, pickup, toggle, restart, false,
-            AttackHeld: attack && !panel.IsOpen);
+        if (restart)
+            _sawCleanReset = false;
+        return new GameInputSnapshot(movement, aim, pointer, attack, pickup, toggle, restart, escape,
+            AttackHeld: attack && !panel.IsOpen && !smith.IsOpen, InteractPressed: interact);
     }
 
     public void AfterUpdate(
         ArenaSimulation arena,
         InventoryPanel panel,
+        BlacksmithPanel smith,
         GameContent content,
         ActorPose playerPose,
         Func<string, ActorPose> monsterPose,
@@ -679,17 +759,129 @@ internal sealed class RuntimeSmokeTest
                 {
                     Check(_sawArrow && _healthBefore - arena.Player.Health is 5 or 10,
                         $"TakeArrow real re-aimed projectile hit; health={_healthBefore}->{arena.Player.Health}");
-                    _pickupResources = arena.GroundResources.Select(drop => drop.Stack).ToArray();
-                    Check(_pickupResources.Length > 0, "fixture generated monster crafting resources");
-                    Enter(SmokeStage.Pickup);
+                    Check(arena.GroundResources.Count > 0, "fixture generated monster crafting resources");
+                    Enter(SmokeStage.GatherMaterials);
                 }
                 break;
+            case SmokeStage.GatherMaterials when arena.IsCleared:
+                _pickupResources = arena.GroundResources.ToArray();
+                Check(_pickupResources.Length == 12 && arena.Player.Inventory.Items.Count == 0 &&
+                      arena.Blacksmith.KnownRecipeIds.Count == 0,
+                    "six real unarmed kills yielded material and recipe stacks, never equipment or knowledge");
+                Enter(SmokeStage.Pickup);
+                break;
             case SmokeStage.Pickup when arena.GroundResources.Count == 0:
-                Check(_pickupResources.GroupBy(stack => (stack.Kind, stack.DefinitionId)).All(group =>
-                        arena.Player.Resources.GetCount(group.Key.Kind, group.Key.DefinitionId) >= group.Sum(stack => stack.Quantity)),
-                    "Pickup transferred each generated resource stack into the resource bag");
+                Check(_pickupResources.GroupBy(drop => (drop.Stack.Kind, drop.Stack.DefinitionId)).All(group =>
+                        arena.Player.Resources.GetCount(group.Key.Kind, group.Key.DefinitionId) ==
+                        group.Sum(drop => drop.Stack.Quantity)),
+                    "real E pickups transferred exactly every generated stack into the resource bag");
+                foreach (var drop in _pickupResources)
+                {
+                    var count = arena.Player.Resources.GetCount(drop.Stack.Kind, drop.Stack.DefinitionId);
+                    Check(arena.ResourceOperations.PickUp(arena.Player, drop) == ResourcePickupResult.AlreadyCollected,
+                        $"real pickup receipt rejects duplicate identity without changing counts; drop={drop.DropId}");
+                    Check(arena.Player.Resources.GetCount(drop.Stack.Kind, drop.Stack.DefinitionId) == count,
+                        "duplicate receipt leaves the real owned count unchanged");
+                }
+                Check(arena.Player.Inventory.Items.Count == 0 &&
+                      arena.Player.Resources.GetCount(ResourceKind.Recipe, "recipe.magic_blade") > 0 &&
+                      arena.Player.Resources.GetCount(ResourceKind.Recipe, "recipe.magic_vest") > 0,
+                    "picked both required recipe items but no directly granted equipment");
+                Enter(SmokeStage.ApproachSmith);
+                break;
+            case SmokeStage.ApproachSmith when
+                NumericsVector.Distance(arena.Player.Position, BlacksmithService.Position) <= 28:
+                Check(arena.BlacksmithOperations.CanInteract(arena.Player),
+                    "actual movement reached the smith within the real 64-unit gate");
                 _healthBefore = arena.Player.Health;
-                Enter(SmokeStage.Equip);
+                _smithSnapshot = Snapshot(arena);
+                _pausedPlayerPose = playerPose;
+                _pausedMonsterPoses = arena.Monsters.Select(monster => monsterPose(monster.InstanceId)).ToArray();
+                _pauseSwingRemaining = swingRemaining;
+                _pauseHitTexts = hitTexts.ToArray();
+                Enter(SmokeStage.LearnCraft);
+                break;
+            case SmokeStage.LearnCraft:
+                Check(Snapshot(arena) == _smithSnapshot && playerPose == _pausedPlayerPose &&
+                      arena.Monsters.Select(monster => monsterPose(monster.InstanceId)).SequenceEqual(_pausedMonsterPoses) &&
+                      swingRemaining == _pauseSwingRemaining && hitTexts.SequenceEqual(_pauseHitTexts),
+                    "smith and switch frames freeze actual combat, health, timers and every actor pose");
+                if (_phase == 0)
+                {
+                    Check(smith.IsOpen && !panel.IsOpen, "F opened the real exclusive blacksmith panel");
+                }
+                else if (_phase == 7)
+                {
+                    Check(panel.IsOpen && !smith.IsOpen, "I switched directly from smith to the inventory");
+                    Enter(SmokeStage.InspectResources);
+                    break;
+                }
+                else if (_phase is 1 or 4)
+                {
+                    var expected = _phase == 1 ? BlacksmithStatus.NotLearned : BlacksmithStatus.AlreadyLearned;
+                    Check(smith.LastResult?.Status == expected && smith.Feedback == GameText.SmithStatus(expected) &&
+                          CountsEqual(_materialsBeforeCraft, arena.Player.Resources.Materials) &&
+                          arena.Player.Resources.GetCount(ResourceKind.Recipe, "recipe.magic_blade") == _recipesBeforeLearn,
+                        $"disabled real button reports {expected} without consuming materials or duplicate recipes");
+                }
+                else
+                {
+                    var recipeId = _phase is 3 or 6 ? "recipe.magic_vest" : "recipe.magic_blade";
+                    var recipe = content.Recipes[recipeId];
+                    Check(smith.LastResult?.Status == BlacksmithStatus.Applied,
+                        $"actual smith click applied; phase={_phase}; recipe={recipeId}");
+                    if (_phase is 2 or 3)
+                    {
+                        Check(arena.Blacksmith.HasLearned(recipeId) &&
+                              arena.Player.Resources.GetCount(ResourceKind.Recipe, recipeId) == _recipesBeforeLearn - 1 &&
+                              CountsEqual(_materialsBeforeCraft, arena.Player.Resources.Materials) &&
+                              smith.Feedback == string.Format(GameText.Learned, recipe.Name),
+                            "learning consumed exactly one actual recipe and no materials");
+                    }
+                    else
+                    {
+                        var item = smith.LastResult!.Item!;
+                        Check(item.InstanceId != Guid.Empty &&
+                              arena.Player.Inventory.Find(item.InstanceId) == item &&
+                              _craftedItems.All(owned => owned.InstanceId != item.InstanceId) &&
+                              item.DefinitionId == recipe.ItemId && item.Rarity == recipe.Rarity &&
+                              item.Rolls.Count == 1 &&
+                              _materialsBeforeCraft.All(pair =>
+                                  arena.Player.Resources.GetCount(ResourceKind.Material, pair.Key) ==
+                                  pair.Value - recipe.Costs.Where(cost => cost.MaterialId == pair.Key).Sum(cost => cost.Quantity)),
+                            "craft created a new owned fixed-quality instance and charged the full production costs");
+                        Check(arena.Player.Inventory.EquippedWeapon is null &&
+                              arena.Player.Inventory.EquippedArmor is null &&
+                              arena.Player.Health == _healthBefore && arena.Player.Stats == _statsBeforeCraft &&
+                              arena.Player.Resources.GetCount(ResourceKind.Recipe, recipeId) == _recipesBeforeLearn &&
+                              smith.Feedback == string.Format(GameText.Crafted,
+                                  ItemNameFormatter.GetDisplayName(item, content.Items[item.DefinitionId], content)) &&
+                              smith.CraftedRolls == InventoryPanel.FormatRolls(item, content),
+                            "craft showed actual name and rolls, did not auto-equip, heal or consume more recipes");
+                        _craftedItems = [.. _craftedItems, item];
+                    }
+                }
+                _phase++;
+                break;
+            case SmokeStage.InspectResources:
+                Check(panel.IsOpen && Snapshot(arena) == _smithSnapshot &&
+                      arena.Player.Inventory.EquippedWeapon is null && arena.Player.Inventory.EquippedArmor is null,
+                    "real resource tab and resource row clicks freeze world and never equip");
+                if (_phase < 2)
+                {
+                    Check(panel.Page == InventoryPage.Resources &&
+                          InventoryPanel.ResourceRows(arena.Player, content).Count == 5,
+                        "resource page shows actual three material counts and both retained duplicate recipes");
+                    _phase++;
+                }
+                else
+                {
+                    Check(panel.Page == InventoryPage.Equipment, "actual equipment tab restores item rows");
+                    _retainedMaterials = arena.Player.Resources.Materials.ToDictionary(pair => pair.Key, pair => pair.Value);
+                    _retainedRecipes = arena.Player.Resources.Recipes.ToDictionary(pair => pair.Key, pair => pair.Value);
+                    _retainedKnowledge = arena.Blacksmith.KnownRecipeIds.Order(StringComparer.Ordinal).ToArray();
+                    Enter(SmokeStage.Equip);
+                }
                 break;
             case SmokeStage.Equip when panel.IsOpen:
                 var slot = _phase == 1 ? ItemSlot.Armor : ItemSlot.Weapon;
@@ -699,10 +891,7 @@ internal sealed class RuntimeSmokeTest
                 {
                     break;
                 }
-                var preview = new ItemStatCalculator().Preview(
-                    arena.Player.BaseAttackDamage, arena.Player.BaseMaximumHealth,
-                    arena.Player.Inventory, content, slot, equipped);
-                Check(arena.Player.Stats == preview && arena.Player.Health == _healthBefore,
+                Check(arena.Player.Stats == _equipPreview && arena.Player.Health == _healthBefore,
                     $"Equip {slot} real row click matches comparison totals without healing");
                 if (_phase == 0)
                 {
@@ -721,6 +910,22 @@ internal sealed class RuntimeSmokeTest
                     CheckGear(arena);
                     Check(arena.Player.CriticalChance == 50 && arena.Player.MaximumHealth == 120,
                         "fixture gear applied real fixed critical and maximum-health affixes");
+                    _pauseSnapshot = Snapshot(arena);
+                    Enter(SmokeStage.ReopenEncounter);
+                }
+                break;
+            case SmokeStage.ReopenEncounter:
+                if (_phase == 0)
+                {
+                    Check(!panel.IsOpen && !smith.IsOpen && Snapshot(arena) == _pauseSnapshot,
+                        "Esc closes the inventory without exiting or advancing the closing frame");
+                    _phase = 1;
+                }
+                else
+                {
+                    Check(_sawCleanReset && arena.ResetSequence == _resetBeforeUpdate + 1,
+                        "live R begins a new six-target round after crafting");
+                    CheckGear(arena);
                     Enter(SmokeStage.ClearEncounter);
                 }
                 break;
@@ -793,25 +998,26 @@ internal sealed class RuntimeSmokeTest
             case SmokeStage.RestartCleanup:
                 if (_phase == 0)
                 {
+                    Check(!panel.IsOpen && Snapshot(arena) == _pauseSnapshot &&
+                          playerPose == _pausedPlayerPose &&
+                          arena.Monsters.Select(monster => monsterPose(monster.InstanceId))
+                              .SequenceEqual(_pausedMonsterPoses),
+                        "Esc closing frame retains all paused state and animation without click-through");
+                    _phase = 1;
+                    break;
+                }
+                if (_phase == 1)
+                {
                     Check(!panel.IsOpen && Snapshot(arena) != _pauseSnapshot &&
                           arena.Player.AttackSequence == _sequence,
                         "closing inventory resumed live arrow/windup but retained pre-pause swing cooldown");
                     Check(arena.GroundResources.Count > 0 && arena.Projectiles.Count > 0,
                         "R cleanup precondition still has real ground loot and arrows after resume");
-                    _phase = 1;
+                    _phase = 2;
                     break;
                 }
-                Check(arena.Projectiles.Count == 0 && arena.GroundResources.Count == 0 &&
-                      arena.RemainingMonsters == 6 &&
-                      arena.Monsters.All(monster => monster.Health == monster.MaxHealth && !monster.IsWindingUp) &&
-                      arena.LastSwingHits.Count == 0 &&
-                      arena.Player.Health == _healthBeforeRestart &&
-                      arena.Player.Position == _positionBeforeRestart,
-                    "RestartCleanup R cleared previously nonempty loot/arrows and feedback, restored six, retained player state");
-                Check(panel.IsOpen && playerPose.Offset == NumericsVector.Zero &&
-                      playerPose.AttackProgress == 0 && playerPose.Rotation == 0 &&
-                      arena.Monsters.All(monster => monsterPose(monster.InstanceId).Scale == NumericsVector.One),
-                    "R while paused cleans animation immediately without advancing presentation time");
+                Check(!panel.IsOpen && _sawCleanReset && arena.ResetSequence == _resetBeforeUpdate + 1,
+                    "RestartCleanup live R routed after close; zero-time cleanup was observed before world resumed");
                 CheckGear(arena);
                 _healthBefore = arena.Player.Health;
                 Enter(SmokeStage.DeathRespawn);
@@ -921,7 +1127,24 @@ internal sealed class RuntimeSmokeTest
                     }
                     break;
                 }
-                else if (_phase == 4 && !panel.IsOpen)
+                else if (_phase == 4)
+                {
+                    Check(panel.IsOpen && Snapshot(arena) == _pauseSnapshot &&
+                          playerPose == _pausedPlayerPose && swingRemaining == _pauseSwingRemaining &&
+                          hitTexts.SequenceEqual(_pauseHitTexts) &&
+                          arena.ResetSequence == _resetBeforeUpdate,
+                        "R is refused while inventory pauses actual stun, immunity, arrows, corpse and feedback");
+                    _phase = 5;
+                }
+                else if (_phase == 5)
+                {
+                    Check(!panel.IsOpen && Snapshot(arena) == _pauseSnapshot &&
+                          playerPose == _pausedPlayerPose && swingRemaining == _pauseSwingRemaining &&
+                          hitTexts.SequenceEqual(_pauseHitTexts),
+                        "Esc closes hurt inventory without spending any stun or animation time");
+                    _phase = 6;
+                }
+                else if (_phase == 6)
                 {
                     Check(Snapshot(arena) != _pauseSnapshot && arena.Player.Reaction.IsActive &&
                           arena.Player.Reaction.RemainingSeconds < _pauseReactionRemaining &&
@@ -933,20 +1156,13 @@ internal sealed class RuntimeSmokeTest
                         "closing inventory resumed knockback, stun, immunity and damage feedback; ignored arrow was removed");
                     _sawPlayerHitTextAtReset = hitTexts.Any(text => text.ActorId == "player");
                     _sawPlayerHurtKnockback = true;
-                    _phase = 5;
+                    _phase = 7;
                     break;
                 }
-                else if (_phase == 5)
+                else if (_phase == 7)
                 {
-                    Check(panel.IsOpen && arena.ResetSequence == _resetBeforeUpdate + 1 &&
-                          arena.Player.Health == _healthBeforeRestart &&
-                          !arena.Player.Reaction.IsActive && !arena.Player.IsInvulnerable &&
-                          arena.RemainingMonsters == arena.Monsters.Count &&
-                          arena.Monsters.All(monster => !monster.IsDefeated && !monster.Reaction.IsActive) &&
-                          arena.GroundResources.Count == 0 && arena.Projectiles.Count == 0 &&
-                          arena.LastSwingHits.Count == 0 && swingRemaining == 0 && hitTexts.Count == 0 &&
-                          playerPose.Offset == NumericsVector.Zero && playerPose.AttackProgress == 0,
-                        "R while stunned and in inventory cleared feedback without healing or unpausing");
+                    Check(!panel.IsOpen && _sawCleanReset && arena.ResetSequence == _resetBeforeUpdate + 1,
+                        "live R while stunned cleared feedback after the gated pause and close");
                     _sawResetWhileStunned = true;
                     Check(_sawPlayerHitTextAtReset,
                         "R cleared actual player damage feedback after the stun pause");
@@ -958,12 +1174,66 @@ internal sealed class RuntimeSmokeTest
         if (_stage == SmokeStage.RestartCleanup)
         {
             _healthBeforeRestart = arena.Player.Health;
-            _positionBeforeRestart = arena.Player.Position;
         }
     }
 
     private int _healthBeforeRestart;
-    private NumericsVector _positionBeforeRestart;
+
+    public void ValidatePanelPresentation(SpriteFont font, ArenaSimulation arena,
+        InventoryPanel inventory, BlacksmithPanel smith, GameContent content)
+    {
+        var layouts = new List<(string Text, float Width, float Height)>();
+        if (smith.IsOpen)
+        {
+            foreach (var recipe in content.Recipes.Values)
+            {
+                layouts.Add((recipe.Name, 390, 22));
+                layouts.Add((string.Format(GameText.RecipeState,
+                    arena.Blacksmith.HasLearned(recipe.Id) ? GameText.Known : GameText.Unknown,
+                    arena.Player.Resources.GetCount(ResourceKind.Recipe, recipe.Id)), 390, 22));
+                layouts.AddRange(recipe.Costs.Select(cost =>
+                    (string.Format(GameText.MaterialCost, content.Materials[cost.MaterialId].Name,
+                        arena.Player.Resources.GetCount(ResourceKind.Material, cost.MaterialId), cost.Quantity), 196f, 22f)));
+            }
+            layouts.Add((GameText.Learn, 74, 22));
+            layouts.Add((GameText.Craft, 84, 22));
+            layouts.Add((smith.Feedback, 616, 22));
+            layouts.Add((smith.CraftedRolls, 616, 22));
+        }
+        if (inventory.IsOpen && inventory.Page == InventoryPage.Resources)
+            layouts.AddRange(InventoryPanel.ResourceRows(arena.Player, content).Select(text => (text, 600f, 22f)));
+
+        foreach (var (text, width, height) in layouts.Where(layout => layout.Text.Length > 0))
+        {
+            Check(text.All(character => font.Characters.Contains(character)),
+                $"actual panel output has loaded glyphs; text={text}");
+            var measured = font.MeasureString(text);
+            var scale = Math.Min(1f, Math.Min(width / Math.Max(1, measured.X), height / Math.Max(1, measured.Y)));
+            Check(float.IsFinite(scale) && scale >= .60f,
+                $"actual panel MeasureString fits {width}x{height}; scale={scale:F3}; text={text}");
+        }
+    }
+
+    public void AfterReset(ArenaSimulation arena, ActorPresentation presentation)
+    {
+        Check(arena.ResetSequence == _resetBeforeUpdate + 1 &&
+              arena.Projectiles.Count == 0 && arena.GroundResources.Count == 0 &&
+              arena.RemainingMonsters == 6 &&
+              arena.Monsters.All(monster => monster.Health == monster.MaxHealth &&
+                  !monster.IsWindingUp && !monster.Reaction.IsActive) &&
+              arena.LastSwingHits.Count == 0 &&
+              !arena.Player.Reaction.IsActive && !arena.Player.IsInvulnerable &&
+              arena.Player.Health == _healthBeforeUpdate &&
+              arena.Player.Position == _playerPositionBeforeUpdate &&
+              presentation.SwingRemaining == 0 && presentation.HitTexts.Count == 0 &&
+              presentation.PlayerPose.Offset == NumericsVector.Zero &&
+              presentation.PlayerPose.AttackProgress == 0 && presentation.PlayerPose.Rotation == 0 &&
+              arena.Monsters.All(monster =>
+                  presentation.GetMonsterPose(monster.InstanceId).Scale == NumericsVector.One),
+            "actual R reset cleans six actors, arrows, loot, stun, immunity and animation at zero time without healing");
+        CheckGear(arena);
+        _sawCleanReset = true;
+    }
 
     public bool AfterDraw(ArenaSimulation arena, ActorPresentation presentation, Camera2D camera,
         GraphicsDevice device, double framesPerSecond)
@@ -1059,9 +1329,16 @@ internal sealed class RuntimeSmokeTest
               arena.Player.Inventory.EquippedArmor?.InstanceId == _armor &&
               arena.Player.Inventory.EquippedWeapon.Rolls.SequenceEqual(_weaponRolls) &&
               arena.Player.Inventory.EquippedArmor.Rolls.SequenceEqual(_armorRolls) &&
-              _pickupItems.All(item => arena.Player.Inventory.Items.Contains(item)),
-            "both equipped slots, inventory identities and fixed rolls retained");
+              _craftedItems.Length == 2 &&
+              _craftedItems.All(item => arena.Player.Inventory.Items.Contains(item)) &&
+              CountsEqual(_retainedMaterials, arena.Player.Resources.Materials) &&
+              CountsEqual(_retainedRecipes, arena.Player.Resources.Recipes) &&
+              arena.Blacksmith.KnownRecipeIds.Order(StringComparer.Ordinal).SequenceEqual(_retainedKnowledge),
+            "both crafted slots, inventory identities, fixed rolls, materials, recipes and learned knowledge retained");
     }
+
+    private static bool CountsEqual(IReadOnlyDictionary<string, int> expected, IReadOnlyDictionary<string, int> actual) =>
+        expected.Count == actual.Count && expected.All(pair => actual.TryGetValue(pair.Key, out var value) && value == pair.Value);
 
     private static string Snapshot(ArenaSimulation arena) =>
         $"{arena.Player.Position}|{arena.Player.Health}|{arena.Player.AttackSequence}|" +
