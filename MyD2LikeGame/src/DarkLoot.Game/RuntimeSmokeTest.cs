@@ -211,6 +211,8 @@ internal sealed class RuntimeSmokeTest
                 layouts.Add((string.Format(GameText.Item, GameText.Rarity(rarity), name,
                     GameText.Slot(definition.Slot), GameText.Equipped), 600, 21));
                 layouts.Add((InventoryPanel.FormatRolls(item, content), 336, 21));
+                layouts.Add((string.Format(GameText.Crafted, name), 616, 22));
+                layouts.Add((InventoryPanel.FormatRolls(item, content), 616, 22));
                 layouts.Add((string.Format(GameText.Pickup, name, 1), 400, 22));
                 layouts.Add((string.Format(GameText.SlotLine, GameText.Slot(definition.Slot),
                     $"{GameText.Rarity(rarity)} {name}"), 616, 22));
@@ -226,6 +228,34 @@ internal sealed class RuntimeSmokeTest
             .Select(text => (text, 1080f, 22f)));
         layouts.AddRange(new[] { GameText.Inventory, GameText.Paused, GameText.Empty }
             .Select(text => (text, 616f, 22f)));
+        layouts.AddRange(new[]
+            {
+                GameText.Smith, GameText.SmithPaused, GameText.EmptyResources
+            }.Select(text => (text, 616f, 22f)));
+        layouts.AddRange(Enum.GetValues<DarkLoot.Gameplay.Crafting.BlacksmithStatus>()
+            .Select(status => (GameText.SmithStatus(status), 616f, 22f)));
+        layouts.Add((GameText.EquipmentTab, 120, 22));
+        layouts.Add((GameText.ResourceTab, 120, 22));
+        layouts.Add((GameText.Learn, 74, 22));
+        layouts.Add((GameText.Craft, 84, 22));
+        layouts.Add((GameText.SmithPrompt, 220, 22));
+        layouts.Add((GameText.MaterialCostHelp, 600, 18));
+        foreach (var recipe in content.Recipes.Values)
+        {
+            layouts.Add((recipe.Name, 390, 22));
+            layouts.Add((string.Format(GameText.RecipeResource, recipe.Name, int.MaxValue), 600, 22));
+            layouts.Add((string.Format(GameText.Learned, recipe.Name), 616, 22));
+            layouts.Add((string.Format(GameText.RecipeState, GameText.Known, int.MaxValue), 390, 22));
+            layouts.Add((string.Format(GameText.RecipeState, GameText.Unknown, 0), 390, 22));
+            foreach (var cost in recipe.Costs)
+                layouts.Add((string.Format(GameText.MaterialCost,
+                    content.Materials[cost.MaterialId].Name, int.MaxValue, cost.Quantity), 196, 22));
+            var shortages = string.Join("  ", recipe.Costs.Select(cost =>
+                string.Format(GameText.Shortage, content.Materials[cost.MaterialId].Name, cost.Quantity)));
+            layouts.Add((string.Format(GameText.ShortageDetails, GameText.InsufficientMaterials, shortages), 616, 22));
+        }
+        layouts.AddRange(content.Materials.Values.Select(material =>
+            (string.Format(GameText.MaterialResource, material.Name, int.MaxValue), 600f, 22f)));
         layouts.Add((string.Format(GameText.Enemies, 6, 6), 240, 22));
         layouts.Add((string.Format(GameText.Hud, int.MaxValue, int.MaxValue, int.MaxValue, 100, 9999d), 1080, 22));
         layouts.Add((string.Format(GameText.DeathHud, float.MaxValue, 9999d), 1080, 22));

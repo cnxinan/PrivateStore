@@ -8,6 +8,27 @@ namespace DarkLoot.Tests.Engine;
 public sealed class InputAndFrameRateTests
 {
     [Fact]
+    public void Capture_InteractAndEscapeAreEdgesIncludingWhileFocusGateIsPaused()
+    {
+        var input = new GameInput();
+        var camera = new Camera2D();
+        var keys = new KeyboardState(Keys.F, Keys.Escape);
+        var gate = new WindowActivityGate();
+        Assert.False(gate.CanAdvance(false));
+        var first = input.Capture(camera, keys, default);
+        Assert.True(first.InteractPressed);
+        Assert.True(first.ExitPressed);
+        Assert.False(gate.CanAdvance(true));
+        var held = input.Capture(camera, keys, default);
+        Assert.False(held.InteractPressed);
+        Assert.False(held.ExitPressed);
+        input.Capture(camera, default, default);
+        var again = input.Capture(camera, keys, default);
+        Assert.True(again.InteractPressed);
+        Assert.True(again.ExitPressed);
+    }
+
+    [Fact]
     public void Capture_HoldingLeftButtonKeepsAttackHeldButClicksOnlyOnce()
     {
         var input = new GameInput();

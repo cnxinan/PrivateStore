@@ -18,6 +18,9 @@
     <Using Include="Xunit" />
     <Compile Include="..\..\src\DarkLoot.Game\ActorPresentation.cs" Link="Game\ActorPresentation.cs" />
     <Compile Include="..\..\src\DarkLoot.Game\GameText.cs" Link="Game\GameText.cs" />
+    <Compile Include="..\..\src\DarkLoot.Game\PanelController.cs" Link="Game\PanelController.cs" />
+    <Compile Include="..\..\src\DarkLoot.Game\InventoryPanel.cs" Link="Game\InventoryPanel.cs" />
+    <Compile Include="..\..\src\DarkLoot.Game\BlacksmithPanel.cs" Link="Game\BlacksmithPanel.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -22,6 +22,8 @@ public sealed class DarkLootGame : MonoGameGame
     private readonly ActorPresentation _presentation = new();
     private readonly HudRenderer _hud = new();
     private readonly InventoryPanel _inventory = new();
+    private readonly BlacksmithPanel _blacksmith = new();
+    private readonly PanelController _panels = new();
     private readonly FrameRateCounter _frameRate = new();
     private readonly WindowActivityGate _activityGate = new();
     private readonly Stopwatch _renderClock = Stopwatch.StartNew();
@@ -32,6 +34,7 @@ public sealed class DarkLootGame : MonoGameGame
     private GameContent _content = null!;
     private GameContent _productionContent = null!;
     private ArenaSimulation _arena = null!;
+    private string? _interactionFeedback;
 
     public DarkLootGame(bool smokeTest)
     {
@@ -94,11 +97,6 @@ public sealed class DarkLootGame : MonoGameGame
             _content,
             GraphicsDevice.Viewport.Width,
             _presentation.SwingRemaining) ?? captured;
-        if (input.ExitPressed)
-        {
-            Exit();
-            return;
-        }
         ApplyInput(input, _smoke is null ? Math.Min((float)gameTime.ElapsedGameTime.TotalSeconds, .1f) : .1f);
         _smoke?.AfterUpdate(
             _arena,
@@ -113,21 +111,38 @@ public sealed class DarkLootGame : MonoGameGame
 
     private void ApplyInput(GameInputSnapshot input, float elapsed)
     {
-        if (!_arena.Player.IsDead)
+        var frame = _panels.Route(input, _arena.Player, _arena.BlacksmithOperations);
+        _inventory.SetOpen(frame.ActivePanel == PanelKind.Inventory);
+        _blacksmith.SetOpen(frame.ActivePanel == PanelKind.Blacksmith);
+        if (frame.Feedback is not null)
         {
-            _inventory.Update(
-                input, _arena.Player, _content, GraphicsDevice.Viewport.Width,
-                _arena.EquipmentOperations);
+            _interactionFeedback = GameText.SmithStatus(frame.Feedback.Value);
         }
-        if (input.RestartPressed && !_arena.Player.IsDead)
+        else if (_arena.Player.IsDead || _arena.BlacksmithOperations.CanInteract(_arena.Player))
         {
-            _arena.ResetEncounter();
-            _presentation.Reset(_arena);
+            _interactionFeedback = null;
         }
-        var attacking = (input.AttackHeld || input.AttackPressed) && !_inventory.IsOpen;
-        if (!_inventory.IsOpen)
+        if (frame.ExitRequested)
         {
-            var intent = new PlayerIntent(input.MoveDirection, input.AimWorldPosition, attacking, input.PickupPressed);
+            Exit();
+            return;
+        }
+        if (frame.HandlePanelActions)
+        {
+            if (frame.ActivePanel == PanelKind.Inventory)
+                _inventory.Update(input, _arena.Player, _content, GraphicsDevice.Viewport.Width, _arena.EquipmentOperations);
+            else if (frame.ActivePanel == PanelKind.Blacksmith)
+                _blacksmith.Update(input, _arena, _content, GraphicsDevice.Viewport.Width);
+        }
+        if (frame.AdvanceWorld)
+        {
+            if (frame.RestartRequested)
+            {
+                _arena.ResetEncounter();
+                _presentation.Reset(_arena);
+            }
+            var intent = new PlayerIntent(input.MoveDirection, input.AimWorldPosition,
+                input.AttackHeld || input.AttackPressed, input.PickupPressed);
             _arena.Update(intent, elapsed);
             _presentation.Update(_arena, elapsed);
         }
@@ -151,8 +166,9 @@ public sealed class DarkLootGame : MonoGameGame
             _camera,
             _presentation);
         _hud.Draw(_batch, _shapes, _font, _arena, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height,
-            _frameRate.FramesPerSecond);
+            _frameRate.FramesPerSecond, _interactionFeedback);
         _inventory.Draw(_batch, _shapes, _font, _arena.Player, _content, GraphicsDevice.Viewport.Width);
+        _blacksmith.Draw(_batch, _shapes, _font, _arena, _content, GraphicsDevice.Viewport.Width);
         _batch.End();
         base.Draw(gameTime);
         if (_smoke?.AfterDraw(_arena, _presentation, _camera, GraphicsDevice, _frameRate.FramesPerSecond) == true)

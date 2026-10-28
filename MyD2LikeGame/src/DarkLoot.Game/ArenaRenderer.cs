@@ -6,6 +6,7 @@ using DarkLoot.Engine.Animation;
 using DarkLoot.Engine.Camera;
 using DarkLoot.Engine.Rendering;
 using DarkLoot.Gameplay.Combat;
+using DarkLoot.Gameplay.Crafting;
 using DarkLoot.Gameplay.Resources;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -32,6 +33,16 @@ public sealed class ArenaRenderer
         {
             shapes.Line(batch, origin + new Vector2(0, y), origin + new Vector2(960, y), new Color(38, 53, 45), 1);
         }
+
+        var smithPosition = camera.WorldToScreen(BlacksmithService.Position);
+        shapes.Circle(batch, smithPosition + new Vector2(-14, -12), 9, Color.BurlyWood);
+        shapes.Line(batch, smithPosition + new Vector2(-14, -2), smithPosition + new Vector2(-14, 18),
+            Color.SaddleBrown, 12);
+        shapes.Rectangle(batch, new Rectangle((int)smithPosition.X, (int)smithPosition.Y, 30, 8), Color.SlateGray);
+        shapes.Rectangle(batch, new Rectangle((int)smithPosition.X + 8, (int)smithPosition.Y + 8, 14, 12), Color.DimGray);
+        if (arena.BlacksmithOperations.CanInteract(arena.Player))
+            GameText.Draw(batch, font, GameText.SmithPrompt,
+                smithPosition + new Vector2(-30, -42), Color.Gold, 220);
 
         var lootRows = new List<Rectangle>(arena.GroundResources.Count);
         var viewport = batch.GraphicsDevice.Viewport;

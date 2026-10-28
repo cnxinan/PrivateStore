@@ -8,7 +8,7 @@ namespace DarkLoot.Game;
 public sealed class HudRenderer
 {
     public void Draw(SpriteBatch batch, ShapeRenderer shapes, SpriteFont font, ArenaSimulation arena, int width, int height,
-        double framesPerSecond)
+        double framesPerSecond, string? interactionFeedback = null)
     {
         shapes.Rectangle(batch, new Rectangle(0, 0, width, 88), new Color(15, 20, 29));
         var dead = arena.Player.IsDead;
@@ -21,10 +21,11 @@ public sealed class HudRenderer
         shapes.Rectangle(batch, new Rectangle(0, height - 38, width, 38), new Color(15, 20, 29));
         GameText.Draw(batch, font, string.Format(GameText.Enemies, arena.RemainingMonsters, arena.Monsters.Count),
             new Vector2(20, 96), Color.White, 240);
-        var status = arena.IsCleared
+        var status = interactionFeedback ?? (arena.IsCleared
             ? GameText.Cleared
-            : GameText.Objective;
-        GameText.Draw(batch, font, status, new Vector2(20, height - 29), Color.Gold, width - 40);
+            : GameText.Objective);
+        GameText.Draw(batch, font, status, new Vector2(20, height - 29),
+            interactionFeedback is null ? Color.Gold : Color.Salmon, width - 40);
     }
 
     internal static string PlayerHeader(ArenaSimulation arena, double framesPerSecond) =>
