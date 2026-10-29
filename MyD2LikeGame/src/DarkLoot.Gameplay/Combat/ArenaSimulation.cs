@@ -160,6 +160,8 @@ public sealed class ArenaSimulation
 
     public BlacksmithService BlacksmithOperations { get; }
 
+    internal bool HasStarted { get; private set; }
+
     public void Update(PlayerIntent intent, float elapsedSeconds)
     {
         ArgumentNullException.ThrowIfNull(intent);
@@ -170,6 +172,7 @@ public sealed class ArenaSimulation
                 "Elapsed time must be finite and non-negative.");
         }
 
+        HasStarted = true;
         _events.Clear();
         if (Player.IsDead)
         {
@@ -241,6 +244,7 @@ public sealed class ArenaSimulation
             return;
         }
 
+        HasStarted = true;
         ResetSequence = checked(ResetSequence + 1);
         _killRewards.BeginRound(ResetSequence);
         _events.Clear();

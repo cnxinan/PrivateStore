@@ -5,8 +5,8 @@ namespace DarkLoot.Gameplay.Items;
 
 public sealed class Inventory
 {
-    private readonly List<ItemInstance> _items = [];
-    private readonly ReadOnlyCollection<ItemInstance> _readOnlyItems;
+    private List<ItemInstance> _items = [];
+    private ReadOnlyCollection<ItemInstance> _readOnlyItems;
 
     public Inventory()
     {
@@ -26,6 +26,15 @@ public sealed class Inventory
         EquippedArmorId is { } id ? Find(id) : null;
 
     internal void AppendValidated(ItemInstance item) => _items.Add(item);
+
+    internal void RestoreValidated(List<ItemInstance> items, Guid? weaponId, Guid? armorId)
+    {
+        var view = items.AsReadOnly();
+        _items = items;
+        _readOnlyItems = view;
+        EquippedWeaponId = weaponId;
+        EquippedArmorId = armorId;
+    }
 
     public ItemInstance? Find(Guid instanceId)
     {
