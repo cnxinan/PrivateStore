@@ -98,11 +98,14 @@ internal sealed class RuntimeSmokeTest
     private int _recoveryDodgeUpdates;
     private string[] _windingArcherIdsBeforeUpdate = [];
 
-    public RuntimeSmokeTest(string logPath)
+    public RuntimeSmokeTest(string logPath, bool appendLog = false)
     {
         _logPath = logPath;
-        File.WriteAllText(logPath,
-            $"DarkLoot mixed smoke; PID={Environment.ProcessId}; UTC={DateTime.UtcNow:O}{Environment.NewLine}");
+        var header = $"DarkLoot mixed smoke; PID={Environment.ProcessId}; UTC={DateTime.UtcNow:O}{Environment.NewLine}";
+        if (appendLog)
+            File.AppendAllText(logPath, header);
+        else
+            File.WriteAllText(logPath, header);
     }
 
     public (GameContent Content, EncounterDefinition Encounter) CreateFixture(GameContent production)
@@ -165,6 +168,8 @@ internal sealed class RuntimeSmokeTest
     }
 
     public Random CreateRandom() => new SmokeRandom();
+
+    public bool ReadyForPersistenceCheck => _stage == SmokeStage.ClearEncounter && _phase == 0;
 
     private sealed class SmokeRandom : Random
     {

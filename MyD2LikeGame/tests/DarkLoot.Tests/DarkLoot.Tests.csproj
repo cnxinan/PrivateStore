@@ -22,6 +22,7 @@
     <Compile Include="..\..\src\DarkLoot.Game\InventoryPanel.cs" Link="Game\InventoryPanel.cs" />
     <Compile Include="..\..\src\DarkLoot.Game\BlacksmithPanel.cs" Link="Game\BlacksmithPanel.cs" />
     <Compile Include="..\..\src\DarkLoot.Game\RuntimeSmokeTest.cs" Link="Game\RuntimeSmokeTest.cs" />
+    <Compile Include="..\..\src\DarkLoot.Game\PersistenceSmokeTest.cs" Link="Game\PersistenceSmokeTest.cs" />
     <Compile Include="..\..\src\DarkLoot.Game\HudRenderer.cs" Link="Game\HudRenderer.cs" />
   </ItemGroup>
 

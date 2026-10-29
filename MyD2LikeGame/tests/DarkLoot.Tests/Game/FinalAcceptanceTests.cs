@@ -34,6 +34,7 @@ public sealed class FinalAcceptanceTests
             presentation.Reset(arena);
             Assert.Empty(arena.Player.Inventory.Items);
             Assert.Empty(arena.Blacksmith.KnownRecipeIds);
+            var sawPersistenceBoundary = false;
             for (var update = 0; update < 600 && (arena.ResetSequence == 0 || !arena.IsCleared); update++)
             {
                 var input = smoke.NextInput(arena, inventory, smith, content, 1120, presentation.SwingRemaining);
@@ -62,7 +63,9 @@ public sealed class FinalAcceptanceTests
                 }
                 smoke.AfterUpdate(arena, inventory, smith, content, presentation.PlayerPose,
                     presentation.GetMonsterPose, presentation.SwingRemaining, presentation.HitTexts);
+                sawPersistenceBoundary |= smoke.ReadyForPersistenceCheck;
             }
+            Assert.True(sawPersistenceBoundary);
             Assert.Equal(2, arena.Player.Inventory.Items.Count);
             Assert.NotNull(arena.Player.Inventory.EquippedWeapon);
             Assert.NotNull(arena.Player.Inventory.EquippedArmor);

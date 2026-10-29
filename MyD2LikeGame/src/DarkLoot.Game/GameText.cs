@@ -10,6 +10,8 @@ namespace DarkLoot.Game;
 internal static class GameText
 {
     public const string Title = "暗黑战利品 - 训练场";
+    public const string SaveErrorTitle = "存档错误";
+    public const string SaveError = "进度存读失败，游戏已停止。请检查下方路径及错误；现有存档不会自动重置。";
     public const string Hud = "暗黑战利品  |  生命 {0}/{1}  |  攻击 {2}  |  暴击 {3}%  |  FPS {4:F0}";
     public const string DeathHud = "已死亡  |  自动复活倒计时 {0:F1} 秒  |  FPS {1:F0}";
     public const string Movement = "WASD：移动    鼠标：瞄准    左键：连续近战    E：拾取";

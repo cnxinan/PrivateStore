@@ -1,6 +1,6 @@
 # DarkLoot vertical slice
 
-Windows, .NET 9 SDK, and a DirectX-capable desktop are required. No editor or save system.
+Windows, .NET 9 SDK, and a DirectX-capable desktop are required. No editor.
 
 ```powershell
 dotnet run --project src\DarkLoot.Game --configuration Release
@@ -23,7 +23,9 @@ dotnet publish src\DarkLoot.Game --configuration Release --output artifacts\publ
 - **R** 仅在存活且没有面板时重置整个遭遇，保留玩家位置、当前生命、全部装备、资源数量和铁匠知识；清除地面掉落、箭矢、受击状态和保护期，不额外回血或授予保护。死亡或面板打开期间无效。
 - **Escape** 有面板时只关闭当前面板，没有面板时才退出。死亡后保持原位等待 0.6 秒，再回到出生点恢复当前生命上限，获得 0.8 秒保护；重置全部怪物，清空地面掉落及箭矢，保留全部装备实例及词缀、资源数量和已学配方。
 - 死亡等待期间禁止移动、攻击、拾取、换装、学习、打造和打开面板；怪物与箭矢继续运行，箭矢穿过死者。面板暂停或窗口失焦时，战斗与动画计时冻结。
-- **没有存档**：已学配方仅在当前运行期间持续有效；重复掉落的配方保留在资源袋，再次点击学习不会消耗。死亡和 R 保留进度，但退出游戏后装备、资源与已学知识全部清空，新场景从空背包开始。
+- **单档自动存读**：启动读取 `%LOCALAPPDATA%\DarkLoot\save.json`；成功拾取、换装、学习、打造导致进度变化后立即保存，正常退出也保存。保留全部装备实例及原始品质/词缀、背包顺序、穿戴槽位、材料/配方数量与已学配方；重复配方仍保留，再次学习不消耗。
+- 每次进入从出生点按装备后的生命上限满血开始，怪物重新生成；不恢复位置、当前生命、怪物、箭矢或地面掉落。首次没有存档时从空背包开始。死亡和 R 不清除存档进度。
+- 存档使用带版本号的 JSON，同目录临时文件落盘后原子替换。损坏、版本不支持、定义不兼容或无法读取会明确弹出错误并停止启动，不自动重置或覆盖旧档；运行中写入失败也会报错停止，不在退出时重试覆盖。程序目录无法写诊断日志时仍显示存档错误。没有多角色、手动读写、云同步或版本迁移；如需重开，请先退出并自行备份、移走该文件。
 
 训练场按 `encounter.training_arena` 配置两只史莱姆、两只迅捷狼和两只骷髅弓手；
 近战挥击命中前方范围内的所有存活敌人，接触伤害共享冷却。每只史莱姆必掉黏液、狼必掉兽皮、骷髅弓手必掉骨片，每次数量为 1～2，等概率；
@@ -41,7 +43,7 @@ dotnet publish src\DarkLoot.Game --configuration Release --output artifacts\publ
 武器和护甲共同提供攻击、生命上限和暴击率，背包显示随机属性及换装后的属性变化。
 提高生命上限不会立即回血；死亡后恢复当前生命上限，并保留所有装备。
 `ItemStatCalculator`统一计算实际属性与换装预览；`InventoryService`统一处理拾取、穿戴及内部同 ID 快照替换；
-`KillRewardService`按战斗轮次和怪物实例去重结算资源奖励；`BlacksmithService`统一校验学习、打造与完整扣费。本轮未引入装备经验、等级或存档。
+`KillRewardService`按战斗轮次和怪物实例去重结算资源奖励；`BlacksmithService`统一校验学习、打造与完整扣费。本轮未引入装备经验或等级。
 蓝色代表玩家，材料与配方地面堆显示实际名称和数量，铁匠使用几何形状绘制，暴击使用橙红色闪光反馈。
 绿色圆形是史莱姆，长身、尖耳和尾巴的是迅捷狼，灰色骷髅与弓是骷髅弓手；
 每只存活怪物独立显示名称和生命条，群体挥击在各目标旁独立显示伤害和暴击。
@@ -63,6 +65,9 @@ dotnet publish src\DarkLoot.Game --configuration Release --output artifacts\publ
 - **Gameplay**: headless multi-instance `ArenaSimulation`, per-target area melee, resource rewards,
   stackable materials/recipes, recipe knowledge, atomic crafting through the shared equipment factory,
   two-slot equipment, shared stat totals, hit-only critical rolls and combat rules.
+  `ProgressPersistence` captures detached progression and validates the whole candidate before startup
+  restoration; `JsonSaveStore` provides strict versioned JSON and atomic writes; `SaveSession` saves
+  changed progression and normal exit, disabling writes after a persistence failure.
 - **Game**: MonoGame host maps Engine input to `PlayerIntent`; `ActorPresentation` consumes per-Update combat
   events once and maintains one animator per instance, while `ActorRenderer` transforms actor-local geometry.
   Renderers and inventory hit-testing contain no combat/drop rules; Draw never advances animation time.
@@ -89,8 +94,24 @@ bounded to `Int32`; critical chance is clamped to 0..100.
 
 ```powershell
 dotnet run --project src\DarkLoot.Game --configuration Release -- --smoke-test
+dotnet run --project src\DarkLoot.Game --configuration Release -- --persistence-smoke-test
 Get-Content src\DarkLoot.Game\bin\Release\net9.0-windows\smoke-test.log
 ```
+
+Both commands use a unique temporary save directory, never the player's real save, and clean it up
+afterward. The full smoke retains all existing combat/rendering assertions, then checks the on-disk
+snapshot against actual live progression, closes the game, and creates a second independent game
+session/window that loads that same file. Two real Draws validate exact IDs, rolled values, inventory
+order, both slots, resources and learned recipes, along with full equipped health and a fresh encounter.
+`--persistence-smoke-test` specifically runs the real kill/pickup/learn/craft/equip/R loop, then performs
+that same two-window persistence check before the armed combat acceptance stages. It does not replace
+the full smoke's death-pixel assertions.
+
+Current acceptance limitation: the full smoke fails its green partial-death slime backbuffer assertion
+at `ClearEncounter`, phase 0. The previously published binary fails the same assertion; it has not been
+weakened or removed. The source and newly published persistence-only two-window checks pass independently.
+The preserved baseline failure log is `artifacts\autosave-baseline-full-smoke.log`; persistence results are
+`artifacts\autosave-source-smoke.log` and `artifacts\autosave-published-smoke.log`.
 
 This opens a real graphics window and injects deterministic input snapshots through the host update/UI/draw
 path. It first verifies actual loaded `SpriteFont.Characters` against all presentation strings, enum
@@ -124,7 +145,7 @@ Actual smith feedback, names, costs, buttons and resource rows are measured and 
 Real backbuffer samples require visible partial monster/player death bodies;
 these are color-presence checks at authoritative anchors, not golden screenshots. Headless controller tests
 compile the presentation source directly, without referencing the executable Game project.
-It uses accelerated simulation time, bounds each named stage to 450 updates and the run to 2,400 updates,
+The first session uses accelerated simulation time, bounds each named stage to 450 updates and the run to 2,400 updates,
 and returns nonzero with the stage/phase on failure (no success fallback). Physical
 keyboard/mouse input and human visual review remain unverified. Startup errors are written beside the
 executable to `startup-error.log` (smoke failures to `smoke-test.log`).
@@ -143,5 +164,7 @@ This validates the copied atlas and definitions too. A startup `NoSuitableGraphi
 (no graphics adapters) blocks window acceptance; it is not a passed or skipped smoke.
 The headless suite separately drives the smoke input script through kills, pickups, learning, crafting,
 equipping and the armed six-kill round, and verifies actual service ownership across death/R and an empty
-new scene. These do not replace window rendering/loaded-font checks. Diagnostic logs remain in English.
+new scene. Persistence tests additionally verify exact cross-session restoration, complete rejection of
+invalid snapshots, strict/malformed JSON, locked destinations preserving old bytes, and all four autosave
+triggers and exit/failure guards. These do not replace window rendering/loaded-font checks. Diagnostic logs remain in English.
 自动烟测不能代替人工视觉与手感验收；本次只执行自动化验证，没有进行人工游戏手感或窗口焦点实测。

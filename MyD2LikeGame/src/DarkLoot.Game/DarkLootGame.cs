@@ -7,6 +7,7 @@ using DarkLoot.Engine.Diagnostics;
 using DarkLoot.Engine.Input;
 using DarkLoot.Engine.Rendering;
 using DarkLoot.Gameplay.Combat;
+using DarkLoot.Gameplay.Persistence;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGameGame = Microsoft.Xna.Framework.Game;
@@ -28,6 +29,10 @@ public sealed class DarkLootGame : MonoGameGame
     private readonly WindowActivityGate _activityGate = new();
     private readonly Stopwatch _renderClock = Stopwatch.StartNew();
     private readonly RuntimeSmokeTest? _smoke;
+    private readonly string _savePath;
+    private readonly PersistenceSmokeTest? _restoringSmoke;
+    private readonly bool _persistenceOnlySmoke;
+    private SaveSession? _save;
     private SpriteBatch _batch = null!;
     private ShapeRenderer _shapes = null!;
     private SpriteFont _font = null!;
@@ -36,8 +41,12 @@ public sealed class DarkLootGame : MonoGameGame
     private ArenaSimulation _arena = null!;
     private string? _interactionFeedback;
 
-    public DarkLootGame(bool smokeTest)
+    internal DarkLootGame(bool smokeTest, string savePath, PersistenceSmokeTest? restoringSmoke = null,
+        bool persistenceOnlySmoke = false)
     {
+        _savePath = savePath;
+        _restoringSmoke = restoringSmoke;
+        _persistenceOnlySmoke = persistenceOnlySmoke;
         _graphics = new GraphicsDeviceManager(this)
         {
             PreferredBackBufferWidth = 1120,
@@ -48,7 +57,8 @@ public sealed class DarkLootGame : MonoGameGame
         IsMouseVisible = true;
         if (smokeTest)
         {
-            _smoke = new RuntimeSmokeTest(Path.Combine(AppContext.BaseDirectory, "smoke-test.log"));
+            _smoke = new RuntimeSmokeTest(Path.Combine(AppContext.BaseDirectory, "smoke-test.log"),
+                appendLog: restoringSmoke is not null);
         }
     }
 
@@ -65,7 +75,11 @@ public sealed class DarkLootGame : MonoGameGame
             _content,
             _smoke?.CreateRandom() ?? new Random(42),
             encounter);
+        _save = new SaveSession(_content, _savePath);
+        _save.Load(_arena);
         _presentation.Reset(_arena);
+        if (_restoringSmoke is not null)
+            _inventory.SetOpen(true);
         FollowPlayer();
         base.Initialize();
     }
@@ -91,6 +105,11 @@ public sealed class DarkLootGame : MonoGameGame
             base.Update(gameTime);
             return;
         }
+        if (_restoringSmoke is not null)
+        {
+            base.Update(gameTime);
+            return;
+        }
         var input = _smoke?.NextInput(
             _arena,
             _inventory,
@@ -99,6 +118,7 @@ public sealed class DarkLootGame : MonoGameGame
             GraphicsDevice.Viewport.Width,
             _presentation.SwingRemaining) ?? captured;
         ApplyInput(input, _smoke is null ? Math.Min((float)gameTime.ElapsedGameTime.TotalSeconds, .1f) : .1f);
+        _save!.SaveIfChanged(_arena);
         _smoke?.AfterUpdate(
             _arena,
             _inventory,
@@ -175,10 +195,27 @@ public sealed class DarkLootGame : MonoGameGame
         _batch.End();
         base.Draw(gameTime);
         _smoke?.ValidatePanelPresentation(_font, _arena, _inventory, _blacksmith, _content);
-        if (_smoke?.AfterDraw(_arena, _presentation, _camera, GraphicsDevice, _frameRate.FramesPerSecond) == true)
+        if (_restoringSmoke is not null)
+        {
+            if (_restoringSmoke.AfterRestoredDraw(_arena, _content))
+                Exit();
+        }
+        else if (_persistenceOnlySmoke && _smoke?.ReadyForPersistenceCheck == true)
         {
             Exit();
         }
+        else if (_smoke?.AfterDraw(_arena, _presentation, _camera, GraphicsDevice, _frameRate.FramesPerSecond) == true)
+        {
+            Exit();
+        }
+    }
+
+    internal void RecordSmokeProgress(PersistenceSmokeTest smoke) => smoke.RecordExpected(_arena, _content);
+
+    protected override void OnExiting(object sender, ExitingEventArgs args)
+    {
+        _save?.SaveOnExit(_arena);
+        base.OnExiting(sender, args);
     }
 
     protected override void UnloadContent()
