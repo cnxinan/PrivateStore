@@ -33,7 +33,7 @@ internal static class GameText
     public const string Critical = "暴击";
     public const string SlotLine = "{0}  {1}";
     public const string Totals = "总计  攻击 {0}   生命上限 {1}   暴击 {2}%";
-    public const string Paused = "已暂停。I / Esc 关闭，滚轮翻页，点击装备穿戴。";
+    public const string Paused = "已暂停。I / Esc / 右键 关闭，滚轮翻页，点击装备穿戴。";
     public const string Empty = "暂无装备 - 向铁匠学习配方并打造。";
     public const string EmptyResources = "暂无材料或配方 - 击败敌人后按 E 拾取。";
     public const string MaterialResource = "材料  {0} ×{1}";
@@ -51,7 +51,7 @@ internal static class GameText
     public const string Swing = "挥击";
     public const string Smith = "铁匠 - 学习配方 / 打造装备";
     public const string SmithPrompt = "铁匠  F：交谈";
-    public const string SmithPaused = "已暂停。F / Esc 关闭，I 切换背包；打造后需手动装备。";
+    public const string SmithPaused = "已暂停。F / Esc / 右键 关闭，I 切换背包；打造后需手动装备。";
     public const string Learn = "学习";
     public const string Craft = "打造";
     public const string Known = "已学会";

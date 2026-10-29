@@ -8,6 +8,39 @@ namespace DarkLoot.Tests.Engine;
 public sealed class InputAndFrameRateTests
 {
     [Fact]
+    public void Capture_RightButtonClosesOnlyOnPressEdges()
+    {
+        var input = new GameInput();
+        var camera = new Camera2D();
+        var pressed = new MouseState(100, 100, 0, ButtonState.Released,
+            ButtonState.Released, ButtonState.Pressed, ButtonState.Released, ButtonState.Released);
+
+        Assert.True(input.Capture(camera, default, pressed).ClosePanelPressed);
+        Assert.False(input.Capture(camera, default, pressed).ClosePanelPressed);
+        Assert.False(input.Capture(camera, default, default).ClosePanelPressed);
+        Assert.True(input.Capture(camera, default, pressed).ClosePanelPressed);
+    }
+
+    [Fact]
+    public void Capture_RightButtonWhileUnfocusedIsNotReplayedOnResume()
+    {
+        var input = new GameInput();
+        var camera = new Camera2D();
+        var gate = new WindowActivityGate();
+        var pressed = new MouseState(100, 100, 0, ButtonState.Released,
+            ButtonState.Released, ButtonState.Pressed, ButtonState.Released, ButtonState.Released);
+
+        Assert.False(gate.CanAdvance(false));
+        Assert.True(input.Capture(camera, default, pressed).ClosePanelPressed);
+        Assert.False(gate.CanAdvance(true));
+        Assert.False(input.Capture(camera, default, pressed).ClosePanelPressed);
+        Assert.True(gate.CanAdvance(true));
+        Assert.False(input.Capture(camera, default, pressed).ClosePanelPressed);
+        Assert.False(input.Capture(camera, default, default).ClosePanelPressed);
+        Assert.True(input.Capture(camera, default, pressed).ClosePanelPressed);
+    }
+
+    [Fact]
     public void Capture_InteractAndEscapeAreEdgesIncludingWhileFocusGateIsPaused()
     {
         var input = new GameInput();

@@ -16,7 +16,8 @@ public sealed record GameInputSnapshot(
     bool ExitPressed,
     int ScrollDelta = 0,
     bool AttackHeld = false,
-    bool InteractPressed = false);
+    bool InteractPressed = false,
+    bool ClosePanelPressed = false);
 
 public sealed class GameInput
 {
@@ -48,7 +49,8 @@ public sealed class GameInput
             Pressed(Keys.Escape),
             mouse.ScrollWheelValue - _previousMouse.ScrollWheelValue,
             mouse.LeftButton == ButtonState.Pressed,
-            Pressed(Keys.F));
+            Pressed(Keys.F),
+            mouse.RightButton == ButtonState.Pressed && _previousMouse.RightButton == ButtonState.Released);
         _previousKeyboard = keyboard;
         _previousMouse = mouse;
         return snapshot;

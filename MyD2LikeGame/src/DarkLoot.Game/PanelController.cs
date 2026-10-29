@@ -29,6 +29,12 @@ public sealed class PanelController
             return new(ActivePanel, false, false, exit, false, null);
         }
 
+        if (input.ClosePanelPressed && ActivePanel != PanelKind.None)
+        {
+            ActivePanel = PanelKind.None;
+            return new(ActivePanel, false, false, false, false, null);
+        }
+
         if (input.InventoryTogglePressed)
         {
             ActivePanel = ActivePanel == PanelKind.Inventory ? PanelKind.None : PanelKind.Inventory;

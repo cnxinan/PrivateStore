@@ -13,6 +13,72 @@ public sealed class PanelControllerTests
     private static readonly GameInputSnapshot Idle =
         new(Vector2.Zero, Vector2.UnitX, Vector2.Zero, false, false, false, false, false);
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void RightClick_ClosesEitherPanelWithoutInputBleed(bool smith)
+    {
+        var arena = CreateArena();
+        var controller = new PanelController();
+        var opened = controller.Route(Idle with
+        {
+            InteractPressed = smith,
+            InventoryTogglePressed = !smith
+        }, arena.Player, arena.BlacksmithOperations);
+        Assert.Equal(smith ? PanelKind.Blacksmith : PanelKind.Inventory, opened.ActivePanel);
+
+        var frame = controller.Route(Idle with
+        {
+            ClosePanelPressed = true,
+            MoveDirection = Vector2.UnitX,
+            PointerScreenPosition = new Vector2(-100, -100),
+            AttackPressed = true,
+            AttackHeld = true,
+            InventoryTogglePressed = true,
+            InteractPressed = true,
+            PickupPressed = true,
+            RestartPressed = true
+        }, arena.Player, arena.BlacksmithOperations);
+        Assert.Equal(PanelKind.None, frame.ActivePanel);
+        Assert.False(frame.AdvanceWorld);
+        Assert.False(frame.HandlePanelActions);
+        Assert.False(frame.RestartRequested);
+        Assert.False(frame.ExitRequested);
+    }
+
+    [Fact]
+    public void RightClick_WithoutPanelAllowsWorldAndRestartWithoutExiting()
+    {
+        var arena = CreateArena();
+        var frame = new PanelController().Route(Idle with
+        {
+            ClosePanelPressed = true,
+            AttackHeld = true,
+            RestartPressed = true
+        }, arena.Player, arena.BlacksmithOperations);
+        Assert.Equal(PanelKind.None, frame.ActivePanel);
+        Assert.True(frame.AdvanceWorld);
+        Assert.True(frame.RestartRequested);
+        Assert.False(frame.HandlePanelActions);
+        Assert.False(frame.ExitRequested);
+    }
+
+    [Fact]
+    public void RightClick_WithoutPanelDoesNotOverrideEscapeExit()
+    {
+        var arena = CreateArena();
+        var frame = new PanelController().Route(Idle with
+        {
+            ClosePanelPressed = true,
+            ExitPressed = true
+        }, arena.Player, arena.BlacksmithOperations);
+        Assert.Equal(PanelKind.None, frame.ActivePanel);
+        Assert.True(frame.ExitRequested);
+        Assert.False(frame.AdvanceWorld);
+        Assert.False(frame.HandlePanelActions);
+        Assert.False(frame.RestartRequested);
+    }
+
     [Fact]
     public void Escape_ClosesWithoutCombatRestartOrExitThenExitsOnNextEdge()
     {
@@ -25,6 +91,7 @@ public sealed class PanelControllerTests
         var closing = controller.Route(Idle with
         {
             ExitPressed = true,
+            ClosePanelPressed = true,
             AttackHeld = true,
             AttackPressed = true,
             RestartPressed = true,
@@ -119,6 +186,7 @@ public sealed class PanelControllerTests
         Assert.True(arena.Player.IsDead);
         var dead = controller.Route(Idle with
         {
+            ClosePanelPressed = true,
             InventoryTogglePressed = true,
             InteractPressed = true,
             RestartPressed = true
