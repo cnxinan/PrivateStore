@@ -50,7 +50,12 @@ dotnet publish src\DarkLoot.Game --configuration Release --output artifacts\publ
 提高生命上限不会立即回血；死亡后恢复当前生命上限，并保留所有装备。
 `ItemStatCalculator`统一计算实际属性与换装预览；`InventoryService`统一处理拾取、穿戴及内部同 ID 快照替换；
 `KillRewardService`按战斗轮次和怪物实例去重结算资源奖励；`BlacksmithService`统一校验学习、打造与完整扣费。本轮未引入装备经验或等级。
-蓝色代表玩家，材料与配方地面堆显示实际名称和数量，铁匠使用几何形状绘制，暴击使用橙红色闪光反馈。
+玩家使用原创分层人物：头部、身体、手臂、腿与皮靴共同组成冒险者，基础衣物为暗蓝色。
+未装备武器时空手，穿戴后显示剑身、护手与剑柄；护甲增加胸甲和肩甲。
+普通、魔法、稀有装备分别以钢铁、蓝钢、黄铜镶边及局部装饰区分，同款同品质外形一致，不按随机词缀改变模型。
+场景人物直接读取当前穿戴槽，背包换装立即更新外观，但暂停中的动作不推进；重新启动后从已有装备重建外观，
+无需额外存档字段。本轮不增加装备槽、背包人物预览或物理布娃娃。
+材料与配方地面堆显示实际名称和数量，铁匠使用几何形状绘制，暴击使用橙红色闪光反馈。
 绿色圆形是史莱姆，长身、尖耳和尾巴的是迅捷狼，灰色骷髅与弓是骷髅弓手；
 每只存活怪物独立显示名称和生命条，群体挥击在各目标旁独立显示伤害和暴击。
 角色有呼吸、行走、挥击或拉弓动作；玩家和怪物受击都会进入短暂硬直并向受击方向击退，
@@ -83,6 +88,9 @@ dotnet publish src\DarkLoot.Game --configuration Release --output artifacts\publ
   of panel visibility. `GothicRoomArt` generates deterministic stone, windows and forge artwork;
   `GothicRoomRenderer` caches/disposes room and glow textures and advances ambience only on world frames.
   `GothicRoomLayout` bounds the camera without changing gameplay collision. UI state and the save schema remain separate.
+  `PlayerAppearance` reads equipped slots, while `PlayerPaperDoll` composes articulated body/equipment primitives
+  with facing-dependent occlusion and shared pose transforms, white flash and opacity. `ActorRenderer` draws
+  those parts without changing simulation, equipment stats or animation timing.
 
 Definitions and the compiled Microsoft YaHei 12-point bitmap SpriteFont are copied on build/publish.
 Runtime paths resolve from `AppContext.BaseDirectory`, independent of the working directory.
@@ -123,6 +131,7 @@ Current acceptance limitation: the latest full smoke reaches `PauseWithArrow`, p
 miss hits `smoke.slime.2`, failing `accepted later miss cleared old per-target damage before pause`.
 Full combat/death acceptance is therefore not complete; see `artifacts\gothic-full-smoke.log`.
 The cathedral published build reproduces that same assertion; see `artifacts\cathedral-full-smoke.log`.
+The paper-doll published build also reproduces it unchanged; see `artifacts\paperdoll-full-smoke.log`.
 Earlier pre-redesign source and published runs failed the green partial-death slime assertion at
 `ClearEncounter`, phase 0. Neither assertion was weakened or removed. The redesigned source and published
 UI/persistence-only two-window checks pass independently.
@@ -136,6 +145,17 @@ and source/published two-window UI/persistence checks pass (`artifacts\cathedral
 `artifacts\cathedral-published-smoke.log`). The actual backbuffer contains pointed blue glass and matches
 the generated stone material (3,072/3,072 sampled pixels); panel Draws verify that room animation time stays frozen.
 The inspected room screenshot is `artifacts\gothic-cathedral-room.png`, also generated beside the executable.
+
+Paper-doll validation: **406 tests pass**, formatting and Release build/publish pass.
+Source/published two-window UI/persistence checks pass (`artifacts\paperdoll-source-smoke.log`,
+`artifacts\paperdoll-published-smoke.log`). The actual renderer produces base/weapon-only/armor-only/combined
+variants for all three rarities plus four facing directions; smoke-only equipment is created and equipped
+through the real factory/inventory services without touching the player's save. World backbuffer checks
+wait for real Draws before advancing equip phases, verify the unarmed, sword-only and armored sword appearances
+while the world/pose remains paused, and check the equipped appearance again after a second-session load.
+The inspected comparison sheet is `artifacts\paperdoll-equipment.png`; actual world frames are
+`artifacts\paperdoll-world-1.png`, `artifacts\paperdoll-world-2.png`, `artifacts\paperdoll-world-8.png`
+and `artifacts\paperdoll-restored.png`. These are also generated beside the executable.
 
 This opens a real graphics window and injects deterministic input snapshots through the host update/UI/draw
 path. It first verifies actual loaded `SpriteFont.Characters` against all presentation strings, enum

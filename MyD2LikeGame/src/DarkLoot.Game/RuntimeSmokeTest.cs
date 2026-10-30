@@ -41,6 +41,7 @@ internal sealed class RuntimeSmokeTest
     private bool _sawRoomPixels;
     private bool _capturedCleanRoom;
     private double? _pausedRoomTime;
+    private int _playerAppearanceStates;
     private int _healthBefore;
     private long _sequence;
     private int _pausedUpdates;
@@ -436,6 +437,8 @@ internal sealed class RuntimeSmokeTest
                 attack = _phase is not (2 or 4);
                 break;
             case SmokeStage.Equip:
+                if (_draws > 0 && (_playerAppearanceStates & (_phase == 0 ? 1 : _phase == 1 ? 2 : 8)) == 0)
+                    break;
                 if (!panel.IsOpen)
                 {
                     toggle = true;
@@ -944,6 +947,10 @@ internal sealed class RuntimeSmokeTest
                 }
                 break;
             case SmokeStage.Equip when panel.IsOpen:
+                Check(playerPose == _pausedPlayerPose && Snapshot(arena) == _smithSnapshot,
+                    "equipping changes appearance without advancing the paused world or actor pose");
+                if (_draws > 0 && _phase == 2 && (_playerAppearanceStates & 8) == 0)
+                    break;
                 var slot = _phase == 1 ? ItemSlot.Armor : ItemSlot.Weapon;
                 var equipped = slot == ItemSlot.Weapon
                     ? arena.Player.Inventory.EquippedWeapon : arena.Player.Inventory.EquippedArmor;
@@ -1357,9 +1364,45 @@ internal sealed class RuntimeSmokeTest
 
     public void ValidateUiAcceptance()
     {
+        Check((_playerAppearanceStates & 11) == 11,
+            "actual world Draw covered base, weapon-only and combined equipment appearances");
         Check(_sawRoomPixels, "cathedral room actual Draw acceptance covered architecture and readable stone floor");
         Check(_sawBothPanels && _sawResourceTooltip && _sawItemTooltip && _sawPartialGlobe && _fullGlobePixels > 0,
             "gothic UI actual Draw acceptance covered dual panels, 8x4 grid, both tooltips and full/partial globe");
+    }
+
+    public void ValidatePlayerDraw(GraphicsDevice device, Camera2D camera, ArenaSimulation arena, ActorPose pose,
+        bool restored = false)
+    {
+        if (pose.Opacity != 1 || pose.WhiteMix != 0)
+            return;
+        var appearance = PlayerAppearance.From(arena.Player.Inventory);
+        var state = (appearance.Weapon.HasValue ? 2 : 0) | (appearance.Armor.HasValue ? 4 : 0);
+        state = state == 0 ? 1 : state == 6 ? 8 : state;
+        if ((_playerAppearanceStates & state) != 0)
+            return;
+        // The smith panel is closed before Equip; the inventory does not cover the player at the forge.
+        if (_stage != SmokeStage.Equip && !restored)
+            return;
+        var anchor = camera.WorldToScreen(arena.Player.Position);
+        var bounds = new Microsoft.Xna.Framework.Rectangle((int)anchor.X - 46, (int)anchor.Y - 46, 92, 92);
+        var pixels = new Microsoft.Xna.Framework.Color[bounds.Width * bounds.Height];
+        device.GetBackBufferData(bounds, pixels, 0, pixels.Length);
+        var required = new Microsoft.Xna.Framework.Color(190, 143, 105);
+        Check(pixels.Count(color => color == required) >= 8,
+            $"actual world Draw shows articulated head and hands after equipment change; state={state}");
+        if (appearance.Weapon.HasValue || appearance.Armor.HasValue)
+        {
+            var blueSteel = new Microsoft.Xna.Framework.Color(66, 104, 158);
+            Check(pixels.Count(color => color == blueSteel) >= 8,
+                $"actual world Draw shows equipped magic steel instead of a fixed blue placeholder; state={state}");
+        }
+        _playerAppearanceStates |= state;
+        var frame = new Microsoft.Xna.Framework.Color[device.Viewport.Width * device.Viewport.Height];
+        device.GetBackBufferData(frame);
+        CaptureFrame(device, frame, restored ? "paperdoll-restored.png" : $"paperdoll-world-{state}.png");
+        if (restored)
+            Log("PASS second-session actual world Draw restored the equipped weapon and armor appearance");
     }
 
     public void ValidatePanelPresentation(SpriteFont font, ArenaSimulation arena,

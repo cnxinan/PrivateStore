@@ -9,7 +9,7 @@ namespace DarkLoot.Game;
 public sealed class ActorRenderer
 {
     public void Draw(SpriteBatch batch, ShapeRenderer shapes, ActorVisualKind kind, Vector2 anchor, ActorPose pose,
-        bool swingHasHit = false, bool swingWasCritical = false)
+        bool swingHasHit = false, bool swingWasCritical = false, PlayerAppearance appearance = default)
     {
         if (pose.Opacity <= 0 || pose.Scale.X <= 0 || pose.Scale.Y <= 0)
             return;
@@ -18,18 +18,14 @@ public sealed class ActorRenderer
         switch (kind)
         {
             case ActorVisualKind.Player:
-                canvas.Line(new(-6, 8), new(-7 + stride, 20), Color.SteelBlue, 5);
-                canvas.Line(new(6, 8), new(7 - stride, 20), Color.SteelBlue, 5);
-                canvas.Ellipse(Vector2.Zero, new(14, 14), new(87, 169, 236));
-                canvas.Ellipse(new(-5, -4), new(2, 2), Color.Black);
-                canvas.Ellipse(new(5, -4), new(2, 2), Color.Black);
-                var swingAngle = pose.AttackProgress > 0 ? (pose.AttackProgress * 2 - 1) * .9f : 0;
-                var angle = MathF.Atan2(pose.Facing.Y, pose.Facing.X) + swingAngle;
-                var direction = new Vector2(MathF.Cos(angle), MathF.Sin(angle));
-                canvas.Line(direction * 7, direction * 18, Color.LightBlue, 6);
-                canvas.Line(direction * 16, direction * 36, Color.LightCyan, 4);
-                var side = new Vector2(-direction.Y, direction.X);
-                canvas.Line(direction * 20 - side * 4, direction * 20 + side * 4, Color.Goldenrod, 3);
+                foreach (var part in PlayerPaperDoll.Build(pose, appearance))
+                {
+                    if (part.Shape == PaperDollShape.Line)
+                        shapes.Line(batch, anchor + part.Position, anchor + part.Position + part.Dimensions,
+                            part.Color, part.Thickness);
+                    else
+                        shapes.Ellipse(batch, anchor + part.Position, part.Dimensions, part.Rotation, part.Color);
+                }
                 if (pose.AttackProgress > 0)
                 {
                     var aimAngle = MathF.Atan2(pose.Facing.Y, pose.Facing.X);

@@ -98,6 +98,8 @@ public sealed class DarkLootGame : MonoGameGame
         if (_smoke is not null)
         {
             _smoke.ValidatePresentation(_font, _content);
+            if (_restoringSmoke is null)
+                PaperDollVisualSmoke.Run(GraphicsDevice, _shapes, _font, _productionContent, AppContext.BaseDirectory);
         }
     }
 
@@ -214,6 +216,8 @@ public sealed class DarkLootGame : MonoGameGame
         base.Draw(gameTime);
         _smoke?.ValidateRoomDraw(GraphicsDevice, _camera, _room, _inventory.IsOpen || _blacksmith.IsOpen, _arena);
         _smoke?.ValidateUiDraw(GraphicsDevice, _font, _arena, _inventory, _blacksmith);
+        _smoke?.ValidatePlayerDraw(GraphicsDevice, _camera, _arena, _presentation.PlayerPose,
+            _restoringSmoke is not null);
         _smoke?.ValidatePanelPresentation(_font, _arena, _inventory, _blacksmith, _content);
         if (_restoringSmoke is not null)
         {

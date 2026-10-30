@@ -108,7 +108,7 @@ public sealed class ArenaRenderer
         shapes.Ellipse(batch, playerPosition + new Vector2(3, 18), new Vector2(15, 5), 0,
             Color.Black * (.35f * presentation.PlayerPose.Opacity));
         _actors.Draw(batch, shapes, ActorVisualKind.Player, playerPosition, presentation.PlayerPose,
-            presentation.SwingHasHit, presentation.SwingWasCritical);
+            presentation.SwingHasHit, presentation.SwingWasCritical, PlayerAppearance.From(arena.Player.Inventory));
         if (!arena.Player.IsDead)
             DrawHealthBar(batch, shapes, playerPosition + new Vector2(-24, 26), 48,
                 (float)arena.Player.Health / arena.Player.MaximumHealth, Color.Crimson);
