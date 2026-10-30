@@ -165,10 +165,9 @@ public sealed class InventoryPanel
         Text(batch, font, ">", layout.NextPage, GothicUiRenderer.Text, centered: true);
         Text(batch, font, string.Format(GameText.PageNumber, PageIndex + 1, PageCount(player, content)),
             layout.PageLabel, GothicUiRenderer.Gold, centered: true);
-        var hint = Count(player) == 0
-            ? Page == InventoryPage.Equipment ? GameText.Empty : GameText.EmptyResources
-            : GameText.GridHelp;
-        Text(batch, font, hint, layout.InventoryHint with { Height = 22 }, GothicUiRenderer.Muted);
+        if (Count(player) == 0)
+            Text(batch, font, Page == InventoryPage.Equipment ? GameText.Empty : GameText.EmptyResources,
+                layout.InventoryHint with { Height = 22 }, GothicUiRenderer.Muted);
         Text(batch, font, GameText.UnlimitedGrid,
             new Rectangle(layout.InventoryHint.X, layout.InventoryHint.Y + 23, layout.InventoryHint.Width, 20),
             GothicUiRenderer.Muted);

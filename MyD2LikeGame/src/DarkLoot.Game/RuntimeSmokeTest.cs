@@ -38,6 +38,9 @@ internal sealed class RuntimeSmokeTest
     private bool _sawItemTooltip;
     private bool _sawPartialGlobe;
     private int _fullGlobePixels;
+    private bool _sawRoomPixels;
+    private bool _capturedCleanRoom;
+    private double? _pausedRoomTime;
     private int _healthBefore;
     private long _sequence;
     private int _pausedUpdates;
@@ -1236,6 +1239,48 @@ internal sealed class RuntimeSmokeTest
 
     private int _healthBeforeRestart;
 
+    public void ValidateRoomDraw(GraphicsDevice device, Camera2D camera, GothicRoomRenderer room,
+        bool paused, ArenaSimulation arena)
+    {
+        if (paused)
+        {
+            _pausedRoomTime ??= room.AnimationTime;
+            Check(room.AnimationTime == _pausedRoomTime.Value,
+                "cathedral flames, sparks and dust stay frozen while panels pause the world");
+        }
+        else
+            _pausedRoomTime = null;
+        var clean = !_capturedCleanRoom && arena.IsCleared && arena.GroundResources.Count == 0;
+        if (_sawRoomPixels && !clean || paused)
+            return;
+        var width = device.Viewport.Width;
+        var height = device.Viewport.Height;
+        var pixels = new Microsoft.Xna.Framework.Color[width * height];
+        device.GetBackBufferData(pixels);
+        CaptureFrame(device, pixels, "gothic-cathedral-room.png");
+        _capturedCleanRoom |= clean;
+        if (_sawRoomPixels)
+            return;
+        var window = camera.WorldToScreen(new NumericsVector(96, -65));
+        var glass = Enumerable.Range((int)window.Y - 19, 38).SelectMany(y =>
+            Enumerable.Range((int)window.X - 20, 40).Select(x => pixels[y * width + x]));
+        Check(glass.Any(color => color.B > color.R * 1.4 && color.B > 50),
+            "actual cathedral Draw presents the pointed stained-glass window");
+        var floor = camera.WorldToScreen(new NumericsVector(530, 390));
+        var stone = Enumerable.Range((int)floor.Y, 48).SelectMany(y =>
+            Enumerable.Range((int)floor.X, 64).Select(x => pixels[y * width + x])).ToArray();
+        var expected = GothicRoomArt.CreateRoomPixels();
+        var bounds = GothicRoomLayout.Bounds;
+        var matching = Enumerable.Range(0, stone.Length).Count(index => stone[index] ==
+            expected[(390 + index / 64 - bounds.Y) * bounds.Width + 530 + index % 64 - bounds.X]);
+        Log($"cathedral floor probe: screen={floor}; materialPixels={matching}/{stone.Length}; " +
+            $"mean={stone.Average(color => (color.R + color.G + color.B) / 3d):F2}");
+        Check(matching >= stone.Length * .95 &&
+              stone.Average(color => (color.R + color.G + color.B) / 3d) is > 20 and < 110,
+            "actual cathedral Draw presents readable textured stone instead of the flat green grid");
+        _sawRoomPixels = true;
+    }
+
     public void ValidateUiDraw(GraphicsDevice device, SpriteFont font, ArenaSimulation arena,
         InventoryPanel inventory, BlacksmithPanel smith)
     {
@@ -1265,7 +1310,7 @@ internal sealed class RuntimeSmokeTest
                     new Microsoft.Xna.Framework.Color(13, 15, 18)),
                 "real Draw contains all 32 empty inset cells in the shared 8x4 grid");
             _sawBothPanels = true;
-            Capture("gothic-ui-both.png");
+            CaptureFrame(device, pixels, "gothic-ui-both.png");
         }
         if (tooltip)
         {
@@ -1279,7 +1324,8 @@ internal sealed class RuntimeSmokeTest
                 _sawResourceTooltip = true;
             else
                 _sawItemTooltip = true;
-            Capture(inventory.Page == InventoryPage.Resources ? "gothic-ui-resource-tooltip.png" : "gothic-ui-item-tooltip.png");
+            CaptureFrame(device, pixels,
+                inventory.Page == InventoryPage.Resources ? "gothic-ui-resource-tooltip.png" : "gothic-ui-item-tooltip.png");
         }
         if (full || partial)
         {
@@ -1297,18 +1343,24 @@ internal sealed class RuntimeSmokeTest
                 _sawPartialGlobe = true;
         }
 
-        void Capture(string name)
-        {
-            using var texture = new Texture2D(device, layout.Width, layout.Height);
-            texture.SetData(pixels);
-            using var file = File.Create(Path.Combine(Path.GetDirectoryName(_logPath)!, name));
-            texture.SaveAsPng(file, layout.Width, layout.Height);
-        }
     }
 
-    public void ValidateUiAcceptance() =>
+    private void CaptureFrame(GraphicsDevice device, Microsoft.Xna.Framework.Color[] pixels, string name)
+    {
+        var width = device.Viewport.Width;
+        var height = device.Viewport.Height;
+        using var texture = new Texture2D(device, width, height);
+        texture.SetData(pixels);
+        using var file = File.Create(Path.Combine(Path.GetDirectoryName(_logPath)!, name));
+        texture.SaveAsPng(file, width, height);
+    }
+
+    public void ValidateUiAcceptance()
+    {
+        Check(_sawRoomPixels, "cathedral room actual Draw acceptance covered architecture and readable stone floor");
         Check(_sawBothPanels && _sawResourceTooltip && _sawItemTooltip && _sawPartialGlobe && _fullGlobePixels > 0,
             "gothic UI actual Draw acceptance covered dual panels, 8x4 grid, both tooltips and full/partial globe");
+    }
 
     public void ValidatePanelPresentation(SpriteFont font, ArenaSimulation arena,
         InventoryPanel inventory, BlacksmithPanel smith, GameContent content)

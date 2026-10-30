@@ -22,6 +22,9 @@
     <Compile Include="..\..\src\DarkLoot.Game\UiLayout.cs" Link="Game\UiLayout.cs" />
     <Compile Include="..\..\src\DarkLoot.Game\GothicUiRenderer.cs" Link="Game\GothicUiRenderer.cs" />
     <Compile Include="..\..\src\DarkLoot.Game\UiTextureFactory.cs" Link="Game\UiTextureFactory.cs" />
+    <Compile Include="..\..\src\DarkLoot.Game\GothicRoomLayout.cs" Link="Game\GothicRoomLayout.cs" />
+    <Compile Include="..\..\src\DarkLoot.Game\GothicRoomArt.cs" Link="Game\GothicRoomArt.cs" />
+    <Compile Include="..\..\src\DarkLoot.Game\GothicRoomRenderer.cs" Link="Game\GothicRoomRenderer.cs" />
     <Compile Include="..\..\src\DarkLoot.Game\InventoryPanel.cs" Link="Game\InventoryPanel.cs" />
     <Compile Include="..\..\src\DarkLoot.Game\ItemTooltip.cs" Link="Game\ItemTooltip.cs" />
     <Compile Include="..\..\src\DarkLoot.Game\BlacksmithPanel.cs" Link="Game\BlacksmithPanel.cs" />

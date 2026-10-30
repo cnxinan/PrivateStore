@@ -36,6 +36,7 @@ public sealed class DarkLootGame : MonoGameGame
     private SpriteBatch _batch = null!;
     private ShapeRenderer _shapes = null!;
     private GothicUiRenderer _ui = null!;
+    private GothicRoomRenderer _room = null!;
     private System.Numerics.Vector2 _pointer;
     private SpriteFont _font = null!;
     private GameContent _content = null!;
@@ -91,6 +92,7 @@ public sealed class DarkLootGame : MonoGameGame
         _batch = new SpriteBatch(GraphicsDevice);
         _shapes = new ShapeRenderer(GraphicsDevice);
         _ui = new GothicUiRenderer(GraphicsDevice, _shapes);
+        _room = new GothicRoomRenderer(GraphicsDevice, _shapes);
         _font = Content.Load<SpriteFont>("Fonts/UIFont");
         _smoke?.ValidatePresentation(_font, _productionContent);
         if (_smoke is not null)
@@ -178,12 +180,16 @@ public sealed class DarkLootGame : MonoGameGame
             _arena.Update(intent, elapsed);
             _presentation.Update(_arena, elapsed);
         }
+        _room.Update(elapsed, frame.AdvanceWorld);
         FollowPlayer();
     }
 
-    private void FollowPlayer() =>
-        _camera.Follow(_arena.Player.Position, GraphicsDevice.Viewport.Width,
-            new UiLayout(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height).Console.Top);
+    private void FollowPlayer()
+    {
+        var width = GraphicsDevice.Viewport.Width;
+        var height = new UiLayout(width, GraphicsDevice.Viewport.Height).Console.Top;
+        _camera.Follow(GothicRoomLayout.CameraFocus(_arena.Player.Position, width, height), width, height);
+    }
 
     protected override void Draw(GameTime gameTime)
     {
@@ -197,7 +203,8 @@ public sealed class DarkLootGame : MonoGameGame
             _arena,
             _content,
             _camera,
-            _presentation);
+            _presentation,
+            _room);
         _hud.Draw(_batch, _shapes, _font, _arena, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height,
             _ui, _frameRate.FramesPerSecond, _inventory.IsOpen, _blacksmith.IsOpen, _pointer, _interactionFeedback);
         _inventory.Draw(_batch, _shapes, _font, _arena.Player, _content, GraphicsDevice.Viewport.Width, _ui);
@@ -205,6 +212,7 @@ public sealed class DarkLootGame : MonoGameGame
         _inventory.DrawTooltip(_batch, _shapes, _font, GraphicsDevice.Viewport.Width);
         _batch.End();
         base.Draw(gameTime);
+        _smoke?.ValidateRoomDraw(GraphicsDevice, _camera, _room, _inventory.IsOpen || _blacksmith.IsOpen, _arena);
         _smoke?.ValidateUiDraw(GraphicsDevice, _font, _arena, _inventory, _blacksmith);
         _smoke?.ValidatePanelPresentation(_font, _arena, _inventory, _blacksmith, _content);
         if (_restoringSmoke is not null)
@@ -233,6 +241,7 @@ public sealed class DarkLootGame : MonoGameGame
 
     protected override void UnloadContent()
     {
+        _room?.Dispose();
         _ui?.Dispose();
         _shapes?.Dispose();
         _batch?.Dispose();

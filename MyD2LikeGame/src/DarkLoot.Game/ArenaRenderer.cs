@@ -19,22 +19,13 @@ public sealed class ArenaRenderer
     private readonly ActorRenderer _actors = new();
 
     public void Draw(SpriteBatch batch, ShapeRenderer shapes, SpriteFont font,
-        ArenaSimulation arena, GameContent content, Camera2D camera, ActorPresentation presentation)
+        ArenaSimulation arena, GameContent content, Camera2D camera, ActorPresentation presentation,
+        GothicRoomRenderer room)
     {
-        var origin = camera.WorldToScreen(NumericsVector.Zero);
-        var bounds = new Rectangle((int)origin.X - 18, (int)origin.Y - 18, 996, 576);
-        shapes.Rectangle(batch, bounds, new Color(83, 91, 83));
-        shapes.Rectangle(batch, new Rectangle((int)origin.X, (int)origin.Y, 960, 540), new Color(30, 43, 37));
-        for (var x = 0; x <= 960; x += 60)
-        {
-            shapes.Line(batch, origin + new Vector2(x, 0), origin + new Vector2(x, 540), new Color(38, 53, 45), 1);
-        }
-        for (var y = 0; y <= 540; y += 60)
-        {
-            shapes.Line(batch, origin + new Vector2(0, y), origin + new Vector2(960, y), new Color(38, 53, 45), 1);
-        }
+        room.Draw(batch, camera);
 
         var smithPosition = camera.WorldToScreen(BlacksmithService.Position);
+        shapes.Ellipse(batch, smithPosition + new Vector2(2, 22), new Vector2(31, 8), 0, Color.Black * .35f);
         shapes.Circle(batch, smithPosition + new Vector2(-14, -12), 9, Color.BurlyWood);
         shapes.Line(batch, smithPosition + new Vector2(-14, -2), smithPosition + new Vector2(-14, 18),
             Color.SaddleBrown, 12);
@@ -78,7 +69,10 @@ public sealed class ArenaRenderer
             var monsterPosition = camera.WorldToScreen(monster.Position);
             var kind = monster.Behavior == MonsterBehavior.Archer ? ActorVisualKind.Archer :
                 monster.Id == "monster.fast_wolf" ? ActorVisualKind.Wolf : ActorVisualKind.Slime;
-            _actors.Draw(batch, shapes, kind, monsterPosition, presentation.GetMonsterPose(monster.InstanceId));
+            var pose = presentation.GetMonsterPose(monster.InstanceId);
+            shapes.Ellipse(batch, monsterPosition + new Vector2(3, 10), new Vector2(19, 6), 0,
+                Color.Black * (.3f * pose.Opacity));
+            _actors.Draw(batch, shapes, kind, monsterPosition, pose);
             if (monster.IsDefeated)
             {
                 continue;
@@ -111,6 +105,8 @@ public sealed class ArenaRenderer
         }
 
         var playerPosition = camera.WorldToScreen(arena.Player.Position);
+        shapes.Ellipse(batch, playerPosition + new Vector2(3, 18), new Vector2(15, 5), 0,
+            Color.Black * (.35f * presentation.PlayerPose.Opacity));
         _actors.Draw(batch, shapes, ActorVisualKind.Player, playerPosition, presentation.PlayerPose,
             presentation.SwingHasHit, presentation.SwingWasCritical);
         if (!arena.Player.IsDead)

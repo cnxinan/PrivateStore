@@ -36,7 +36,8 @@ public sealed class HudRenderer
         InventoryPanel.Text(batch, font, string.Format(GameText.HudStats,
             arena.Player.AttackDamage, arena.Player.MaximumHealth, arena.Player.CriticalChance),
             layout.HudStats, GothicUiRenderer.Text);
-        InventoryPanel.Text(batch, font, MovementInstructions(arena), layout.HudHelp, GothicUiRenderer.Muted);
+        if (dead)
+            InventoryPanel.Text(batch, font, MovementInstructions(arena), layout.HudHelp, GothicUiRenderer.Muted);
         InventoryPanel.Text(batch, font, string.Format(GameText.FrameRate, framesPerSecond),
             new Rectangle(width - 130, height - 30, 114, 18), GothicUiRenderer.Muted);
         DrawButton(layout.InventoryButton, GameText.InventoryButton, !dead, inventoryOpen);

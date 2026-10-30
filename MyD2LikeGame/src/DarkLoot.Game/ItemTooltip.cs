@@ -44,7 +44,7 @@ public sealed class ItemTooltip
         AddComparison(GameText.Attack, (long)preview.AttackDamage - current.AttackDamage);
         AddComparison(GameText.Health, (long)preview.MaximumHealth - current.MaximumHealth);
         AddComparison(GameText.Critical, (long)preview.CriticalChance - current.CriticalChance, "%");
-        lines.Add(new(equipped ? GameText.Equipped.Trim() : GameText.ClickToEquip, GothicUiRenderer.Muted));
+        lines.Add(new(equipped ? GameText.Equipped.Trim() : GameText.Unequipped, GothicUiRenderer.Muted));
         return new ItemTooltip(lines);
 
         void AddComparison(string label, long difference, string unit = "") =>

@@ -14,7 +14,7 @@ dotnet publish src\DarkLoot.Game --configuration Release --output artifacts\publ
 
 - 游戏默认使用简体中文，无语言切换。
 - **WASD** 移动，鼠标瞄准，**按住左键**持续近战（每 0.35 秒最多攻击一次），松开停止。
-- 底部石质控制台显示真实生命血球、战斗属性和可点击的 I / F / R 按钮；右下 **FPS** 显示实际绘制帧率，每半秒刷新。界面使用原创程序化石纹、黄铜边框和物品图标，不含 Diablo 素材。
+- 底部石质控制台显示真实生命血球、战斗属性和可点击的行囊 / 铁匠 / 重开按钮；右下 **FPS** 显示实际绘制帧率，每半秒刷新。界面不显示快捷键提示，原有按键功能保留。界面使用原创程序化石纹、黄铜边框和物品图标，不含 Diablo 素材。
 - **E** 每次拾取附近最近一堆材料或配方；**I** 打开或关闭背包，打开时暂停战斗与动画。
 - 右侧背包有“装备 / 材料配方”标签，采用 **8×4 格分页，每件一格、容量不限**；武器与护甲只有两个穿戴槽，已装备物品仍保留原格并标记。左键点击装备格穿戴，悬浮查看完整名称、原始词缀及换装比较；滚轮仅在格子内翻整页，也可点击上一页/下一页。切换标签回到第一页。
 - 资源格显示真实材料与持有配方，超过 999 的角标简写为 `999+`，悬浮仍显示精确数量和配方学习状态；仅翻页、悬浮或点击资源不会改变存档进度。
@@ -31,6 +31,11 @@ dotnet publish src\DarkLoot.Game --configuration Release --output artifacts\publ
 训练场按 `encounter.training_arena` 配置两只史莱姆、两只迅捷狼和两只骷髅弓手；
 近战挥击命中前方范围内的所有存活敌人，接触伤害共享冷却。每只史莱姆必掉黏液、狼必掉兽皮、骷髅弓手必掉骨片，每次数量为 1～2，等概率；
 每只怪物在材料之外独立有 20% 概率掉一张配方，四张等概率，允许重复、允许已学配方，**不直接掉装备**。初始空手也可用基础攻击击杀怪物。
+
+训练场现为原创哥特式教堂房间：尖拱彩窗、雕刻石柱、旗帜、磨损石板与中央黄铜纹章，
+左侧保留铁匠工作角、炉火和工具架；冷色窗光与暖色烛火交织，火焰、火星与浮尘随世界计时，
+面板暂停和窗口失焦时冻结。镜头限制在房间范围并偏向后墙，不再露出场外大片空白；
+装饰不增加碰撞，原有 960×540 战斗边界、角色位置、掉落和存档规则不变。
 
 | 配方 | 固定产物品质 | 每次打造费用 |
 |---|---|---|
@@ -75,7 +80,9 @@ dotnet publish src\DarkLoot.Game --configuration Release --output artifacts\publ
   `UiLayout` shares panel/grid/button rectangles across rendering, routing and smoke injection.
   `GothicUiRenderer` caches and disposes original stone/globe textures; `ItemTooltip` measures/wraps
   instance-derived details. Camera and loot labels use the playfield above the console, independent
-  of panel visibility. UI state and the save schema remain separate.
+  of panel visibility. `GothicRoomArt` generates deterministic stone, windows and forge artwork;
+  `GothicRoomRenderer` caches/disposes room and glow textures and advances ambience only on world frames.
+  `GothicRoomLayout` bounds the camera without changing gameplay collision. UI state and the save schema remain separate.
 
 Definitions and the compiled Microsoft YaHei 12-point bitmap SpriteFont are copied on build/publish.
 Runtime paths resolve from `AppContext.BaseDirectory`, independent of the working directory.
@@ -115,6 +122,7 @@ the full smoke's death-pixel assertions.
 Current acceptance limitation: the latest full smoke reaches `PauseWithArrow`, phase 3, but its intended
 miss hits `smoke.slime.2`, failing `accepted later miss cleared old per-target damage before pause`.
 Full combat/death acceptance is therefore not complete; see `artifacts\gothic-full-smoke.log`.
+The cathedral published build reproduces that same assertion; see `artifacts\cathedral-full-smoke.log`.
 Earlier pre-redesign source and published runs failed the green partial-death slime assertion at
 `ClearEncounter`, phase 0. Neither assertion was weakened or removed. The redesigned source and published
 UI/persistence-only two-window checks pass independently.
@@ -122,6 +130,12 @@ The preserved baseline failure log is `artifacts\autosave-baseline-full-smoke.lo
 persistence results are `artifacts\gothic-source-smoke.log` and `artifacts\gothic-published-smoke.log`.
 Real Draw screenshots are `gothic-ui-both.png`, `gothic-ui-resource-tooltip.png`, and
 `gothic-ui-item-tooltip.png` beside the executable (also copied to `artifacts` during verification).
+
+Cathedral validation: **397 headless tests pass**, Release build/publish and formatting checks pass,
+and source/published two-window UI/persistence checks pass (`artifacts\cathedral-source-smoke.log`,
+`artifacts\cathedral-published-smoke.log`). The actual backbuffer contains pointed blue glass and matches
+the generated stone material (3,072/3,072 sampled pixels); panel Draws verify that room animation time stays frozen.
+The inspected room screenshot is `artifacts\gothic-cathedral-room.png`, also generated beside the executable.
 
 This opens a real graphics window and injects deterministic input snapshots through the host update/UI/draw
 path. It first verifies actual loaded `SpriteFont.Characters` against all presentation strings, enum
