@@ -32,6 +32,12 @@ internal sealed class RuntimeSmokeTest
     private int _updates;
     private int _draws;
     private int _phase;
+    private bool _selectingRecipe;
+    private bool _sawBothPanels;
+    private bool _sawResourceTooltip;
+    private bool _sawItemTooltip;
+    private bool _sawPartialGlobe;
+    private int _fullGlobePixels;
     private int _healthBefore;
     private long _sequence;
     private int _pausedUpdates;
@@ -348,6 +354,7 @@ internal sealed class RuntimeSmokeTest
         var attack = false;
         var pickup = false;
         var toggle = false;
+        _selectingRecipe = false;
         var restart = false;
         var interact = false;
         var escape = false;
@@ -390,11 +397,15 @@ internal sealed class RuntimeSmokeTest
             case SmokeStage.LearnCraft:
                 if (_phase == 0)
                 {
-                    interact = true;
+                    var button = new UiLayout(width).SmithButton;
+                    pointer = new NumericsVector(button.Center.X, button.Center.Y);
+                    attack = true;
                 }
                 else if (_phase == 7)
                 {
-                    toggle = true;
+                    var button = new UiLayout(width).SmithButton;
+                    pointer = new NumericsVector(button.Center.X, button.Center.Y);
+                    attack = true;
                 }
                 else
                 {
@@ -402,21 +413,24 @@ internal sealed class RuntimeSmokeTest
                     var recipe = content.Recipes[recipeId];
                     var row = content.Recipes.Keys.Order(StringComparer.Ordinal).ToList().IndexOf(recipeId);
                     var learn = _phase is 2 or 3 or 4;
-                    var button = learn ? smith.LearnButtonBounds(width, row) : smith.CraftButtonBounds(width, row);
+                    _selectingRecipe = smith.SelectedRecipeIndex != row;
+                    var button = _selectingRecipe ? smith.RowBounds(width, row) :
+                        learn ? smith.LearnButtonBounds(width, row) : smith.CraftButtonBounds(width, row);
                     pointer = new NumericsVector(button.Center.X, button.Center.Y);
                     attack = true;
                     _recipesBeforeLearn = arena.Player.Resources.GetCount(ResourceKind.Recipe, recipeId);
                     _materialsBeforeCraft = arena.Player.Resources.Materials.ToDictionary(pair => pair.Key, pair => pair.Value);
                     _statsBeforeCraft = arena.Player.Stats;
-                    Check(_phase is 1 or 4 || (learn ? smith.CanLearn(arena, recipe) : smith.CanCraft(arena, recipe)),
+                    Check(_selectingRecipe || _phase is 1 or 4 ||
+                          (learn ? smith.CanLearn(arena, recipe) : smith.CanCraft(arena, recipe)),
                         $"real smith button is enabled before accepted click; phase={_phase}; recipe={recipeId}");
                 }
                 break;
             case SmokeStage.InspectResources:
-                var tab = _phase == 2 ? panel.EquipmentTabBounds(width) :
-                    _phase == 1 ? panel.RowBounds(width, 0) : panel.ResourceTabBounds(width);
+                var tab = _phase == 3 ? panel.EquipmentTabBounds(width) :
+                    _phase is 1 or 2 or 4 ? panel.RowBounds(width, 0) : panel.ResourceTabBounds(width);
                 pointer = new NumericsVector(tab.Center.X, tab.Center.Y);
-                attack = true;
+                attack = _phase is not (2 or 4);
                 break;
             case SmokeStage.Equip:
                 if (!panel.IsOpen)
@@ -436,7 +450,13 @@ internal sealed class RuntimeSmokeTest
                 break;
             case SmokeStage.ReopenEncounter:
                 escape = _phase == 0;
-                restart = _phase == 1;
+                if (_phase == 1)
+                {
+                    var button = new UiLayout(width).RestartButton;
+                    pointer = new NumericsVector(button.Center.X, button.Center.Y);
+                    attack = pickup = true;
+                    movement = NumericsVector.UnitY;
+                }
                 break;
             case SmokeStage.ClearEncounter:
                 if (arena.IsCleared)
@@ -823,12 +843,25 @@ internal sealed class RuntimeSmokeTest
                     "smith and switch frames freeze actual combat, health, timers and every actor pose");
                 if (_phase == 0)
                 {
-                    Check(smith.IsOpen && !panel.IsOpen, "F opened the real exclusive blacksmith panel");
+                    Check(smith.IsOpen && panel.IsOpen, "console smith button opened both real panels with smith focus");
                 }
                 else if (_phase == 7)
                 {
-                    Check(panel.IsOpen && !smith.IsOpen, "I switched directly from smith to the inventory");
+                    Check(panel.IsOpen && !smith.IsOpen, "console smith button closed only smith and retained inventory");
                     Enter(SmokeStage.InspectResources);
+                    break;
+                }
+                else if (_selectingRecipe)
+                {
+                    var selectedId = _phase is 3 or 6 ? "recipe.magic_vest" : "recipe.magic_blade";
+                    Check(smith.SelectedRecipeIndex ==
+                          content.Recipes.Keys.Order(StringComparer.Ordinal).ToList().IndexOf(selectedId) &&
+                          CountsEqual(_retainedMaterials, arena.Player.Resources.Materials) &&
+                          CountsEqual(_retainedRecipes, arena.Player.Resources.Recipes) &&
+                          arena.Blacksmith.KnownRecipeIds.Order(StringComparer.Ordinal).SequenceEqual(_retainedKnowledge) &&
+                          arena.Player.Inventory.Items.SequenceEqual(_craftedItems) &&
+                          arena.Player.Stats == _statsBeforeCraft,
+                        "selecting a real recipe changed details but not resources, knowledge, items or stats");
                     break;
                 }
                 else if (_phase is 1 or 4)
@@ -882,17 +915,29 @@ internal sealed class RuntimeSmokeTest
                 Check(panel.IsOpen && Snapshot(arena) == _smithSnapshot &&
                       arena.Player.Inventory.EquippedWeapon is null && arena.Player.Inventory.EquippedArmor is null,
                     "real resource tab and resource row clicks freeze world and never equip");
-                if (_phase < 2)
+                if (_phase < 3)
                 {
                     Check(panel.Page == InventoryPage.Resources &&
                           InventoryPanel.ResourceRows(arena.Player, content).Count == 5,
-                        "resource page shows actual three material counts and both retained duplicate recipes");
+                        "resource grid shows actual three material counts and both retained duplicate recipes");
+                    if (_phase is 1 or 2)
+                        Check(panel.Tooltip is not null, "resource cell click/hover produces a real exact-count tooltip");
+                    if (_phase == 2 && _draws > 0 && !_sawResourceTooltip)
+                        break;
                     _phase++;
                 }
                 else
                 {
-                    Check(panel.Page == InventoryPage.Equipment, "actual equipment tab restores item rows");
-                    Enter(SmokeStage.Equip);
+                    Check(panel.Page == InventoryPage.Equipment, "actual equipment tab restores item cells");
+                    if (_phase == 4)
+                    {
+                        Check(panel.Tooltip is not null, "equipment hover produces details without equipping");
+                        if (_draws > 0 && !_sawItemTooltip)
+                            break;
+                        Enter(SmokeStage.Equip);
+                    }
+                    else
+                        _phase++;
                 }
                 break;
             case SmokeStage.Equip when panel.IsOpen:
@@ -1191,6 +1236,80 @@ internal sealed class RuntimeSmokeTest
 
     private int _healthBeforeRestart;
 
+    public void ValidateUiDraw(GraphicsDevice device, SpriteFont font, ArenaSimulation arena,
+        InventoryPanel inventory, BlacksmithPanel smith)
+    {
+        var panels = !_sawBothPanels && inventory.IsOpen && smith.IsOpen;
+        var tooltip = inventory.IsOpen && inventory.Tooltip is not null &&
+            (inventory.Page == InventoryPage.Resources ? !_sawResourceTooltip : !_sawItemTooltip);
+        var full = arena.Player.Health == arena.Player.MaximumHealth && _fullGlobePixels == 0;
+        var partial = !_sawPartialGlobe && arena.Player.Health > 0 && arena.Player.Health < arena.Player.MaximumHealth;
+        if (!panels && !tooltip && !full && !partial)
+            return;
+        var layout = new UiLayout(device.Viewport.Width, device.Viewport.Height);
+        var pixels = new Microsoft.Xna.Framework.Color[layout.Width * layout.Height];
+        device.GetBackBufferData(pixels);
+        Microsoft.Xna.Framework.Color Pixel(int x, int y) => pixels[y * layout.Width + x];
+        bool GoldEdge(int x, int y)
+        {
+            var color = Pixel(x, y);
+            return color.R > 100 && color.R > color.G && color.G > color.B;
+        }
+        if (panels)
+        {
+            Check(GoldEdge(layout.Inventory.X + 60, layout.Inventory.Y) &&
+                  GoldEdge(layout.Blacksmith.X + 60, layout.Blacksmith.Y),
+                "real Draw contains both independent brass-framed gothic panels");
+            Check(Enumerable.Range(0, 32).All(index =>
+                Pixel(layout.Cell(index).Center.X, layout.Cell(index).Center.Y) ==
+                    new Microsoft.Xna.Framework.Color(13, 15, 18)),
+                "real Draw contains all 32 empty inset cells in the shared 8x4 grid");
+            _sawBothPanels = true;
+            Capture("gothic-ui-both.png");
+        }
+        if (tooltip)
+        {
+            var measured = inventory.Tooltip!.Layout(font, inventory.Pointer, layout);
+            Check(new Microsoft.Xna.Framework.Rectangle(0, 0, layout.Width, layout.Console.Top).Contains(measured.Bounds) &&
+                  GoldEdge(measured.Bounds.X + 5, measured.Bounds.Y) &&
+                  measured.Lines.All(line => line.Text.All(font.Characters.Contains) &&
+                      font.MeasureString(line.Text).X * .9f <= measured.Bounds.Width - 24),
+                "real Draw tooltip border, loaded glyphs and wrapped text fit inside playfield");
+            if (inventory.Page == InventoryPage.Resources)
+                _sawResourceTooltip = true;
+            else
+                _sawItemTooltip = true;
+            Capture(inventory.Page == InventoryPage.Resources ? "gothic-ui-resource-tooltip.png" : "gothic-ui-item-tooltip.png");
+        }
+        if (full || partial)
+        {
+            var red = Enumerable.Range(layout.Globe.Top, layout.Globe.Height)
+                .Sum(y => Enumerable.Range(layout.Globe.Left, layout.Globe.Width).Count(x =>
+                {
+                    var color = Pixel(x, y);
+                    return color.R > 65 && color.R > color.G * 2 && color.R > color.B * 2;
+                }));
+            Check(red > 600 && (!partial || _fullGlobePixels == 0 || red < _fullGlobePixels),
+                $"real Draw health globe follows actual {(full ? "full" : "partial")} health; redPixels={red}");
+            if (full)
+                _fullGlobePixels = red;
+            else
+                _sawPartialGlobe = true;
+        }
+
+        void Capture(string name)
+        {
+            using var texture = new Texture2D(device, layout.Width, layout.Height);
+            texture.SetData(pixels);
+            using var file = File.Create(Path.Combine(Path.GetDirectoryName(_logPath)!, name));
+            texture.SaveAsPng(file, layout.Width, layout.Height);
+        }
+    }
+
+    public void ValidateUiAcceptance() =>
+        Check(_sawBothPanels && _sawResourceTooltip && _sawItemTooltip && _sawPartialGlobe && _fullGlobePixels > 0,
+            "gothic UI actual Draw acceptance covered dual panels, 8x4 grid, both tooltips and full/partial globe");
+
     public void ValidatePanelPresentation(SpriteFont font, ArenaSimulation arena,
         InventoryPanel inventory, BlacksmithPanel smith, GameContent content)
     {
@@ -1295,6 +1414,7 @@ internal sealed class RuntimeSmokeTest
         {
             return false;
         }
+        ValidateUiAcceptance();
         Check(_sawKilledFeedbackDraw && _sawIndependentFeedbackDraw && attackFlash == 0,
             "real Draw received killed-target and independent critical feedback; death cleared swing flash");
         Check(_sawPartialDeath && _sawIsolatedPoses && _sawPartialDeathPixels && _sawPlayerDeathPixels,

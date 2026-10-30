@@ -14,14 +14,15 @@ dotnet publish src\DarkLoot.Game --configuration Release --output artifacts\publ
 
 - 游戏默认使用简体中文，无语言切换。
 - **WASD** 移动，鼠标瞄准，**按住左键**持续近战（每 0.35 秒最多攻击一次），松开停止。
-- 顶部 **FPS** 显示实际绘制帧率，每半秒刷新；背包内仍使用单次点击装备。
+- 底部石质控制台显示真实生命血球、战斗属性和可点击的 I / F / R 按钮；右下 **FPS** 显示实际绘制帧率，每半秒刷新。界面使用原创程序化石纹、黄铜边框和物品图标，不含 Diablo 素材。
 - **E** 每次拾取附近最近一堆材料或配方；**I** 打开或关闭背包，打开时暂停战斗与动画。
-- 背包有“装备/资源”页；资源页显示材料与配方数量。装备页显示属性变化，点击物品行即可装备到武器或护甲栏；滚轮翻页。
-- **F** 在铁匠（世界坐标 120,230）64 单位以内打开铁匠，再按 F 关闭。左键单击“学习”消耗一张配方，单击“打造”支付材料立即获得新装备，100% 成功、无金币费用、不治疗、**不自动穿戴**；按 I 切到背包装备页手动穿戴。
-- 铁匠与背包互斥，均暂停战斗和动画；关闭或切换面板的那一帧不推进战斗，也不穿透移动、攻击、拾取或 R。
-- **右键**按下时关闭当前背包或铁匠面板，光标无需位于面板内；按住不重复触发，关闭帧不会执行面板操作或重新打开面板。没有面板时右键不退出、不影响正常战斗输入。
+- 右侧背包有“装备 / 材料配方”标签，采用 **8×4 格分页，每件一格、容量不限**；武器与护甲只有两个穿戴槽，已装备物品仍保留原格并标记。左键点击装备格穿戴，悬浮查看完整名称、原始词缀及换装比较；滚轮仅在格子内翻整页，也可点击上一页/下一页。切换标签回到第一页。
+- 资源格显示真实材料与持有配方，超过 999 的角标简写为 `999+`，悬浮仍显示精确数量和配方学习状态；仅翻页、悬浮或点击资源不会改变存档进度。
+- **F** 在铁匠（世界坐标 120,230）64 单位以内同时打开左侧铁匠与右侧背包，保留已有背包标签和页码；再次 F 只关闭铁匠。先点击四张配方之一查看详情，再点击共用“学习”或“打造”按钮。学习消耗一张配方；打造支付完整材料获得新装备，100% 成功、无金币费用、不治疗、**不自动穿戴**，在右侧装备格手动穿戴。
+- **I** 独立切换背包，两栏可同时打开。任意面板均暂停战斗和动画；所有开关面板帧（包括最后一栏关闭帧）不推进战斗，按钮和格子点击不会穿透为移动、攻击、拾取或无关的 R。
+- **右键**或 **Esc** 关闭最近打开或左键操作的那一栏，悬浮不改变关闭顺序，光标无需在栏内；各栏 X 只关闭自身。右键需按下边沿，按住不重复；没有面板时右键不退出、不影响正常战斗输入。
 - **R** 仅在存活且没有面板时重置整个遭遇，保留玩家位置、当前生命、全部装备、资源数量和铁匠知识；清除地面掉落、箭矢、受击状态和保护期，不额外回血或授予保护。死亡或面板打开期间无效。
-- **Escape** 有面板时只关闭当前面板，没有面板时才退出。死亡后保持原位等待 0.6 秒，再回到出生点恢复当前生命上限，获得 0.8 秒保护；重置全部怪物，清空地面掉落及箭矢，保留全部装备实例及词缀、资源数量和已学配方。
+- **Escape** 没有面板时才退出。死亡后保持原位等待 0.6 秒，再回到出生点恢复当前生命上限，获得 0.8 秒保护；重置全部怪物，清空地面掉落及箭矢，保留全部装备实例及词缀、资源数量和已学配方。
 - 死亡等待期间禁止移动、攻击、拾取、换装、学习、打造和打开面板；怪物与箭矢继续运行，箭矢穿过死者。面板暂停或窗口失焦时，战斗与动画计时冻结。
 - **单档自动存读**：启动读取 `%LOCALAPPDATA%\DarkLoot\save.json`；成功拾取、换装、学习、打造导致进度变化后立即保存，正常退出也保存。保留全部装备实例及原始品质/词缀、背包顺序、穿戴槽位、材料/配方数量与已学配方；重复配方仍保留，再次学习不消耗。
 - 每次进入从出生点按装备后的生命上限满血开始，怪物重新生成；不恢复位置、当前生命、怪物、箭矢或地面掉落。首次没有存档时从空背包开始。死亡和 R 不清除存档进度。
@@ -56,7 +57,7 @@ dotnet publish src\DarkLoot.Game --configuration Release --output artifacts\publ
 面板内按 R 不重开；关闭面板后再按 R 清理旧动作和伤害提示。
 弓手进入射程后停步，每箭先以橙色方向线锁定瞄准 0.3 秒，发射间隔至少 1.5 秒；
 箭不会追踪，横向移动可以躲避，杀死弓手不会消除已发射的箭。
-左上显示剩余怪物数量，击败六只后显示清场提示；按 R 重开会清空未拾取的地面资源。
+顶部中央显示剩余怪物数量与面板暂停状态，击败六只后显示清场提示；按 R 重开会清空未拾取的地面资源。
 
 ## Architecture
 
@@ -71,6 +72,10 @@ dotnet publish src\DarkLoot.Game --configuration Release --output artifacts\publ
 - **Game**: MonoGame host maps Engine input to `PlayerIntent`; `ActorPresentation` consumes per-Update combat
   events once and maintains one animator per instance, while `ActorRenderer` transforms actor-local geometry.
   Renderers and inventory hit-testing contain no combat/drop rules; Draw never advances animation time.
+  `UiLayout` shares panel/grid/button rectangles across rendering, routing and smoke injection.
+  `GothicUiRenderer` caches and disposes original stone/globe textures; `ItemTooltip` measures/wraps
+  instance-derived details. Camera and loot labels use the playfield above the console, independent
+  of panel visibility. UI state and the save schema remain separate.
 
 Definitions and the compiled Microsoft YaHei 12-point bitmap SpriteFont are copied on build/publish.
 Runtime paths resolve from `AppContext.BaseDirectory`, independent of the working directory.
@@ -80,8 +85,8 @@ compiled atlas; it does not need the source font installed or distributed.
 `GameText.cs` holds Chinese presentation text and enum labels; JSON `name` fields hold content names.
 When adding text/names, extend the explicit Unicode regions in `Content\Fonts\UIFont.spritefont`
 and run the window smoke. There is deliberately no fallback glyph: missing characters fail rather
-than silently rendering as `?`. Text is measured and fitted inside existing inventory row/column
-bounds, leaving click regions unchanged.
+than silently rendering as `?`. Labels are measured inside shared bounds; full tooltips wrap without
+truncation and remain inside the playfield.
 
 Legacy item definitions default to the Weapon slot, and loot tables without `rarityWeights` produce
 Common items. Item `attackBonus` remains between 0 and 1,000,000 inclusive. Affix ranges are inclusive,
@@ -107,11 +112,16 @@ order, both slots, resources and learned recipes, along with full equipped healt
 that same two-window persistence check before the armed combat acceptance stages. It does not replace
 the full smoke's death-pixel assertions.
 
-Current acceptance limitation: the full smoke fails its green partial-death slime backbuffer assertion
-at `ClearEncounter`, phase 0. The previously published binary fails the same assertion; it has not been
-weakened or removed. The source and newly published persistence-only two-window checks pass independently.
-The preserved baseline failure log is `artifacts\autosave-baseline-full-smoke.log`; persistence results are
-`artifacts\autosave-source-smoke.log` and `artifacts\autosave-published-smoke.log`.
+Current acceptance limitation: the latest full smoke reaches `PauseWithArrow`, phase 3, but its intended
+miss hits `smoke.slime.2`, failing `accepted later miss cleared old per-target damage before pause`.
+Full combat/death acceptance is therefore not complete; see `artifacts\gothic-full-smoke.log`.
+Earlier pre-redesign source and published runs failed the green partial-death slime assertion at
+`ClearEncounter`, phase 0. Neither assertion was weakened or removed. The redesigned source and published
+UI/persistence-only two-window checks pass independently.
+The preserved baseline failure log is `artifacts\autosave-baseline-full-smoke.log`; redesigned UI and
+persistence results are `artifacts\gothic-source-smoke.log` and `artifacts\gothic-published-smoke.log`.
+Real Draw screenshots are `gothic-ui-both.png`, `gothic-ui-resource-tooltip.png`, and
+`gothic-ui-item-tooltip.png` beside the executable (also copied to `artifacts` during verification).
 
 This opens a real graphics window and injects deterministic input snapshots through the host update/UI/draw
 path. It first verifies actual loaded `SpriteFont.Characters` against all presentation strings, enum
@@ -126,10 +136,12 @@ Named stages are Approach, MultiHit, DodgeArrow, TakeArrow, GatherMaterials, Pic
 LearnCraft, InspectResources, Equip, ReopenEncounter, ClearEncounter, PauseWithArrow, RestartCleanup,
 DeathRespawn, PauseWithReaction and Complete. The first unarmed round gathers materials and both recipe items
 only through actual kills and E pickups (including identity receipts). Movement reaches the real smith gate;
-F opens the panel, real button clicks test refusals, learn both recipes and craft once each through the
+the console smith button opens both panels, real recipe-selection/detail-button clicks test refusals,
+learn both recipes and craft once each through the
 official services. Assertions check full production costs, unique instances, real displayed names/rolls,
-no automatic equip/healing, retained duplicate recipes, I panel switching, resource tabs, and row comparisons
-computed before equipping. Esc closes without exiting or advancing combat. R begins the armed combat round.
+no automatic equip/healing, retained duplicate recipes, independent smith closing, resource tabs and
+harmless resource/equipment hover, with comparisons computed before equipping. Esc closes without exiting
+or advancing combat. The console restart button begins the armed round without attack/movement/pickup bleed.
 Assertions retain real multi-kills, independent critical/normal target rolls, locked non-homing arrows that
 miss and hit, both crafted/equipped slots with original identities/rolls, and six kills with a completion
 Draw while arrows remain in flight.
@@ -141,7 +153,11 @@ Actual lethal contact must enter a full 0.6-second death wait, reject dead
 controls/inventory/R, then respawn at the equipped maximum health with six monsters and 0.8-second protection.
 Pose checks require walking, locked swing direction, independent instance reactions, nonneutral paused poses,
 and zero-time reset cleanup after the paused-R refusal and gated Esc close.
-Actual smith feedback, names, costs, buttons and resource rows are measured and glyph-checked when drawn.
+Actual smith feedback, names, costs, buttons and resource details are measured and glyph-checked when drawn.
+Gothic acceptance samples both brass panel frames, all 32 inset grid cells, full/partial real-health
+globe pixels, and measured/wrapped tooltip borders in the actual backbuffer. Hover stages wait for a real
+Draw even if MonoGame catches up with multiple Updates. Circular empty/full clipping is also tested
+headlessly against generated texture pixels. This does not bypass the full smoke's death-pixel checks.
 Real backbuffer samples require visible partial monster/player death bodies;
 these are color-presence checks at authoritative anchors, not golden screenshots. Headless controller tests
 compile the presentation source directly, without referencing the executable Game project.

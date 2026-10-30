@@ -29,6 +29,10 @@ public sealed class CraftingPanelTests
         panel.Update(Click(panel.LearnButtonBounds(Width, row)), arena, content, Width);
         Assert.False(arena.Blacksmith.HasLearned(recipe.Id));
         panel.SetOpen(true);
+        panel.Update(Click(panel.RowBounds(Width, row)), arena, content, Width);
+        Assert.Equal(row, panel.SelectedRecipeIndex);
+        Assert.Empty(arena.Blacksmith.KnownRecipeIds);
+        Assert.Empty(arena.Player.Inventory.Items);
         Assert.True(panel.CanLearn(arena, recipe));
         Assert.False(panel.CanCraft(arena, recipe));
         panel.Update(Click(panel.LearnButtonBounds(Width, row)), arena, content, Width);

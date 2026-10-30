@@ -19,7 +19,11 @@
     <Compile Include="..\..\src\DarkLoot.Game\ActorPresentation.cs" Link="Game\ActorPresentation.cs" />
     <Compile Include="..\..\src\DarkLoot.Game\GameText.cs" Link="Game\GameText.cs" />
     <Compile Include="..\..\src\DarkLoot.Game\PanelController.cs" Link="Game\PanelController.cs" />
+    <Compile Include="..\..\src\DarkLoot.Game\UiLayout.cs" Link="Game\UiLayout.cs" />
+    <Compile Include="..\..\src\DarkLoot.Game\GothicUiRenderer.cs" Link="Game\GothicUiRenderer.cs" />
+    <Compile Include="..\..\src\DarkLoot.Game\UiTextureFactory.cs" Link="Game\UiTextureFactory.cs" />
     <Compile Include="..\..\src\DarkLoot.Game\InventoryPanel.cs" Link="Game\InventoryPanel.cs" />
+    <Compile Include="..\..\src\DarkLoot.Game\ItemTooltip.cs" Link="Game\ItemTooltip.cs" />
     <Compile Include="..\..\src\DarkLoot.Game\BlacksmithPanel.cs" Link="Game\BlacksmithPanel.cs" />
     <Compile Include="..\..\src\DarkLoot.Game\RuntimeSmokeTest.cs" Link="Game\RuntimeSmokeTest.cs" />
     <Compile Include="..\..\src\DarkLoot.Game\PersistenceSmokeTest.cs" Link="Game\PersistenceSmokeTest.cs" />

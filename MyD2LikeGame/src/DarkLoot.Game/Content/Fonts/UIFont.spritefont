@@ -9,6 +9,26 @@
     <CharacterRegions>
       <CharacterRegion><Start>&#32;</Start><End>&#126;</End></CharacterRegion>
       <CharacterRegion><Start>&#215;</Start><End>&#215;</End></CharacterRegion>
+      <CharacterRegion><Start>&#183;</Start><End>&#183;</End></CharacterRegion>
+      <CharacterRegion><Start>&#19968;</Start><End>&#19968;</End></CharacterRegion>
+      <CharacterRegion><Start>&#20214;</Start><End>&#20214;</End></CharacterRegion>
+      <CharacterRegion><Start>&#22218;</Start><End>&#22218;</End></CharacterRegion>
+      <CharacterRegion><Start>&#22266;</Start><End>&#22266;</End></CharacterRegion>
+      <CharacterRegion><Start>&#22522;</Start><End>&#22522;</End></CharacterRegion>
+      <CharacterRegion><Start>&#23450;</Start><End>&#23450;</End></CharacterRegion>
+      <CharacterRegion><Start>&#23481;</Start><End>&#23481;</End></CharacterRegion>
+      <CharacterRegion><Start>&#24748;</Start><End>&#24748;</End></CharacterRegion>
+      <CharacterRegion><Start>&#24773;</Start><End>&#24773;</End></CharacterRegion>
+      <CharacterRegion><Start>&#25968;</Start><End>&#25968;</End></CharacterRegion>
+      <CharacterRegion><Start>&#26426;</Start><End>&#26426;</End></CharacterRegion>
+      <CharacterRegion><Start>&#26684;</Start><End>&#26684;</End></CharacterRegion>
+      <CharacterRegion><Start>&#27599;</Start><End>&#27599;</End></CharacterRegion>
+      <CharacterRegion><Start>&#28014;</Start><End>&#28014;</End></CharacterRegion>
+      <CharacterRegion><Start>&#30784;</Start><End>&#30784;</End></CharacterRegion>
+      <CharacterRegion><Start>&#35814;</Start><End>&#35814;</End></CharacterRegion>
+      <CharacterRegion><Start>&#36136;</Start><End>&#36136;</End></CharacterRegion>
+      <CharacterRegion><Start>&#37327;</Start><End>&#37327;</End></CharacterRegion>
+      <CharacterRegion><Start>&#38543;</Start><End>&#38543;</End></CharacterRegion>
       <!-- Exact Chinese repertoire from GameText and definition names; smoke checks the loaded atlas. -->
       <CharacterRegion><Start>&#20313;</Start><End>&#20313;</End></CharacterRegion>
       <CharacterRegion><Start>&#21097;</Start><End>&#21097;</End></CharacterRegion>

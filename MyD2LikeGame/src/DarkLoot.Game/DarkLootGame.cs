@@ -35,6 +35,8 @@ public sealed class DarkLootGame : MonoGameGame
     private SaveSession? _save;
     private SpriteBatch _batch = null!;
     private ShapeRenderer _shapes = null!;
+    private GothicUiRenderer _ui = null!;
+    private System.Numerics.Vector2 _pointer;
     private SpriteFont _font = null!;
     private GameContent _content = null!;
     private GameContent _productionContent = null!;
@@ -88,6 +90,7 @@ public sealed class DarkLootGame : MonoGameGame
     {
         _batch = new SpriteBatch(GraphicsDevice);
         _shapes = new ShapeRenderer(GraphicsDevice);
+        _ui = new GothicUiRenderer(GraphicsDevice, _shapes);
         _font = Content.Load<SpriteFont>("Fonts/UIFont");
         _smoke?.ValidatePresentation(_font, _productionContent);
         if (_smoke is not null)
@@ -133,9 +136,11 @@ public sealed class DarkLootGame : MonoGameGame
 
     private void ApplyInput(GameInputSnapshot input, float elapsed)
     {
-        var frame = _panels.Route(input, _arena.Player, _arena.BlacksmithOperations);
-        _inventory.SetOpen(frame.ActivePanel == PanelKind.Inventory);
-        _blacksmith.SetOpen(frame.ActivePanel == PanelKind.Blacksmith);
+        _pointer = input.PointerScreenPosition;
+        var frame = _panels.Route(input, _arena.Player, _arena.BlacksmithOperations,
+            GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
+        _inventory.SetOpen(frame.InventoryOpen);
+        _blacksmith.SetOpen(frame.BlacksmithOpen);
         if (frame.Feedback is not null)
         {
             _interactionFeedback = GameText.SmithStatus(frame.Feedback.Value);
@@ -149,11 +154,13 @@ public sealed class DarkLootGame : MonoGameGame
             Exit();
             return;
         }
+        if (frame.InventoryOpen)
+            _inventory.Update(frame.HandlePanelActions ? input : input with { AttackPressed = false, ScrollDelta = 0 },
+                _arena.Player, _content, GraphicsDevice.Viewport.Width, _arena.EquipmentOperations,
+                _arena.Blacksmith.KnownRecipeIds);
         if (frame.HandlePanelActions)
         {
-            if (frame.ActivePanel == PanelKind.Inventory)
-                _inventory.Update(input, _arena.Player, _content, GraphicsDevice.Viewport.Width, _arena.EquipmentOperations);
-            else if (frame.ActivePanel == PanelKind.Blacksmith)
+            if (frame.BlacksmithOpen)
                 _blacksmith.Update(input, _arena, _content, GraphicsDevice.Viewport.Width);
         }
         if (frame.AdvanceWorld)
@@ -164,8 +171,10 @@ public sealed class DarkLootGame : MonoGameGame
                 _presentation.Reset(_arena);
                 _smoke?.AfterReset(_arena, _presentation);
             }
-            var intent = new PlayerIntent(input.MoveDirection, input.AimWorldPosition,
-                input.AttackHeld || input.AttackPressed, input.PickupPressed);
+            var intent = new PlayerIntent(frame.BlockWorldInput ? System.Numerics.Vector2.Zero : input.MoveDirection,
+                input.AimWorldPosition,
+                !frame.BlockWorldInput && (input.AttackHeld || input.AttackPressed),
+                !frame.BlockWorldInput && input.PickupPressed);
             _arena.Update(intent, elapsed);
             _presentation.Update(_arena, elapsed);
         }
@@ -173,7 +182,8 @@ public sealed class DarkLootGame : MonoGameGame
     }
 
     private void FollowPlayer() =>
-        _camera.Follow(_arena.Player.Position, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
+        _camera.Follow(_arena.Player.Position, GraphicsDevice.Viewport.Width,
+            new UiLayout(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height).Console.Top);
 
     protected override void Draw(GameTime gameTime)
     {
@@ -189,11 +199,13 @@ public sealed class DarkLootGame : MonoGameGame
             _camera,
             _presentation);
         _hud.Draw(_batch, _shapes, _font, _arena, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height,
-            _frameRate.FramesPerSecond, _interactionFeedback);
-        _inventory.Draw(_batch, _shapes, _font, _arena.Player, _content, GraphicsDevice.Viewport.Width);
-        _blacksmith.Draw(_batch, _shapes, _font, _arena, _content, GraphicsDevice.Viewport.Width);
+            _ui, _frameRate.FramesPerSecond, _inventory.IsOpen, _blacksmith.IsOpen, _pointer, _interactionFeedback);
+        _inventory.Draw(_batch, _shapes, _font, _arena.Player, _content, GraphicsDevice.Viewport.Width, _ui);
+        _blacksmith.Draw(_batch, _shapes, _font, _arena, _content, GraphicsDevice.Viewport.Width, _ui);
+        _inventory.DrawTooltip(_batch, _shapes, _font, GraphicsDevice.Viewport.Width);
         _batch.End();
         base.Draw(gameTime);
+        _smoke?.ValidateUiDraw(GraphicsDevice, _font, _arena, _inventory, _blacksmith);
         _smoke?.ValidatePanelPresentation(_font, _arena, _inventory, _blacksmith, _content);
         if (_restoringSmoke is not null)
         {
@@ -202,6 +214,7 @@ public sealed class DarkLootGame : MonoGameGame
         }
         else if (_persistenceOnlySmoke && _smoke?.ReadyForPersistenceCheck == true)
         {
+            _smoke.ValidateUiAcceptance();
             Exit();
         }
         else if (_smoke?.AfterDraw(_arena, _presentation, _camera, GraphicsDevice, _frameRate.FramesPerSecond) == true)
@@ -220,6 +233,7 @@ public sealed class DarkLootGame : MonoGameGame
 
     protected override void UnloadContent()
     {
+        _ui?.Dispose();
         _shapes?.Dispose();
         _batch?.Dispose();
         base.UnloadContent();

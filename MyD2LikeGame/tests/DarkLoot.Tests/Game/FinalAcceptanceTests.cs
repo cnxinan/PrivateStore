@@ -40,13 +40,14 @@ public sealed class FinalAcceptanceTests
                 var input = smoke.NextInput(arena, inventory, smith, content, 1120, presentation.SwingRemaining);
                 var frame = panels.Route(input, arena.Player, arena.BlacksmithOperations);
                 Assert.False(frame.ExitRequested);
-                inventory.SetOpen(frame.ActivePanel == PanelKind.Inventory);
-                smith.SetOpen(frame.ActivePanel == PanelKind.Blacksmith);
+                inventory.SetOpen(frame.InventoryOpen);
+                smith.SetOpen(frame.BlacksmithOpen);
+                if (inventory.IsOpen)
+                    inventory.Update(frame.HandlePanelActions ? input : input with { AttackPressed = false, ScrollDelta = 0 },
+                        arena.Player, content, 1120, arena.EquipmentOperations, arena.Blacksmith.KnownRecipeIds);
                 if (frame.HandlePanelActions)
                 {
-                    if (inventory.IsOpen)
-                        inventory.Update(input, arena.Player, content, 1120, arena.EquipmentOperations);
-                    else if (smith.IsOpen)
+                    if (smith.IsOpen)
                         smith.Update(input, arena, content, 1120);
                 }
                 if (frame.AdvanceWorld)
@@ -57,8 +58,9 @@ public sealed class FinalAcceptanceTests
                         presentation.Reset(arena);
                         smoke.AfterReset(arena, presentation);
                     }
-                    arena.Update(new PlayerIntent(input.MoveDirection, input.AimWorldPosition,
-                        input.AttackHeld || input.AttackPressed, input.PickupPressed), .1f);
+                    arena.Update(new PlayerIntent(frame.BlockWorldInput ? System.Numerics.Vector2.Zero : input.MoveDirection,
+                        input.AimWorldPosition, !frame.BlockWorldInput && (input.AttackHeld || input.AttackPressed),
+                        !frame.BlockWorldInput && input.PickupPressed), .1f);
                     presentation.Update(arena, .1f);
                 }
                 smoke.AfterUpdate(arena, inventory, smith, content, presentation.PlayerPose,

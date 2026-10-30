@@ -39,7 +39,7 @@ public sealed class PanelControllerTests
             PickupPressed = true,
             RestartPressed = true
         }, arena.Player, arena.BlacksmithOperations);
-        Assert.Equal(PanelKind.None, frame.ActivePanel);
+        Assert.Equal(smith ? PanelKind.Inventory : PanelKind.None, frame.ActivePanel);
         Assert.False(frame.AdvanceWorld);
         Assert.False(frame.HandlePanelActions);
         Assert.False(frame.RestartRequested);
@@ -98,17 +98,19 @@ public sealed class PanelControllerTests
             InventoryTogglePressed = true,
             InteractPressed = true
         }, arena.Player, arena.BlacksmithOperations);
-        Assert.Equal(PanelKind.None, closing.ActivePanel);
+        Assert.Equal(PanelKind.Inventory, closing.ActivePanel);
         Assert.False(closing.AdvanceWorld);
         Assert.False(closing.HandlePanelActions);
         Assert.False(closing.RestartRequested);
         Assert.False(closing.ExitRequested);
+        Assert.False(controller.Route(Idle with { ExitPressed = true },
+            arena.Player, arena.BlacksmithOperations).ExitRequested);
         Assert.True(controller.Route(Idle with { ExitPressed = true },
             arena.Player, arena.BlacksmithOperations).ExitRequested);
     }
 
     [Fact]
-    public void InventoryAndSmith_AreExclusiveAndInventoryWinsSimultaneousKeys()
+    public void InventoryAndSmith_AreIndependentAndInventoryWinsSimultaneousKeys()
     {
         var arena = CreateArena();
         var controller = new PanelController();
@@ -119,8 +121,8 @@ public sealed class PanelControllerTests
         var stable = Route(Idle with { AttackPressed = true });
         Assert.True(stable.HandlePanelActions);
         Assert.False(stable.AdvanceWorld);
-        Assert.Equal(PanelKind.Inventory, Route(both).ActivePanel);
-        var close = Route(Idle with { InventoryTogglePressed = true, AttackHeld = true });
+        Assert.Equal(PanelKind.Blacksmith, Route(both).ActivePanel);
+        var close = Route(Idle with { InteractPressed = true, AttackHeld = true });
         Assert.Equal(PanelKind.None, close.ActivePanel);
         Assert.False(close.AdvanceWorld);
         Assert.False(close.HandlePanelActions);
@@ -137,7 +139,7 @@ public sealed class PanelControllerTests
             arena.Player, arena.BlacksmithOperations).ActivePanel);
         var closed = controller.Route(Idle with { InteractPressed = true, AttackPressed = true },
             arena.Player, arena.BlacksmithOperations);
-        Assert.Equal(PanelKind.None, closed.ActivePanel);
+        Assert.Equal(PanelKind.Inventory, closed.ActivePanel);
         Assert.False(closed.AdvanceWorld);
         Assert.False(closed.HandlePanelActions);
     }

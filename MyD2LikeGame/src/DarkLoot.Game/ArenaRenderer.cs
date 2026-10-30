@@ -46,7 +46,8 @@ public sealed class ArenaRenderer
 
         var lootRows = new List<Rectangle>(arena.GroundResources.Count);
         var viewport = batch.GraphicsDevice.Viewport;
-        var lootBounds = new Rectangle(8, 124, viewport.Width - 16, viewport.Height - 170);
+        var lootBounds = new Rectangle(8, 70, viewport.Width - 16,
+            new UiLayout(viewport.Width, viewport.Height).Console.Top - 78);
         foreach (var drop in arena.GroundResources)
         {
             var position = camera.WorldToScreen(drop.Position);

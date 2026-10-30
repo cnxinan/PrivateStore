@@ -23,6 +23,28 @@ internal static class GameText
     public const string Victory = "敌人已全部击败！按 E 拾取材料与配方，靠近铁匠按 F 学习和打造。按 I 装备。";
     public const string Objective = "击败敌人收集材料与配方，靠近铁匠按 F 学习并打造装备。死亡保留背包与已学配方。";
     public const string Inventory = "背包";
+    public const string GridHelp = "悬浮详情 · 左键穿戴 · 滚轮翻页";
+    public const string UnlimitedGrid = "每件一格 · 容量不限";
+    public const string PageNumber = "{0} / {1}";
+    public const string EquippedCell = "已装";
+    public const string BaseAttack = "基础攻击 +{0}";
+    public const string EquipComparison = "与当前装备比较";
+    public const string ClickToEquip = "左键穿戴";
+    public const string MaterialLabel = "材料";
+    public const string RecipeLabel = "配方";
+    public const string ResourceQuantity = "持有数量：{0}";
+    public const string PausedWorld = "面板打开 · 已暂停";
+    public const string AreaTitle = "训练场";
+    public const string HudStats = "攻击 {0}  |  生命上限 {1}  |  暴击 {2}%";
+    public const string InventoryButton = "行囊 I";
+    public const string SmithButton = "铁匠 F";
+    public const string RestartButton = "重开 R";
+    public const string SmithDetail = "固定品质 · 随机词缀";
+    public const string ConsoleObjective = "击败敌人 · E 拾取 · 靠近铁匠 F 打造";
+    public const string ConsoleCleared = "已清场 · E 拾取 · F 打造 · R 再战";
+    public const string DeathCountdown = "死亡 · {0:F1} 秒后复活";
+    public const string HealthFraction = "{0}/{1}";
+    public const string FrameRate = "FPS {0:F0}";
     public const string EquipmentTab = "装备";
     public const string ResourceTab = "材料 / 配方";
     public const string Weapon = "武器";
@@ -108,10 +130,12 @@ internal static class GameText
     };
 
     public static void Draw(SpriteBatch batch, SpriteFont font, string text,
-        Vector2 position, Color color, float width, float height = 22)
+        Vector2 position, Color color, float width, float height = 22, bool centered = false)
     {
         var size = font.MeasureString(text);
         var scale = Math.Min(1f, Math.Min(width / Math.Max(1, size.X), height / Math.Max(1, size.Y)));
+        if (centered)
+            position += new Vector2((width - size.X * scale) / 2, (height - size.Y * scale) / 2);
         batch.DrawString(font, text, position, color, 0, Vector2.Zero, scale, SpriteEffects.None, 0);
     }
 }
