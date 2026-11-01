@@ -529,7 +529,10 @@ internal sealed class RuntimeSmokeTest
                         _updates - _lastSwingUpdate >= 4 &&
                         arena.Projectiles.Count > 0 && arena.GroundResources.Count > 0 &&
                         arena.Monsters.Any(monster => monster.IsWindingUp &&
-                            monster.WindupRemaining > .100001f))
+                            monster.WindupRemaining > .100001f) &&
+                        arena.Monsters.All(monster => monster.IsDefeated ||
+                            !CombatRules.IsInMeleeRange(arena.Player.Position, -NumericsVector.UnitX,
+                                monster.Position, 48, 45)))
                     {
                         movement = NumericsVector.Zero;
                         aim = arena.Player.Position - NumericsVector.UnitX * 100;

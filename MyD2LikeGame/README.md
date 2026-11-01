@@ -127,11 +127,20 @@ order, both slots, resources and learned recipes, along with full equipped healt
 that same two-window persistence check before the armed combat acceptance stages. It does not replace
 the full smoke's death-pixel assertions.
 
-Current acceptance limitation: the latest full smoke reaches `PauseWithArrow`, phase 3, but its intended
-miss hits `smoke.slime.2`, failing `accepted later miss cleared old per-target damage before pause`.
-Full combat/death acceptance is therefore not complete; see `artifacts\gothic-full-smoke.log`.
-The cathedral published build reproduces that same assertion; see `artifacts\cathedral-full-smoke.log`.
-The paper-doll published build also reproduces it unchanged; see `artifacts\paperdoll-full-smoke.log`.
+Full combat/death acceptance now passes in both source and published real-window runs; see
+`artifacts\combat-source-smoke.log` and `artifacts\combat-published-smoke.log`.
+**408 tests pass**, including blocked/clear west-facing miss regressions; formatting and Release publish pass.
+Both full runs cover death/respawn, corpse pixels, arrow/windup/reaction pauses, reset cleanup and the
+second-window exact progression/appearance restore.
+
+The earlier `PauseWithArrow`, phase 3 failure was a smoke-input error: the script aimed west while a
+live `smoke.slime.2` was about ten units west of the player, so the production hit was correct.
+The script now waits for the existing west-facing 48-unit/45-degree melee cone to be empty before
+attempting the miss. Aim locking and all original acceptance assertions remain unchanged; no combat
+rules were modified. Earlier failure logs remain in `artifacts\gothic-full-smoke.log`,
+`artifacts\cathedral-full-smoke.log` and `artifacts\paperdoll-full-smoke.log`;
+the reproduced baseline and position evidence are `artifacts\combat-baseline-smoke.log` and
+`artifacts\combat-diagnostic-smoke.log`.
 Earlier pre-redesign source and published runs failed the green partial-death slime assertion at
 `ClearEncounter`, phase 0. Neither assertion was weakened or removed. The redesigned source and published
 UI/persistence-only two-window checks pass independently.

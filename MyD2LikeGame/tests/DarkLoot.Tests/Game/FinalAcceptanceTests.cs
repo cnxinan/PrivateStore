@@ -12,6 +12,56 @@ namespace DarkLoot.Tests.Game;
 
 public sealed class FinalAcceptanceTests
 {
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void PauseSmoke_MissesOnlyWhenTheLockedWestSwingHasNoLiveTargets(bool targetBlocksMiss)
+    {
+        var root = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
+        var log = Path.Combine(Path.GetTempPath(), $"darkloot-pause-miss-{Guid.NewGuid():N}.log");
+        try
+        {
+            var smoke = new RuntimeSmokeTest(log);
+            var (content, encounter) = smoke.CreateFixture(
+                GameContentLoader.LoadDirectory(Path.Combine(root, "content", "definitions")));
+            var arena = new ArenaSimulation(content, smoke.CreateRandom(), encounter);
+            arena.Player.Position = new(200, 230);
+            arena.Update(new(System.Numerics.Vector2.Zero, new(200, 270), true, false), 0);
+            Assert.NotEmpty(arena.GroundResources);
+            Assert.False(arena.Monsters[1].IsDefeated);
+            arena.Player.Position = new(200, 100);
+            for (var tick = 0; tick < 50 && !(arena.Projectiles.Count > 0 &&
+                arena.Monsters.Any(monster => monster.IsWindingUp && monster.WindupRemaining > .100001f)); tick++)
+                arena.Update(new(System.Numerics.Vector2.Zero, arena.Player.Position, false, false), .1f);
+            Assert.NotEmpty(arena.Projectiles);
+            Assert.Contains(arena.Monsters, monster => monster.IsWindingUp && monster.WindupRemaining > .100001f);
+            arena.Player.Position = new(224.85817f, 278.27698f);
+            arena.Monsters[1].Position = targetBlocksMiss ? new(215.01062f, 279.99002f) : new(215, 340);
+            // Isolate the documented pause stage without requiring a GraphicsDevice completion Draw.
+            var stage = typeof(RuntimeSmokeTest).GetField("_stage", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            stage.SetValue(smoke, Enum.Parse(stage.FieldType, "PauseWithArrow"));
+            typeof(RuntimeSmokeTest).GetField("_phase", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(smoke, 1);
+            typeof(RuntimeSmokeTest).GetField("_lastSwingUpdate", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(smoke, -10);
+
+            var input = smoke.NextInput(arena, new InventoryPanel(), new BlacksmithPanel(), content, 1120, 0);
+
+            Assert.Equal(!targetBlocksMiss, input.AttackPressed);
+            if (!targetBlocksMiss)
+            {
+                Assert.Equal(System.Numerics.Vector2.Zero, input.MoveDirection);
+                Assert.Equal(arena.Player.Position - System.Numerics.Vector2.UnitX * 100, input.AimWorldPosition);
+                var sequence = arena.Player.AttackSequence;
+                arena.Update(new(input.MoveDirection, input.AimWorldPosition, input.AttackPressed, false), .1f);
+                Assert.Equal(sequence + 1, arena.Player.AttackSequence);
+                Assert.Empty(arena.LastSwingHits);
+            }
+        }
+        finally
+        {
+            File.Delete(log);
+        }
+    }
+
     [Fact]
     public void SmokeInputs_CloseKillPickupLearnCraftEquipLoopWithoutGrantingGearOrKnowledge()
     {
