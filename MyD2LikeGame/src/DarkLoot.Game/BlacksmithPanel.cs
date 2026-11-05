@@ -8,13 +8,19 @@ using DarkLoot.Gameplay.Combat;
 using DarkLoot.Gameplay.Crafting;
 using DarkLoot.Gameplay.Items;
 using DarkLoot.Gameplay.Resources;
+using DarkLoot.Gameplay.Quests;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace DarkLoot.Game;
 
+public enum BlacksmithTab { Craft, Commissions }
+
 public sealed class BlacksmithPanel
 {
+    public BlacksmithTab Tab { get; private set; }
+    public QuestStatus? LastQuestResult { get; private set; }
+    public string QuestFeedback { get; private set; } = string.Empty;
     public bool IsOpen { get; private set; }
     public BlacksmithResult? LastResult { get; private set; }
     public string Feedback { get; private set; } = string.Empty;
@@ -41,6 +47,31 @@ public sealed class BlacksmithPanel
         if (!IsOpen || !input.AttackPressed)
             return;
 
+        var layout = new UiLayout(width);
+        var cursor = input.PointerScreenPosition;
+        if (layout.CommissionTab.Contains(cursor.X, cursor.Y))
+        {
+            Tab = BlacksmithTab.Commissions;
+            return;
+        }
+        if (layout.CraftingTab.Contains(cursor.X, cursor.Y))
+        {
+            Tab = BlacksmithTab.Craft;
+            return;
+        }
+        if (Tab == BlacksmithTab.Commissions)
+        {
+            var accept = layout.AcceptQuestButton.Contains(cursor.X, cursor.Y);
+            if (accept || layout.TurnInQuestButton.Contains(cursor.X, cursor.Y))
+            {
+                LastQuestResult = accept ? arena.QuestOperations.Accept(arena.Player) :
+                    arena.QuestOperations.TurnIn(arena.Player);
+                QuestFeedback = LastQuestResult == QuestStatus.Applied
+                    ? accept ? GameText.QuestAccepted : GameText.QuestTurnedIn
+                    : GameText.QuestResult(LastQuestResult.Value);
+            }
+            return;
+        }
         var recipes = content.Recipes.Values.OrderBy(recipe => recipe.Id, StringComparer.Ordinal).ToArray();
         for (var row = 0; row < recipes.Length; row++)
         {
@@ -93,9 +124,29 @@ public sealed class BlacksmithPanel
         var layout = new UiLayout(width);
         var bounds = layout.Blacksmith;
         ui.DrawPanel(batch, bounds);
-        InventoryPanel.Text(batch, font, GameText.Smith,
+        InventoryPanel.Text(batch, font, Tab == BlacksmithTab.Commissions
+                ? GameText.SmithPrompt + " - " + GameText.CommissionTab : GameText.Smith,
             new Rectangle(bounds.X + 20, bounds.Y + 8, 290, 28), GothicUiRenderer.Gold);
         InventoryPanel.CloseButton(batch, font, ui, layout.BlacksmithClose);
+        ui.DrawButton(batch, layout.CommissionTab, pressed: Tab == BlacksmithTab.Commissions);
+        ui.DrawButton(batch, layout.CraftingTab, pressed: Tab == BlacksmithTab.Craft);
+        InventoryPanel.Text(batch, font, GameText.CommissionTab, layout.CommissionTab,
+            GothicUiRenderer.Gold, centered: true);
+        InventoryPanel.Text(batch, font, GameText.Craft, layout.CraftingTab,
+            GothicUiRenderer.Gold, centered: true);
+        if (Tab == BlacksmithTab.Commissions)
+        {
+            QuestPanel.DrawCommission(batch, font, ui, arena, content, layout);
+            var available = arena.BlacksmithOperations.CanInteract(arena.Player) && arena.Quests.Current is not null;
+            DrawButton(batch, font, ui, layout.AcceptQuestButton, GameText.AcceptQuest,
+                available && !arena.Quests.Accepted);
+            DrawButton(batch, font, ui, layout.TurnInQuestButton, GameText.TurnInQuest,
+                available && arena.QuestOperations.IsReady(arena.Player));
+            QuestPanel.Wrapped(batch, font, string.IsNullOrEmpty(QuestFeedback) ? GameText.QuestRules : QuestFeedback,
+                layout.SmithFeedback, LastQuestResult is null ? GothicUiRenderer.Muted :
+                    LastQuestResult == QuestStatus.Applied ? GothicUiRenderer.Gold : GothicUiRenderer.Red);
+            return;
+        }
         var recipes = content.Recipes.Values.OrderBy(recipe => recipe.Id, StringComparer.Ordinal).ToArray();
         for (var row = 0; row < recipes.Length; row++)
         {

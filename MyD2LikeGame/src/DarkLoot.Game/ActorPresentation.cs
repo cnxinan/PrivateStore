@@ -24,18 +24,27 @@ public sealed class ActorPresentation
     private readonly HashSet<CombatEvent> _seenEvents = new(ReferenceEqualityComparer.Instance);
     private readonly List<ActorHitText> _hitTexts = [];
     private readonly IReadOnlyList<ActorHitText> _readOnlyHitTexts;
+    private readonly List<CombatEffect> _effects = [];
+    private readonly IReadOnlyList<CombatEffect> _readOnlyEffects;
     private Entry _player = new(ActorVisualKind.Player, Vector2.Zero);
     private ArenaSimulation? _arena;
     private long _resetSequence;
 
-    public ActorPresentation() => _readOnlyHitTexts = _hitTexts.AsReadOnly();
+    public ActorPresentation()
+    {
+        _readOnlyHitTexts = _hitTexts.AsReadOnly();
+        _readOnlyEffects = _effects.AsReadOnly();
+    }
 
     public ActorPose PlayerPose => _player.Animator.Pose;
+    public ActorFrame PlayerFrame => _player.Animator.Frame;
     public IReadOnlyList<ActorHitText> HitTexts => _readOnlyHitTexts;
+    public IReadOnlyList<CombatEffect> Effects => _readOnlyEffects;
     public float SwingRemaining { get; private set; }
     public bool SwingHasHit { get; private set; }
     public bool SwingWasCritical { get; private set; }
     public ActorPose GetMonsterPose(string instanceId) => _monsters[instanceId].Animator.Pose;
+    public ActorFrame GetMonsterFrame(string instanceId) => _monsters[instanceId].Animator.Frame;
 
     public void Reset(ArenaSimulation arena)
     {
@@ -43,6 +52,7 @@ public sealed class ActorPresentation
         _arena = arena;
         _resetSequence = arena.ResetSequence;
         _hitTexts.Clear();
+        _effects.Clear();
         _seenEvents.Clear();
         _seenEvents.UnionWith(arena.Events);
         SwingRemaining = 0;
@@ -53,8 +63,7 @@ public sealed class ActorPresentation
         _monsters.Clear();
         foreach (var monster in arena.Monsters)
         {
-            var kind = monster.Behavior == MonsterBehavior.Archer ? ActorVisualKind.Archer :
-                monster.Id == "monster.fast_wolf" ? ActorVisualKind.Wolf : ActorVisualKind.Slime;
+            var kind = MonsterVisual(monster);
             var entry = new Entry(kind, monster.Position);
             _monsters.Add(monster.InstanceId, entry);
             EvaluateMonster(entry, monster, null, 0);
@@ -73,6 +82,15 @@ public sealed class ActorPresentation
         }
 
         SwingRemaining = Math.Max(0, SwingRemaining - elapsedSeconds);
+        for (var index = _effects.Count - 1; index >= 0; index--)
+        {
+            var effect = _effects[index];
+            var age = effect.Age + elapsedSeconds;
+            if (age >= effect.Duration)
+                _effects.RemoveAt(index);
+            else
+                _effects[index] = effect with { Age = age };
+        }
         for (var index = _hitTexts.Count - 1; index >= 0; index--)
         {
             var text = _hitTexts[index];
@@ -88,6 +106,15 @@ public sealed class ActorPresentation
         _seenEvents.UnionWith(arena.Events);
         foreach (var hit in events.Where(item => item.Kind == CombatEventKind.Damaged))
             _hitTexts.Add(new(hit.ActorId, hit.Position, hit.Damage, hit.WasCritical, FeedbackSeconds));
+        foreach (var item in events)
+        {
+            if (item.Kind == CombatEventKind.Swing && item.ActorId == "player")
+                AddEffect(new(arena.Player.Inventory.EquippedWeapon is null ? CombatEffectKind.Punch :
+                    CombatEffectKind.Slash, item.ActorId, item.Position, item.Direction));
+            else if (item.Kind == CombatEventKind.Damaged && item.ActorId != "player" && item.Damage > 0)
+                AddEffect(new(item.WasCritical ? CombatEffectKind.Critical : CombatEffectKind.Hit,
+                    item.ActorId, item.Position, item.Direction));
+        }
         var swing = events.FirstOrDefault(item => item.Kind == CombatEventKind.Swing);
         if (swing is not null)
         {
@@ -109,9 +136,25 @@ public sealed class ActorPresentation
         }
     }
 
+    private void AddEffect(CombatEffect effect)
+    {
+        // Bound cosmetic work independently of encounter size; keep the newest impacts.
+        if (_effects.Count == 32)
+            _effects.RemoveAt(0);
+        _effects.Add(effect);
+    }
+
+    internal static ActorVisualKind MonsterVisual(MonsterState monster) => monster.Id switch
+    {
+        "monster.skeleton_warrior" => ActorVisualKind.Warrior,
+        "monster.cultist_mage" => ActorVisualKind.Cultist,
+        "monster.fast_wolf" => ActorVisualKind.Wolf,
+        _ => monster.Behavior == MonsterBehavior.Archer ? ActorVisualKind.Archer : ActorVisualKind.Slime
+    };
+
     private static void EvaluateMonster(Entry entry, MonsterState monster, CombatEvent? attack, float elapsed) =>
         Evaluate(entry, monster.Position, monster.Reaction.IsActive, monster.IsDefeated, false,
-            monster.IsWindingUp, 1 - monster.WindupRemaining / .3f, attack,
+            monster.IsWindingUp, monster.WindupProgress, attack,
             monster.IsWindingUp ? monster.LockedAimDirection : monster.Facing, elapsed);
 
     private static void Evaluate(Entry entry, Vector2 position, bool hurt, bool dead, bool invulnerable,

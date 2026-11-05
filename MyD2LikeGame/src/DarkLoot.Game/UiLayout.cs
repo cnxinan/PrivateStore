@@ -20,6 +20,13 @@ public readonly struct UiLayout
     public Rectangle Blacksmith => new(16, 20, 360, Height - 162);
     public Rectangle InventoryClose => new(Inventory.Right - 32, Inventory.Y + 10, 22, 22);
     public Rectangle BlacksmithClose => new(Blacksmith.Right - 32, Blacksmith.Y + 10, 22, 22);
+    public Rectangle CommissionTab => new(Blacksmith.X + 18, Blacksmith.Y + 38, 156, 22);
+    public Rectangle CraftingTab => new(Blacksmith.X + 186, Blacksmith.Y + 38, 156, 22);
+    public Rectangle AcceptQuestButton => LearnButton;
+    public Rectangle TurnInQuestButton => CraftButton;
+    public Rectangle QuestButton => new(Width - 372, Height - 60, 108, 28);
+    public Rectangle QuestTracker => new(WorldStatus.X, 68, WorldStatus.Width, 70);
+    public Rectangle QuestRow(int index) => new(Inventory.X + 18, Inventory.Y + 64 + index * 54, 396, 48);
     public Rectangle EquipmentTab => new(Inventory.X + 24, Inventory.Y + 200, 180, 28);
     public Rectangle ResourceTab => new(Inventory.X + 220, Inventory.Y + 200, 188, 28);
     public Rectangle Grid => new(Inventory.X + 24, Inventory.Y + 244, 384, 192);
@@ -40,7 +47,7 @@ public readonly struct UiLayout
     public Rectangle SmithButton => new(Width - 256, Height - 104, 108, 36);
     public Rectangle RestartButton => new(Width - 140, Height - 104, 108, 36);
     public Rectangle Objective => new(178, Height - 103, Width - 566, 28);
-    public Rectangle HudStats => new(178, Height - 66, Width - 218, 24);
+    public Rectangle HudStats => new(178, Height - 66, Width - 566, 24);
     public Rectangle HudHelp => new(178, Height - 32, Width - 322, 20);
     public Rectangle WorldStatus => new(Blacksmith.Right + 8, 10, Inventory.Left - Blacksmith.Right - 16, 50);
 

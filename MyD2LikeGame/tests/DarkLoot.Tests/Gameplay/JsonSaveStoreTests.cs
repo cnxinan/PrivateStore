@@ -93,8 +93,8 @@ public sealed class JsonSaveStoreTests
         var json = File.ReadAllText(files.Path);
         json = defect switch
         {
-            "missing" => json.Replace("\"version\": 1,", ""),
-            "unknown" => json.Replace("\"version\": 1,", "\"version\": 1, \"unexpected\": true,"),
+            "missing" => json.Replace("\"version\": 2,", ""),
+            "unknown" => json.Replace("\"version\": 2,", "\"version\": 2, \"unexpected\": true,"),
             "numeric-enum" => json.Replace("\"rare\"", "2"),
             "duplicate-resource" => json.Replace("\"materials\": {", "\"materials\": { \"material.bone\": 1,"),
             _ => throw new ArgumentOutOfRangeException(nameof(defect))

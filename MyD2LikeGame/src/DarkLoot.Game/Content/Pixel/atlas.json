@@ -1,0 +1,1 @@
+{"version":1,"frameWidth":48,"frameHeight":48,"columns":6,"directions":["E","SE","S","SW","W","NW","N","NE"],"actions":["Idle","Move","Attack","Hurt","Dead"],"originX":24,"originY":24,"scale":2}

@@ -17,6 +17,12 @@
   <ItemGroup>
     <Using Include="Xunit" />
     <Compile Include="..\..\src\DarkLoot.Game\ActorPresentation.cs" Link="Game\ActorPresentation.cs" />
+    <Compile Include="..\..\src\DarkLoot.Game\SpriteAtlasLayout.cs" Link="Game\SpriteAtlasLayout.cs" />
+    <Compile Include="..\..\src\DarkLoot.Game\PixelTileLayout.cs" Link="Game\PixelTileLayout.cs" />
+    <Compile Include="..\..\src\DarkLoot.Game\PixelContent.cs" Link="Game\PixelContent.cs" />
+    <Compile Include="..\..\src\DarkLoot.Game\PixelSceneRenderer.cs" Link="Game\PixelSceneRenderer.cs" />
+    <Compile Include="..\..\src\DarkLoot.Game\CombatEffect.cs" Link="Game\CombatEffect.cs" />
+    <Compile Include="..\..\src\DarkLoot.Game\CombatEffectArt.cs" Link="Game\CombatEffectArt.cs" />
     <Compile Include="..\..\src\DarkLoot.Game\PlayerAppearance.cs" Link="Game\PlayerAppearance.cs" />
     <Compile Include="..\..\src\DarkLoot.Game\PlayerPaperDoll.cs" Link="Game\PlayerPaperDoll.cs" />
     <Compile Include="..\..\src\DarkLoot.Game\GameText.cs" Link="Game\GameText.cs" />
@@ -27,9 +33,12 @@
     <Compile Include="..\..\src\DarkLoot.Game\GothicRoomLayout.cs" Link="Game\GothicRoomLayout.cs" />
     <Compile Include="..\..\src\DarkLoot.Game\GothicRoomArt.cs" Link="Game\GothicRoomArt.cs" />
     <Compile Include="..\..\src\DarkLoot.Game\GothicRoomRenderer.cs" Link="Game\GothicRoomRenderer.cs" />
+    <Compile Include="..\..\src\DarkLoot.Game\DungeonRoomRenderer.cs" Link="Game\DungeonRoomRenderer.cs" />
+    <Compile Include="..\..\src\DarkLoot.Game\DungeonRoomArt.cs" Link="Game\DungeonRoomArt.cs" />
     <Compile Include="..\..\src\DarkLoot.Game\InventoryPanel.cs" Link="Game\InventoryPanel.cs" />
     <Compile Include="..\..\src\DarkLoot.Game\ItemTooltip.cs" Link="Game\ItemTooltip.cs" />
     <Compile Include="..\..\src\DarkLoot.Game\BlacksmithPanel.cs" Link="Game\BlacksmithPanel.cs" />
+    <Compile Include="..\..\src\DarkLoot.Game\QuestPanel.cs" Link="Game\QuestPanel.cs" />
     <Compile Include="..\..\src\DarkLoot.Game\RuntimeSmokeTest.cs" Link="Game\RuntimeSmokeTest.cs" />
     <Compile Include="..\..\src\DarkLoot.Game\PersistenceSmokeTest.cs" Link="Game\PersistenceSmokeTest.cs" />
     <Compile Include="..\..\src\DarkLoot.Game\HudRenderer.cs" Link="Game\HudRenderer.cs" />

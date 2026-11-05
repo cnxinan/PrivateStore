@@ -12,6 +12,8 @@ public sealed class ActorAnimatorTests
     [InlineData(ActorVisualKind.Slime)]
     [InlineData(ActorVisualKind.Wolf)]
     [InlineData(ActorVisualKind.Archer)]
+    [InlineData(ActorVisualKind.Warrior)]
+    [InlineData(ActorVisualKind.Cultist)]
     public void Locomotion_HasDistinctBoundedPhasesAndReadOnlyPose(ActorVisualKind kind)
     {
         var animator = new ActorAnimator(kind);
@@ -30,7 +32,7 @@ public sealed class ActorAnimatorTests
         AssertBounded(idle);
         AssertBounded(moving);
         AssertBounded(animator.Pose);
-        if (kind is ActorVisualKind.Wolf or ActorVisualKind.Archer)
+        if (kind is ActorVisualKind.Wolf or ActorVisualKind.Archer or ActorVisualKind.Warrior or ActorVisualKind.Cultist)
             Assert.NotEqual(0, animator.Pose.LimbSwing);
     }
 
@@ -76,6 +78,8 @@ public sealed class ActorAnimatorTests
     [InlineData(ActorVisualKind.Slime, .16f)]
     [InlineData(ActorVisualKind.Wolf, .16f)]
     [InlineData(ActorVisualKind.Archer, .12f)]
+    [InlineData(ActorVisualKind.Warrior, .16f)]
+    [InlineData(ActorVisualKind.Cultist, .12f)]
     public void AttackImpulse_AdvancesOnceLocksFacingAndExpires(ActorVisualKind kind, float duration)
     {
         var animator = new ActorAnimator(kind);
@@ -122,6 +126,8 @@ public sealed class ActorAnimatorTests
     [InlineData(ActorVisualKind.Slime, .12f)]
     [InlineData(ActorVisualKind.Wolf, .12f)]
     [InlineData(ActorVisualKind.Archer, .12f)]
+    [InlineData(ActorVisualKind.Warrior, .12f)]
+    [InlineData(ActorVisualKind.Cultist, .12f)]
     public void Hurt_OverridesAttackDoesNotRestartAndDiscardsBlockedImpulse(ActorVisualKind kind, float duration)
     {
         var animator = new ActorAnimator(kind);
@@ -215,6 +221,8 @@ public sealed class ActorAnimatorTests
     [InlineData(ActorVisualKind.Slime, .3f)]
     [InlineData(ActorVisualKind.Wolf, .3f)]
     [InlineData(ActorVisualKind.Archer, .3f)]
+    [InlineData(ActorVisualKind.Warrior, .3f)]
+    [InlineData(ActorVisualKind.Cultist, .3f)]
     public void Death_HasMiddleEndAndTerminalPoseUntilReset(ActorVisualKind kind, float duration)
     {
         var animator = new ActorAnimator(kind);

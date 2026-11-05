@@ -37,6 +37,15 @@ public sealed class ActorAnimator
 
     public ActorPose Pose { get; private set; }
     public ActorAction Action { get; private set; }
+    public ActorFrame Frame => new(Action, Action switch
+    {
+        ActorAction.Idle => (float)(_phaseSeconds % 1),
+        ActorAction.Move => (float)(_phaseSeconds % .5 / .5),
+        ActorAction.Attack => Pose.AttackProgress,
+        ActorAction.Hurt => (float)(_actionSeconds / HurtSeconds),
+        ActorAction.Dead => (float)(_actionSeconds / DeathSeconds),
+        _ => throw new InvalidOperationException("Unknown actor action.")
+    });
 
     public void Update(ActorAnimationInput input, float elapsedSeconds)
     {
@@ -99,7 +108,7 @@ public sealed class ActorAnimator
 
         if (Action != ActorAction.Attack || _windingUp)
         {
-            if (_kind == ActorVisualKind.Archer && input.WindingUp)
+            if (_kind is ActorVisualKind.Archer or ActorVisualKind.Cultist && input.WindingUp)
             {
                 if (!_windingUp)
                     _actionFacing = _facing;
@@ -129,7 +138,7 @@ public sealed class ActorAnimator
     private float AttackSeconds => _kind switch
     {
         ActorVisualKind.Player => PlayerSwingSeconds,
-        ActorVisualKind.Archer => ArcherRecoilSeconds,
+        ActorVisualKind.Archer or ActorVisualKind.Cultist => ArcherRecoilSeconds,
         _ => ContactAttackSeconds
     };
 
@@ -143,7 +152,8 @@ public sealed class ActorAnimator
         var movement = (float)_movementWeight;
         var scale = new Vector2(1 - breath, 1 + breath);
         var offset = new Vector2(0, -stride * MovementBob * movement);
-        var limbs = _kind is ActorVisualKind.Player or ActorVisualKind.Wolf or ActorVisualKind.Archer
+        var limbs = _kind is ActorVisualKind.Player or ActorVisualKind.Wolf or ActorVisualKind.Archer or
+            ActorVisualKind.Warrior or ActorVisualKind.Cultist
             ? stride * LimbAmplitude * movement : 0;
         if (_kind == ActorVisualKind.Slime)
         {
@@ -185,6 +195,15 @@ public sealed class ActorAnimator
                     break;
                 case ActorVisualKind.Archer:
                     offset -= facing * (_windingUp ? Smooth(progress) : arc) * 1.5f;
+                    limbs = _windingUp ? .5f * Smooth(progress) : -.3f * arc;
+                    break;
+                case ActorVisualKind.Warrior:
+                    offset += facing * (2 * arc);
+                    rotation = (Smooth(progress) * 2 - 1) * .2f;
+                    limbs = arc * .5f;
+                    break;
+                case ActorVisualKind.Cultist:
+                    offset.Y -= _windingUp ? Smooth(progress) * 2 : arc;
                     limbs = _windingUp ? .5f * Smooth(progress) : -.3f * arc;
                     break;
             }

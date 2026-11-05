@@ -1,0 +1,10 @@
+{
+  "id": "encounter.crypt_battle",
+  "spawns": [
+    { "instanceId": "wolf.1", "monsterId": "monster.fast_wolf", "x": 380, "y": 280 },
+    { "instanceId": "wolf.2", "monsterId": "monster.fast_wolf", "x": 530, "y": 250 },
+    { "instanceId": "archer.1", "monsterId": "monster.skeleton_archer", "x": 780, "y": 210 },
+    { "instanceId": "archer.2", "monsterId": "monster.skeleton_archer", "x": 780, "y": 410 },
+    { "instanceId": "mage.1", "monsterId": "monster.cultist_mage", "x": 850, "y": 300 }
+  ]
+}

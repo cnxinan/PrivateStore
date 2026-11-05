@@ -1,5 +1,6 @@
 using DarkLoot.Data.Definitions;
 using DarkLoot.Gameplay.Items;
+using DarkLoot.Gameplay.Quests;
 
 namespace DarkLoot.Gameplay.Persistence;
 
@@ -16,4 +17,5 @@ public sealed record ProgressSnapshot(
     Guid? EquippedArmorId,
     IReadOnlyDictionary<string, int> Materials,
     IReadOnlyDictionary<string, int> Recipes,
-    IReadOnlyList<string> KnownRecipeIds);
+    IReadOnlyList<string> KnownRecipeIds,
+    QuestProgress? Quests = null);

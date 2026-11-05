@@ -16,11 +16,11 @@ namespace DarkLoot.Game;
 internal static class PaperDollVisualSmoke
 {
     internal static void Run(GraphicsDevice device, ShapeRenderer shapes, SpriteFont font,
-        GameContent content, string directory)
+        GameContent content, string directory, PixelContent pixelsContent)
     {
         using var target = new RenderTarget2D(device, 800, 640);
         using var batch = new SpriteBatch(device);
-        var renderer = new ActorRenderer();
+        var renderer = new ActorRenderer(pixelsContent);
         var factory = new EquipmentFactory();
         var random = new Random(73);
         var pose = new ActorPose(NVector.Zero, new NVector(2), 0, 1, 0, 0, 0, NVector.UnitX);
@@ -42,7 +42,7 @@ internal static class PaperDollVisualSmoke
                     batch.DrawString(font, caption, new Vector2(column * 200 + 8, row * 160 + 8), Color.Wheat);
                     renderer.Draw(batch, shapes, ActorVisualKind.Player,
                         new Vector2(column * 200 + 90, row * 160 + 96), pose,
-                        appearance: PlayerAppearance.From(arena.Player.Inventory));
+                        appearance: PlayerAppearance.From(arena.Player.Inventory), sizeScale: 2);
                 }
             }
             var directions = new[] { -NVector.UnitY, NVector.UnitX, NVector.UnitY, -NVector.UnitX };
@@ -52,7 +52,7 @@ internal static class PaperDollVisualSmoke
                     new Vector2(column * 200 + 8, 488), Color.Wheat);
                 renderer.Draw(batch, shapes, ActorVisualKind.Player,
                     new Vector2(column * 200 + 90, 576), pose with { Facing = directions[column] },
-                    appearance: new(ItemRarity.Rare, ItemRarity.Rare));
+                    appearance: new(ItemRarity.Rare, ItemRarity.Rare), sizeScale: 2);
             }
             batch.End();
         }

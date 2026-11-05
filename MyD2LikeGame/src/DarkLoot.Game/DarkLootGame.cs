@@ -24,6 +24,7 @@ public sealed class DarkLootGame : MonoGameGame
     private readonly HudRenderer _hud = new();
     private readonly InventoryPanel _inventory = new();
     private readonly BlacksmithPanel _blacksmith = new();
+    private readonly QuestPanel _journal = new();
     private readonly PanelController _panels = new();
     private readonly FrameRateCounter _frameRate = new();
     private readonly WindowActivityGate _activityGate = new();
@@ -32,24 +33,31 @@ public sealed class DarkLootGame : MonoGameGame
     private readonly string _savePath;
     private readonly PersistenceSmokeTest? _restoringSmoke;
     private readonly bool _persistenceOnlySmoke;
+    private readonly DungeonWindowSmoke? _dungeonSmoke;
+    private readonly QuestWindowSmoke? _questSmoke;
     private SaveSession? _save;
     private SpriteBatch _batch = null!;
     private ShapeRenderer _shapes = null!;
     private GothicUiRenderer _ui = null!;
     private GothicRoomRenderer _room = null!;
+    private DungeonRoomRenderer? _dungeonRoom;
+    private DungeonSession? _adventure;
     private System.Numerics.Vector2 _pointer;
     private SpriteFont _font = null!;
     private GameContent _content = null!;
     private GameContent _productionContent = null!;
+    private PixelContent _pixels = null!;
     private ArenaSimulation _arena = null!;
     private string? _interactionFeedback;
 
     internal DarkLootGame(bool smokeTest, string savePath, PersistenceSmokeTest? restoringSmoke = null,
-        bool persistenceOnlySmoke = false)
+        bool persistenceOnlySmoke = false, DungeonWindowSmoke? dungeonSmoke = null, QuestWindowSmoke? questSmoke = null)
     {
         _savePath = savePath;
         _restoringSmoke = restoringSmoke;
         _persistenceOnlySmoke = persistenceOnlySmoke;
+        _dungeonSmoke = dungeonSmoke;
+        _questSmoke = questSmoke;
         _graphics = new GraphicsDeviceManager(this)
         {
             PreferredBackBufferWidth = 1120,
@@ -69,15 +77,22 @@ public sealed class DarkLootGame : MonoGameGame
     {
         _content = GameContentLoader.LoadDirectory(Path.Combine(AppContext.BaseDirectory, "Definitions"));
         _productionContent = _content;
+        if (_dungeonSmoke is not null)
+            _content = _dungeonSmoke.CreateContent(_content);
+        if (_questSmoke is not null)
+            _content = _questSmoke.CreateContent(_content);
         var encounter = _content.Encounters["encounter.training_arena"];
         if (_smoke is not null)
         {
             (_content, encounter) = _smoke.CreateFixture(_content);
         }
-        _arena = new ArenaSimulation(
-            _content,
-            _smoke?.CreateRandom() ?? new Random(42),
-            encounter);
+        if (_smoke is null)
+        {
+            _adventure = new DungeonSession(_content, new Random(42));
+            _arena = _adventure.Arena;
+        }
+        else
+            _arena = new ArenaSimulation(_content, _smoke.CreateRandom(), encounter);
         _save = new SaveSession(_content, _savePath);
         _save.Load(_arena);
         _presentation.Reset(_arena);
@@ -91,15 +106,27 @@ public sealed class DarkLootGame : MonoGameGame
     {
         _batch = new SpriteBatch(GraphicsDevice);
         _shapes = new ShapeRenderer(GraphicsDevice);
+        _pixels = new PixelContent(Content);
+        _arenaRenderer.LoadEffects(GraphicsDevice, _pixels);
         _ui = new GothicUiRenderer(GraphicsDevice, _shapes);
-        _room = new GothicRoomRenderer(GraphicsDevice, _shapes);
+        _room = new GothicRoomRenderer(_pixels, _shapes);
+        if (_adventure is not null)
+            _dungeonRoom = new DungeonRoomRenderer(_pixels, _shapes);
         _font = Content.Load<SpriteFont>("Fonts/UIFont");
         _smoke?.ValidatePresentation(_font, _productionContent);
+        _dungeonSmoke?.ValidateFont(_font, _productionContent);
+        _questSmoke?.ValidateFont(_font);
+        if (_dungeonSmoke?.Restoring == false)
+            NewEnemyVisualSmoke.Run(GraphicsDevice, _shapes, _font, _pixels);
         if (_smoke is not null)
         {
             _smoke.ValidatePresentation(_font, _content);
             if (_restoringSmoke is null)
-                PaperDollVisualSmoke.Run(GraphicsDevice, _shapes, _font, _productionContent, AppContext.BaseDirectory);
+            {
+                PaperDollVisualSmoke.Run(GraphicsDevice, _shapes, _font, _productionContent, AppContext.BaseDirectory, _pixels);
+                AttackEffectVisualSmoke.Run(GraphicsDevice, _shapes, _font, _arenaRenderer.Effects, _pixels);
+                PixelActorVisualSmoke.Run(GraphicsDevice, _shapes, _pixels, _font);
+            }
         }
     }
 
@@ -107,12 +134,13 @@ public sealed class DarkLootGame : MonoGameGame
     {
         // Poll while unfocused too, so returning to the window cannot replay stale clicks.
         var captured = _input.Capture(_camera);
-        if (!_activityGate.CanAdvance(IsActive))
+        if (!_activityGate.CanAdvance(IsActive || _dungeonSmoke is not null || _questSmoke is not null))
         {
             base.Update(gameTime);
             return;
         }
-        if (_restoringSmoke is not null)
+        if (_restoringSmoke is not null || _dungeonSmoke?.Restoring == true ||
+            _questSmoke?.Restoring == true || _smoke?.WaitingForCorpseDraw == true)
         {
             base.Update(gameTime);
             return;
@@ -123,8 +151,13 @@ public sealed class DarkLootGame : MonoGameGame
             _blacksmith,
             _content,
             GraphicsDevice.Viewport.Width,
-            _presentation.SwingRemaining) ?? captured;
-        ApplyInput(input, _smoke is null ? Math.Min((float)gameTime.ElapsedGameTime.TotalSeconds, .1f) : .1f);
+            _presentation.SwingRemaining) ??
+            _dungeonSmoke?.NextInput(_adventure!, _inventory, _blacksmith, _content,
+                _presentation.PlayerPose, _dungeonRoom!.AnimationTime) ??
+            _questSmoke?.NextInput(_adventure!, _panels, _blacksmith, _content,
+                _presentation.PlayerPose, _adventure!.InDungeon ? _dungeonRoom!.AnimationTime : _room.AnimationTime) ?? captured;
+        ApplyInput(input, _smoke is null && _dungeonSmoke is null && _questSmoke is null ?
+            Math.Min((float)gameTime.ElapsedGameTime.TotalSeconds, .1f) : .1f);
         _save!.SaveIfChanged(_arena);
         _smoke?.AfterUpdate(
             _arena,
@@ -166,12 +199,17 @@ public sealed class DarkLootGame : MonoGameGame
         {
             if (frame.BlacksmithOpen)
                 _blacksmith.Update(input, _arena, _content, GraphicsDevice.Viewport.Width);
+            if (frame.JournalOpen)
+                _journal.Update(input, GraphicsDevice.Viewport.Width);
         }
         if (frame.AdvanceWorld)
         {
             if (frame.RestartRequested)
             {
-                _arena.ResetEncounter();
+                if (_adventure is null)
+                    _arena.ResetEncounter();
+                else
+                    _adventure.Restart();
                 _presentation.Reset(_arena);
                 _smoke?.AfterReset(_arena, _presentation);
             }
@@ -179,10 +217,21 @@ public sealed class DarkLootGame : MonoGameGame
                 input.AimWorldPosition,
                 !frame.BlockWorldInput && (input.AttackHeld || input.AttackPressed),
                 !frame.BlockWorldInput && input.PickupPressed);
-            _arena.Update(intent, elapsed);
-            _presentation.Update(_arena, elapsed);
+            if (_adventure is null)
+                _arena.Update(intent, elapsed);
+            else
+                _adventure.Update(intent, elapsed);
+            if (_adventure is not null && (!ReferenceEquals(_arena, _adventure.Arena) || _adventure.TryTravel()))
+            {
+                _arena = _adventure.Arena;
+                _presentation.Reset(_arena);
+                _interactionFeedback = null;
+            }
+            else
+                _presentation.Update(_arena, elapsed);
         }
         _room.Update(elapsed, frame.AdvanceWorld);
+        _dungeonRoom?.Update(elapsed, frame.AdvanceWorld);
         FollowPlayer();
     }
 
@@ -190,7 +239,10 @@ public sealed class DarkLootGame : MonoGameGame
     {
         var width = GraphicsDevice.Viewport.Width;
         var height = new UiLayout(width, GraphicsDevice.Viewport.Height).Console.Top;
-        _camera.Follow(GothicRoomLayout.CameraFocus(_arena.Player.Position, width, height), width, height);
+        var focus = GothicRoomLayout.CameraFocus(_arena.Player.Position, width, height);
+        if (_adventure?.InDungeon == true)
+            focus.X = Math.Clamp(_arena.Player.Position.X, -80 + width / 2f, 3280 - width / 2f);
+        _camera.Follow(focus, width, height);
     }
 
     protected override void Draw(GameTime gameTime)
@@ -206,11 +258,22 @@ public sealed class DarkLootGame : MonoGameGame
             _content,
             _camera,
             _presentation,
-            _room);
+            _room,
+            _dungeonRoom,
+            _adventure);
         _hud.Draw(_batch, _shapes, _font, _arena, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height,
-            _ui, _frameRate.FramesPerSecond, _inventory.IsOpen, _blacksmith.IsOpen, _pointer, _interactionFeedback);
+            _ui, _frameRate.FramesPerSecond, _inventory.IsOpen, _blacksmith.IsOpen, _pointer, _interactionFeedback,
+            _adventure is null ? null : !_adventure.InDungeon ? GameText.HubTitle :
+                _arena.Player.Position.X < 1120 ? GameText.CryptEntry :
+                _arena.Player.Position.X < 2240 ? GameText.CryptBattle : GameText.CryptBoss,
+            _adventure is null ? null : !_adventure.InDungeon ? GameText.HubObjective :
+                _adventure.Completed ? GameText.DungeonComplete :
+                _arena.Map!.BossGateOpen ? GameText.DungeonGateOpen : GameText.DungeonObjective,
+            _panels.JournalOpen);
         _inventory.Draw(_batch, _shapes, _font, _arena.Player, _content, GraphicsDevice.Viewport.Width, _ui);
         _blacksmith.Draw(_batch, _shapes, _font, _arena, _content, GraphicsDevice.Viewport.Width, _ui);
+        if (_panels.JournalOpen)
+            _journal.Draw(_batch, _font, _arena, _content, GraphicsDevice.Viewport.Width, _ui);
         _inventory.DrawTooltip(_batch, _shapes, _font, GraphicsDevice.Viewport.Width);
         _batch.End();
         base.Draw(gameTime);
@@ -218,7 +281,15 @@ public sealed class DarkLootGame : MonoGameGame
         _smoke?.ValidateUiDraw(GraphicsDevice, _font, _arena, _inventory, _blacksmith);
         _smoke?.ValidatePlayerDraw(GraphicsDevice, _camera, _arena, _presentation.PlayerPose,
             _restoringSmoke is not null);
+        _smoke?.ValidateAttackEffectDraw(GraphicsDevice, _camera, _presentation,
+            _inventory.IsOpen || _blacksmith.IsOpen);
         _smoke?.ValidatePanelPresentation(_font, _arena, _inventory, _blacksmith, _content);
+        if (_dungeonSmoke is not null && _adventure!.InDungeon)
+            _dungeonSmoke.ValidateEnemyDraw(GraphicsDevice, _camera, _arena);
+        if (_dungeonSmoke?.AfterDraw(GraphicsDevice, _camera, _adventure!, _inventory.IsOpen) == true)
+            Exit();
+        if (_questSmoke?.AfterDraw(GraphicsDevice, _camera, _adventure!, _panels, _blacksmith) == true)
+            Exit();
         if (_restoringSmoke is not null)
         {
             if (_restoringSmoke.AfterRestoredDraw(_arena, _content))
@@ -236,6 +307,8 @@ public sealed class DarkLootGame : MonoGameGame
     }
 
     internal void RecordSmokeProgress(PersistenceSmokeTest smoke) => smoke.RecordExpected(_arena, _content);
+    internal void RecordDungeonProgress(DungeonWindowSmoke smoke) => smoke.RecordExpected(_arena, _content);
+    internal void RecordQuestProgress(QuestWindowSmoke smoke) => smoke.RecordExpected(_arena, _content);
 
     protected override void OnExiting(object sender, ExitingEventArgs args)
     {
@@ -245,6 +318,8 @@ public sealed class DarkLootGame : MonoGameGame
 
     protected override void UnloadContent()
     {
+        _arenaRenderer.UnloadEffects();
+        _dungeonRoom?.Dispose();
         _room?.Dispose();
         _ui?.Dispose();
         _shapes?.Dispose();

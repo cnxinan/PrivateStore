@@ -1,0 +1,16 @@
+{
+  "id": "monster.crypt_guardian",
+  "name": "墓穴守卫",
+  "maxHealth": 180,
+  "contactDamage": 0,
+  "moveSpeed": 60,
+  "lootTableId": "resource.skeleton",
+  "behavior": "Archer",
+  "rangedAttack": {
+    "range": 320,
+    "projectileSpeed": 270,
+    "fireInterval": 1.2,
+    "windupSeconds": 0.4,
+    "damage": 12
+  }
+}

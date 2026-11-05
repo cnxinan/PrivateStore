@@ -1,0 +1,16 @@
+{
+  "id": "monster.cultist_mage",
+  "name": "邪教法师",
+  "maxHealth": 30,
+  "contactDamage": 0,
+  "moveSpeed": 60,
+  "lootTableId": "resource.skeleton",
+  "behavior": "Archer",
+  "rangedAttack": {
+    "range": 280,
+    "projectileSpeed": 170,
+    "fireInterval": 2.0,
+    "windupSeconds": 0.6,
+    "damage": 9
+  }
+}

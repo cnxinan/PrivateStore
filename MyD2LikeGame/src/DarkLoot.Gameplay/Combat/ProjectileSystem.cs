@@ -54,7 +54,7 @@ public sealed class ProjectileSystem
         float elapsedSeconds,
         Vector2 playerPosition,
         bool playerAlive,
-        Func<ProjectileState, bool> applyDamage)
+        Func<ProjectileState, bool> applyDamage, WorldMap? map = null)
     {
         ArgumentNullException.ThrowIfNull(applyDamage);
         if (!float.IsFinite(elapsedSeconds) || elapsedSeconds < 0)
@@ -77,6 +77,22 @@ public sealed class ProjectileSystem
                 projectile.Direction.X * (double)projectile.Speed * elapsedSeconds;
             var endY = (double)start.Y +
                 projectile.Direction.Y * (double)projectile.Speed * elapsedSeconds;
+            if (map is not null)
+            {
+                var end = new Vector2((float)endX, (float)endY);
+                var clipped = map.ClipTravel(start, end);
+                if (playerAlive && IsFinite(playerPosition) && SegmentHitsPlayer(start, clipped, playerPosition))
+                {
+                    _projectiles.RemoveAt(index);
+                    if (applyDamage(projectile))
+                        return true;
+                }
+                else if (Vector2.DistanceSquared(clipped, end) > .0001f || !map.CanOccupy(end, 0))
+                    _projectiles.RemoveAt(index);
+                else
+                    _projectiles[index] = projectile with { Position = end };
+                continue;
+            }
 
             if (playerAlive &&
                 TryClipToArena(start, endX, endY, out var clippedStart, out var clippedEnd) &&

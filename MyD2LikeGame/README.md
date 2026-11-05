@@ -13,29 +13,60 @@ dotnet publish src\DarkLoot.Game --configuration Release --output artifacts\publ
 ## 中文操作
 
 - 游戏默认使用简体中文，无语言切换。
+- 启动进入没有敌人的教堂安全区。走进东侧“进入墓穴”入口，即可进入三房间连续地牢；房间之间通过石廊连接，不切换场景，镜头随探索横向滚动。
 - **WASD** 移动，鼠标瞄准，**按住左键**持续近战（每 0.35 秒最多攻击一次），松开停止。
-- 底部石质控制台显示真实生命血球、战斗属性和可点击的行囊 / 铁匠 / 重开按钮；右下 **FPS** 显示实际绘制帧率，每半秒刷新。界面不显示快捷键提示，原有按键功能保留。界面使用原创程序化石纹、黄铜边框和物品图标，不含 Diablo 素材。
+- 底部石质控制台显示真实生命血球、战斗属性和可点击的行囊 / 铁匠 / 任务 / 重开按钮；右下 **FPS** 显示实际绘制帧率，每半秒刷新。界面不显示快捷键提示，原有按键功能保留。界面使用原创程序化石纹、黄铜边框和物品图标，不含 Diablo 素材。
 - **E** 每次拾取附近最近一堆材料或配方；**I** 打开或关闭背包，打开时暂停战斗与动画。
 - 右侧背包有“装备 / 材料配方”标签，采用 **8×4 格分页，每件一格、容量不限**；武器与护甲只有两个穿戴槽，已装备物品仍保留原格并标记。左键点击装备格穿戴，悬浮查看完整名称、原始词缀及换装比较；滚轮仅在格子内翻整页，也可点击上一页/下一页。切换标签回到第一页。
 - 资源格显示真实材料与持有配方，超过 999 的角标简写为 `999+`，悬浮仍显示精确数量和配方学习状态；仅翻页、悬浮或点击资源不会改变存档进度。
 - **F** 在铁匠（世界坐标 120,230）64 单位以内同时打开左侧铁匠与右侧背包，保留已有背包标签和页码；再次 F 只关闭铁匠。先点击四张配方之一查看详情，再点击共用“学习”或“打造”按钮。学习消耗一张配方；打造支付完整材料获得新装备，100% 成功、无金币费用、不治疗、**不自动穿戴**，在右侧装备格手动穿戴。
+- 铁匠面板有“委托 / 打造”页，默认保留打造页；在委托页手动接取任务，完成后回铁匠处点击“交付领奖”。底部“任务”按钮可在任何位置打开任务日志，查看三步委托及奖励；日志占用右侧背包位置，与背包互斥，可与左侧铁匠同时打开。顶部跟踪当前目标，铁匠头顶 `!` 表示可接取，`?` 表示可交付。
 - **I** 独立切换背包，两栏可同时打开。任意面板均暂停战斗和动画；所有开关面板帧（包括最后一栏关闭帧）不推进战斗，按钮和格子点击不会穿透为移动、攻击、拾取或无关的 R。
 - **右键**或 **Esc** 关闭最近打开或左键操作的那一栏，悬浮不改变关闭顺序，光标无需在栏内；各栏 X 只关闭自身。右键需按下边沿，按住不重复；没有面板时右键不退出、不影响正常战斗输入。
-- **R** 仅在存活且没有面板时重置整个遭遇，保留玩家位置、当前生命、全部装备、资源数量和铁匠知识；清除地面掉落、箭矢、受击状态和保护期，不额外回血或授予保护。死亡或面板打开期间无效。
-- **Escape** 没有面板时才退出。死亡后保持原位等待 0.6 秒，再回到出生点恢复当前生命上限，获得 0.8 秒保护；重置全部怪物，清空地面掉落及箭矢，保留全部装备实例及词缀、资源数量和已学配方。
+- **R** 仅在存活且没有面板时重置整个墓穴，保留当前生命、全部装备、资源数量和铁匠知识；清除地面掉落、箭矢、受击状态和保护期，重新封闭首领门，不额外回血或授予保护。身在墓穴时回到墓穴入口，身在教堂时留在原地；死亡或面板打开期间无效。
+- **Escape** 没有面板时才退出。死亡后保持原位等待 0.6 秒，再返回教堂恢复当前生命上限，获得 0.8 秒保护；重置墓穴全部怪物与首领门，清空地面掉落及箭矢，保留全部装备实例及词缀、资源数量和已学配方。
 - 死亡等待期间禁止移动、攻击、拾取、换装、学习、打造和打开面板；怪物与箭矢继续运行，箭矢穿过死者。面板暂停或窗口失焦时，战斗与动画计时冻结。
-- **单档自动存读**：启动读取 `%LOCALAPPDATA%\DarkLoot\save.json`；成功拾取、换装、学习、打造导致进度变化后立即保存，正常退出也保存。保留全部装备实例及原始品质/词缀、背包顺序、穿戴槽位、材料/配方数量与已学配方；重复配方仍保留，再次学习不消耗。
-- 每次进入从出生点按装备后的生命上限满血开始，怪物重新生成；不恢复位置、当前生命、怪物、箭矢或地面掉落。首次没有存档时从空背包开始。死亡和 R 不清除存档进度。
-- 存档使用带版本号的 JSON，同目录临时文件落盘后原子替换。损坏、版本不支持、定义不兼容或无法读取会明确弹出错误并停止启动，不自动重置或覆盖旧档；运行中写入失败也会报错停止，不在退出时重试覆盖。程序目录无法写诊断日志时仍显示存档错误。没有多角色、手动读写、云同步或版本迁移；如需重开，请先退出并自行备份、移走该文件。
+- **单档自动存读**：启动读取 `%LOCALAPPDATA%\DarkLoot\save.json`；成功拾取、换装、学习、打造、接取任务、推进击杀或交付导致进度变化后立即保存，正常退出也保存。保留全部装备实例及原始品质/词缀、背包顺序、穿戴槽位、材料/配方数量、已学配方及任务进度；重复配方仍保留，再次学习不消耗。
+- 每次启动应用从教堂按装备后的生命上限满血开始，墓穴重新生成；不恢复位置、当前生命、怪物、箭矢或地面掉落。首次没有存档时从空背包开始。死亡和 R 不清除存档进度。
+- 存档使用带版本号的 JSON，同目录临时文件落盘后原子替换。当前版本为 2，可读取版本 1 的旧档并完整保留原装备与资源，任务从未接取开始，下次保存写入版本 2。损坏、版本不支持、定义不兼容或无法读取会明确弹出错误并停止启动，不自动重置或覆盖旧档；运行中写入失败也会报错停止，不在退出时重试覆盖。程序目录无法写诊断日志时仍显示存档错误。没有多角色、手动读写或云同步；如需重开，请先退出并自行备份、移走该文件。
 
-训练场按 `encounter.training_arena` 配置两只史莱姆、两只迅捷狼和两只骷髅弓手；
+### 铁匠委托
+
+| 委托 | 接取后的目标 | 一次性奖励 |
+|---|---|---|
+| 墓穴初探 | 击败任意 3 只怪物 | 骨片×2、黏液×2 |
+| 锻造备料 | 交付骨片×4，交付时扣除 | 魔法武器配方×1 |
+| 讨伐守卫 | 击败墓穴守卫 | 稀有护甲配方×1、兽皮×2 |
+
+必须交付前一任务才解锁下一任务，不自动接取或发奖。接取前的击杀不计数；
+提前杀过守卫，需要接取讨伐任务后重开墓穴再次击败它。
+材料任务允许使用已有骨片，但以交付时的实际库存为准，打造花掉后需要补齐。
+配方奖励放入资源，不自动学习或打造。交付统一校验距离、存活状态和完整资源变更，
+数量溢出时明确拒绝，不部分扣料或发奖。死亡、R、普通往返和退出不重置任务或已领取奖励。
+没有每日委托、重复悬赏、放弃、分支、经验或任务货币。
+
+墓穴入口房间有两只史莱姆和一只骷髅剑士，战场房间有两只迅捷狼、两只骷髅弓手和一名邪教法师，
+祭坛房间有一只强化骷髅弓手“墓穴守卫”（180 生命，锁定射击机制沿用弓手），全图共九只敌人。
+骷髅剑士为 50 生命、55 移速、8 接触伤害的慢速近战，使用原创骨架、钢剑和黄铜包边盾牌；
+盾牌只负责外观，不额外引入格挡或减伤规则。邪教法师为 30 生命、60 移速，穿紫色兜帽法袍、持发光法杖；
+进入 280 射程后蓄力 0.6 秒，至少间隔 2 秒发射一枚速度 170、伤害 9 的紫色直线魔法弹。
+蓄力方向锁定、魔法弹不追踪，侧移可以躲避；受击打断蓄力，墙柱和关闭的门会拦截魔法弹。
+魔法弹沿用既有投射物伤害规则，不新增元素伤害或状态异常。两种新怪物仍掉骨片和原有配方，不引入新材料或存档字段。
+后续房间的敌人在玩家进入该房间前保持休眠，唤醒后能够绕开石柱并追入走廊。
+墙壁、石棺、石柱与关闭的首领门真实阻挡玩家、怪物、击退和箭矢；近战与拾取不能穿墙。
+击败战场五只敌人（包括邪教法师）后首领门开启，击败守卫后祭坛东侧出现返回教堂的出口；墓穴入口处始终可以返回。
+普通往返保留本次墓穴的敌人生命、掉落和箭矢，不治疗；铁匠只在教堂提供服务。
+地图固定，没有随机生成、小地图、新技能或新增装备槽。
+原 `encounter.training_arena` 六怪训练遭遇仅用于旧版完整窗口回归。
+
 近战挥击命中前方范围内的所有存活敌人，接触伤害共享冷却。每只史莱姆必掉黏液、狼必掉兽皮、骷髅弓手必掉骨片，每次数量为 1～2，等概率；
 每只怪物在材料之外独立有 20% 概率掉一张配方，四张等概率，允许重复、允许已学配方，**不直接掉装备**。初始空手也可用基础攻击击杀怪物。
 
-训练场现为原创哥特式教堂房间：尖拱彩窗、雕刻石柱、旗帜、磨损石板与中央黄铜纹章，
+教堂使用原创哥特式房间：尖拱彩窗、雕刻石柱、旗帜、磨损石板与中央黄铜纹章，
 左侧保留铁匠工作角、炉火和工具架；冷色窗光与暖色烛火交织，火焰、火星与浮尘随世界计时，
 面板暂停和窗口失焦时冻结。镜头限制在房间范围并偏向后墙，不再露出场外大片空白；
-装饰不增加碰撞，原有 960×540 战斗边界、角色位置、掉落和存档规则不变。
+教堂装饰不增加碰撞，教堂范围为 960×540。墓穴为 3200×540 连续地图，
+入口、战场与祭坛分别使用冷蓝石材、灰石与暗红祭坛装饰；走廊缺口与实体障碍位置对应，门与出口随战斗状态实时更新。
 
 | 配方 | 固定产物品质 | 每次打造费用 |
 |---|---|---|
@@ -55,19 +86,53 @@ dotnet publish src\DarkLoot.Game --configuration Release --output artifacts\publ
 普通、魔法、稀有装备分别以钢铁、蓝钢、黄铜镶边及局部装饰区分，同款同品质外形一致，不按随机词缀改变模型。
 场景人物直接读取当前穿戴槽，背包换装立即更新外观，但暂停中的动作不推进；重新启动后从已有装备重建外观，
 无需额外存档字段。本轮不增加装备槽、背包人物预览或物理布娃娃。
-材料与配方地面堆显示实际名称和数量，铁匠使用几何形状绘制，暴击使用橙红色闪光反馈。
-绿色圆形是史莱姆，长身、尖耳和尾巴的是迅捷狼，灰色骷髅与弓是骷髅弓手；
+材料与配方地面堆显示实际名称和数量，铁匠使用像素动画，暴击使用橙红色闪光反馈。
+绿色胶状精灵是史莱姆，长身、尖耳和尾巴的是迅捷狼，灰色骷髅与弓是骷髅弓手；
 每只存活怪物独立显示名称和生命条，群体挥击在各目标旁独立显示伤害和暴击。
+玩家攻击加入 pixelfx 风格的原生像素特效：空手为短拳风，装备武器为分层冷钢色剑弧与拖尾，
+挥空也会播放；真实命中在各目标受伤位置产生定向暖色火花，暴击增加星芒与破碎光环。
+特效寿命为拳风 0.12 秒、剑弧 0.18 秒、普通命中 0.24 秒、暴击 0.36 秒，不改变伤害或冷却。
+帧贴图一次生成并缓存，最多保留 32 个临时实例；不消耗战斗随机数，也不写入存档。
+面板与失焦冻结特效，重开、复活和切图清理旧实例；血条、名字及伤害文字绘制在特效之上。
+授权与来源说明随构建和发布包含在 `ThirdPartyNotices.txt`，不导入上游演示角色或字体。
 角色有呼吸、行走、挥击或拉弓动作；玩家和怪物受击都会进入短暂硬直并向受击方向击退，
 受击闪白并轻微压缩。玩家硬直 0.15 秒、击退 18 单位，命中保护 0.5 秒；
 怪物硬直 0.12 秒、击退 10 单位。死亡等待 0.6 秒后复活，并获得 0.8 秒保护。
-这些程序化姿态只负责表现，不改变碰撞、攻击、箭矢或掉落规则。
+这些精灵动画和姿态偏移只负责表现，不改变碰撞、攻击、箭矢或掉落规则。
 怪物死亡原地缩小淡出 0.3 秒，人物原地倾倒淡出 0.6 秒；掉落与击杀立即结算。
 名字、血条和拾取位置保持真实坐标，不随动画偏移。背包暂停及窗口失焦同时冻结表现，
 面板内按 R 不重开；关闭面板后再按 R 清理旧动作和伤害提示。
 弓手进入射程后停步，每箭先以橙色方向线锁定瞄准 0.3 秒，发射间隔至少 1.5 秒；
 箭不会追踪，横向移动可以躲避，杀死弓手不会消除已发射的箭。
-顶部中央显示剩余怪物数量与面板暂停状态，击败六只后显示清场提示；按 R 重开会清空未拾取的地面资源。
+顶部中央显示当前位置、墓穴剩余怪物数量与面板暂停状态；教堂显示安全区域，控制台显示探索、开门或首领完成目标。按 R 重开会清空未拾取的地面资源。
+
+## Pixel Content：第一阶段
+
+教堂、三房墓穴、铁匠、玩家和五种怪物现在使用
+`Content\Pixel` 下的 32 张 PNG，经 MGCB 编译为 XNB，再由
+`Content.Load<Texture2D>` 加载。角色包含八方向、待机 / 移动 / 攻击 / 受击 / 死亡；
+武器和护甲使用独立品质图层。地图碰撞、战斗时序、暂停、任务和存档不变。
+UI、攻击特效及箭矢 / 魔法弹仍使用既有实现，并非全游戏美术替换。
+
+角色图集为 288×1920，每格 48×48、每段六帧，以 2 倍 PointClamp 绘制；
+`atlas.json` 固定版本 1 的尺寸、方向、动作和锚点。地形使用 32px 图块，
+道具使用 64px 单元，边界裁切而非拉伸。缺资源或不兼容元数据会明确报错，
+不会回退旧几何人物。所有已加载像素贴图由 ContentManager 管理生命周期，
+场景和人物 renderer 不自行销毁共享贴图。
+
+这是可替换的首批原创像素素材，不是最终精修美术。可编辑源代码、接触表及材质来源
+位于 `tools\pixel_art`；角色和道具由离线绘图脚本创作，部分墓穴地板使用已保存的
+本地 AI 材质再切片、重绘，模型来源与许可标签见 `source\provenance.json`。
+不包含 Diablo 素材、模型权重或在线生成服务；游戏构建和运行不需要 Python / AI。
+重建素材只需 Python 3.12 和 `tools\pixel_art\requirements.txt` 指定的 Pillow：
+
+```powershell
+python tools\pixel_art\build_assets.py
+python -m unittest discover -s tools\pixel_art -v
+```
+
+提交的 PNG 可直接构建；重新生成后运行 `dotnet build` 会重新编译 Content。
+发布时同时复制编译贴图、`atlas.json` 和来源说明，运行路径不依赖当前工作目录。
 
 ## Architecture
 
@@ -79,18 +144,32 @@ dotnet publish src\DarkLoot.Game --configuration Release --output artifacts\publ
   `ProgressPersistence` captures detached progression and validates the whole candidate before startup
   restoration; `JsonSaveStore` provides strict versioned JSON and atomic writes; `SaveSession` saves
   changed progression and normal exit, disabling writes after a persistence failure.
+  `DungeonSession` switches between hub/crypt simulations sharing player and smith progression;
+  `WorldMap` provides swept-circle sliding, wall-clipped line travel and bounded deterministic A*
+  navigation. Legacy null-map training simulation retains its original behavior.
+  `QuestState` shares persistent quest progression between both simulations; the immutable `SmithQuests`
+  catalog is separate from player state. `QuestService` validates manual acceptance/turn-in and prepares
+  the entire cost/reward candidate before committing ownership and completion together.
+  Kill credit is emitted only from the once-only granted monster-death settlement, not from Draw or corpse polling.
 - **Game**: MonoGame host maps Engine input to `PlayerIntent`; `ActorPresentation` consumes per-Update combat
-  events once and maintains one animator per instance, while `ActorRenderer` transforms actor-local geometry.
+  events once and maintains one animator per instance, exposing read-only sprite-frame snapshots.
   Renderers and inventory hit-testing contain no combat/drop rules; Draw never advances animation time.
   `UiLayout` shares panel/grid/button rectangles across rendering, routing and smoke injection.
   `GothicUiRenderer` caches and disposes original stone/globe textures; `ItemTooltip` measures/wraps
   instance-derived details. Camera and loot labels use the playfield above the console, independent
-  of panel visibility. `GothicRoomArt` generates deterministic stone, windows and forge artwork;
-  `GothicRoomRenderer` caches/disposes room and glow textures and advances ambience only on world frames.
+  of panel visibility. `PixelContent` loads and validates the shared Content-owned atlases;
+  `PixelSceneRenderer` draws cropped tiles, props, torch and portal frames.
+  `GothicRoomRenderer` advances ambience only on world frames.
   `GothicRoomLayout` bounds the camera without changing gameplay collision. UI state and the save schema remain separate.
-  `PlayerAppearance` reads equipped slots, while `PlayerPaperDoll` composes articulated body/equipment primitives
-  with facing-dependent occlusion and shared pose transforms, white flash and opacity. `ActorRenderer` draws
-  those parts without changing simulation, equipment stats or animation timing.
+  `PlayerAppearance` reads equipped slots; `ActorRenderer` layers body, armor and weapons with
+  facing-dependent occlusion, prebuilt white masks and existing opacity.
+  Legacy `PlayerPaperDoll`, `GothicRoomArt` and `DungeonRoomArt` remain reference/test code,
+  not production character/scene rendering.
+  `DungeonRoomRenderer` draws live gate/portal
+  state and freezes ambience with the same world-frame gate as combat.
+  `ActorPresentation` consumes attack events once and owns transient `CombatEffect` lifetimes.
+  `CombatEffectArt` generates deterministic two-pixel frames; `CombatEffectRenderer` caches/disposes
+  those textures and draws the locked event direction without advancing time.
 
 Definitions and the compiled Microsoft YaHei 12-point bitmap SpriteFont are copied on build/publish.
 Runtime paths resolve from `AppContext.BaseDirectory`, independent of the working directory.
@@ -115,10 +194,12 @@ bounded to `Int32`; critical chance is clamped to 0..100.
 ```powershell
 dotnet run --project src\DarkLoot.Game --configuration Release -- --smoke-test
 dotnet run --project src\DarkLoot.Game --configuration Release -- --persistence-smoke-test
+dotnet run --project src\DarkLoot.Game --configuration Release -- --dungeon-smoke-test
+dotnet run --project src\DarkLoot.Game --configuration Release -- --quest-smoke-test
 Get-Content src\DarkLoot.Game\bin\Release\net9.0-windows\smoke-test.log
 ```
 
-Both commands use a unique temporary save directory, never the player's real save, and clean it up
+All commands use a unique temporary save directory, never the player's real save, and clean it up
 afterward. The full smoke retains all existing combat/rendering assertions, then checks the on-disk
 snapshot against actual live progression, closes the game, and creates a second independent game
 session/window that loads that same file. Two real Draws validate exact IDs, rolled values, inventory
@@ -127,9 +208,33 @@ order, both slots, resources and learned recipes, along with full equipped healt
 that same two-window persistence check before the armed combat acceptance stages. It does not replace
 the full smoke's death-pixel assertions.
 
+Attack effects pass **484 tests**, formatting verification, Release build and publish. The full
+`--smoke-test` now additionally validates GPU frames for four aim directions, decay and expiry,
+then checks actual world pixels for punch, equipped slash, ordinary hit and critical hit.
+Open-panel Draws verify that effect instances and ages stay frozen. Source and published combat,
+dungeon and quest windows retain all previous acceptance assertions; evidence is preserved in
+`artifacts\attack-effects-source-*.log` and `artifacts\attack-effects-published-*.log`.
+`artifacts\attack-effects-frames.png` compares directional and lifetime frames; the punch, slash,
+hit and critical screenshots show effects from real combat events.
+
+`--quest-smoke-test` drives the real smith tabs, acceptance and reward buttons, walks the dungeon,
+kills and collects actual drops, delivers four bones, defeats the guardian after acceptance,
+checks repeated reward refusal, restarts the dungeon, and opens a second independent window
+to verify the exact persisted completed chain and resources. The isolated fixture uses one-health,
+very slow, harmless enemies and fixed two-material drops without recipe drops; production values
+are unchanged. Actual backbuffer pixels validate both smith markers, and screenshots cover
+the commission page, paused journal, completed chain and restored window.
+Quest integration passes **469 tests**, formatting verification and Release publish.
+Source and published real-window quest, full-combat and dungeon regressions all pass:
+`artifacts\quests-source-quest.log`, `artifacts\quests-source-combat.log`,
+`artifacts\quests-source-dungeon.log`, `artifacts\quests-published-quest.log`,
+`artifacts\quests-published-combat.log` and `artifacts\quests-published-dungeon.log`.
+Quest screenshots are preserved as `artifacts\quests-*.png`.
+
 Full combat/death acceptance now passes in both source and published real-window runs; see
 `artifacts\combat-source-smoke.log` and `artifacts\combat-published-smoke.log`.
-**408 tests pass**, including blocked/clear west-facing miss regressions; formatting and Release publish pass.
+The pre-dungeon baseline passed **408 tests**, including blocked/clear west-facing miss regressions,
+along with formatting and Release publish checks.
 Both full runs cover death/respawn, corpse pixels, arrow/windup/reaction pauses, reset cleanup and the
 second-window exact progression/appearance restore.
 
@@ -141,6 +246,37 @@ rules were modified. Earlier failure logs remain in `artifacts\gothic-full-smoke
 `artifacts\cathedral-full-smoke.log` and `artifacts\paperdoll-full-smoke.log`;
 the reproduced baseline and position evidence are `artifacts\combat-baseline-smoke.log` and
 `artifacts\combat-diagnostic-smoke.log`.
+The full smoke now also waits for an actual Draw after observing the narrow partial-slime-death
+pose, before allowing another smoke Update. This fixes multiple Updates skipping the sample frame;
+the original green corpse-pixel assertion and production death timing remain unchanged.
+
+Continuous dungeon acceptance: **433 tests pass**. Source and published full combat and dungeon
+two-window runs are recorded in `artifacts\dungeon-source-smoke-test.log`,
+`artifacts\dungeon-source-dungeon-smoke.log`, `artifacts\dungeon-published-smoke-test.log`
+and `artifacts\dungeon-published-dungeon-smoke.log`.
+The dedicated dungeon smoke walks all three rooms using real input routing, attacks/picks up real
+drops before leaving, pauses actors/poses/ambience across actual Draws, captures closed/open gate
+states, learns/crafts/equips at the hub, then dies through real wolf contact and checks exact
+progression retention and a fresh dungeon after returning. A second independent window restores
+the exact persisted items, rolls, slots, resources and learned recipes into a fresh safe hub.
+Its copied fixture uses very slow enemies, one-health wolves with ten-damage contact, harmless
+arrows and guaranteed magic-blade recipes; production health, combat and 1–2-material/20%-recipe
+drop rules remain unchanged. Only explicit dungeon automation advances when its OS window loses
+focus; normal gameplay still freezes while unfocused. Screenshots beside the executable (also
+copied to `artifacts`) include `dungeon-hub.png`, `dungeon-room-0.png` through `dungeon-room-2.png`,
+`dungeon-gate-closed.png`, `dungeon-gate-open.png`, `dungeon-death-return.png` and `dungeon-restored.png`.
+
+Two-enemy expansion: **445 tests pass**, including the warrior's multi-hit bone-drop/reset behavior,
+the cultist's required gate kill, locked casting and wall-blocked projectile, full-duration cast
+presentation and both new actors' move/attack/hurt/death curves. Formatting, Release build and publish
+pass. Both source and published full combat and dungeon two-window runs pass; logs are
+`artifacts\new-enemies-source-combat.log`, `artifacts\new-enemies-source-dungeon.log`,
+`artifacts\new-enemies-published-combat.log` and `artifacts\new-enemies-published-dungeon.log`.
+The dungeon smoke also validates actual sword/shield, robe/staff and emitted violet-bolt pixels,
+then kills all nine enemies through real input and repeats crafting, death-return and exact saved
+progression restore. The original six-enemy combat smoke and its pixel assertions remain unchanged.
+Inspected actual renders are `artifacts\new-enemy-poses.png`, `artifacts\dungeon-skeleton-warrior.png`,
+`artifacts\dungeon-cultist-mage.png` and `artifacts\dungeon-magic-bolt.png`.
 Earlier pre-redesign source and published runs failed the green partial-death slime assertion at
 `ClearEncounter`, phase 0. Neither assertion was weakened or removed. The redesigned source and published
 UI/persistence-only two-window checks pass independently.

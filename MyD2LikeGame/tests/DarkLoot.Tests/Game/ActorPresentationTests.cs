@@ -3,6 +3,7 @@ using DarkLoot.Data.Definitions;
 using DarkLoot.Engine.Animation;
 using DarkLoot.Game;
 using DarkLoot.Gameplay.Combat;
+using DarkLoot.Gameplay.Items;
 using DarkLoot.Tests.Gameplay;
 
 namespace DarkLoot.Tests.Game;
@@ -159,7 +160,155 @@ public sealed class ActorPresentationTests
         }
     }
 
-    private static ArenaSimulation CreateArena(int health = 100, int contactDamage = 0, float nearX = 190)
+    [Fact]
+    public void Cultist_CastPoseUsesItsFullWindupRatherThanArcherTiming()
+    {
+        var content = DarkLoot.Data.GameContentLoader.LoadDirectory(Path.GetFullPath(
+            Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "content", "definitions")));
+        var arena = new ArenaSimulation(content, new Random(61),
+            new("encounter.cast", [new("mage", "monster.cultist_mage", 300, 270)]));
+        var presentation = new ActorPresentation();
+        presentation.Reset(arena);
+        arena.Update(Idle, .15f);
+        presentation.Update(arena, .15f);
+        var casting = presentation.GetMonsterPose("mage");
+        Assert.True(arena.Monsters[0].IsWindingUp);
+        Assert.InRange(casting.AttackProgress, .249f, .251f);
+        Assert.True(casting.LimbSwing > 0);
+        arena.Update(Idle, .15f);
+        presentation.Update(arena, .15f);
+        Assert.InRange(presentation.GetMonsterPose("mage").AttackProgress, .499f, .501f);
+        Assert.Equal(casting.Facing, presentation.GetMonsterPose("mage").Facing);
+    }
+
+    [Theory]
+    [InlineData(1, 0)]
+    [InlineData(-1, 0)]
+    [InlineData(0, 1)]
+    [InlineData(0, -1)]
+    public void Miss_CreatesOnlyDirectionalPunchFromAcceptedSwing(float x, float y)
+    {
+        var arena = CreateArena(nearX: 700);
+        var presentation = new ActorPresentation();
+        presentation.Reset(arena);
+        var direction = new Vector2(x, y);
+        arena.Update(Idle with
+        {
+            AttackPressed = true,
+            AimWorldPosition = arena.Player.Position + direction * 100
+        }, .1f);
+        presentation.Update(arena, .1f);
+        var effect = Assert.Single(presentation.Effects);
+        Assert.Equal(CombatEffectKind.Punch, effect.Kind);
+        Assert.Equal(direction, effect.Direction);
+        Assert.Equal(arena.Events.Single(item => item.Kind == CombatEventKind.Swing).Position, effect.Position);
+        Assert.Equal(0, effect.Age);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void WeaponHit_UsesRealVictimPositionAndCriticalResult(bool critical)
+    {
+        var arena = CreateArena(random: new CriticalRandom(critical));
+        var weapon = new ItemInstance(Guid.NewGuid(), "weapon.training_blade", ItemRarity.Magic,
+            [new AffixRoll("affix.test_crit", ItemStat.CriticalChance, 50)]);
+        Assert.Equal(EquipmentChangeResult.Applied, arena.EquipmentOperations.PickUp(arena.Player, weapon));
+        Assert.Equal(EquipmentChangeResult.Applied, arena.EquipmentOperations.Equip(arena.Player, weapon.InstanceId));
+        var presentation = new ActorPresentation();
+        presentation.Reset(arena);
+        arena.Update(Idle with { AttackPressed = true }, .1f);
+        presentation.Update(arena, .1f);
+        Assert.Equal(2, presentation.Effects.Count);
+        Assert.Contains(presentation.Effects, item => item.Kind == CombatEffectKind.Slash);
+        var hit = arena.Events.Single(item => item.Kind == CombatEventKind.Damaged);
+        var impact = presentation.Effects.Single(item => item.ActorId == "near");
+        Assert.Equal(critical, hit.WasCritical);
+        Assert.Equal(critical ? CombatEffectKind.Critical : CombatEffectKind.Hit, impact.Kind);
+        Assert.Equal(hit.Position, impact.Position);
+        Assert.Equal(hit.Direction, impact.Direction);
+    }
+
+    [Fact]
+    public void Effects_DoNotReplayButEqualValuedLaterSwingIsNewAndTheyExpire()
+    {
+        var arena = CreateArena(nearX: 700);
+        var presentation = new ActorPresentation();
+        presentation.Reset(arena);
+        arena.Update(Idle with { AttackPressed = true }, 0);
+        presentation.Update(arena, 0);
+        var first = Assert.Single(presentation.Effects);
+        var firstEvent = Assert.Single(arena.Events);
+        presentation.Update(arena, 0);
+        Assert.Equal(first, Assert.Single(presentation.Effects));
+        arena.Update(Idle with { AttackPressed = true }, .4f);
+        Assert.Equal(firstEvent, Assert.Single(arena.Events));
+        Assert.NotSame(firstEvent, arena.Events[0]);
+        presentation.Update(arena, .4f);
+        Assert.Equal(0, Assert.Single(presentation.Effects).Age);
+        arena.Update(Idle, .4f);
+        presentation.Update(arena, .4f);
+        Assert.Empty(presentation.Effects);
+    }
+
+    [Fact]
+    public void Effects_ResetAndSceneChangeClearOldBatchWhileDeathKeepsFinalImpact()
+    {
+        var arena = CreateArena(health: 10);
+        var presentation = new ActorPresentation();
+        presentation.Reset(arena);
+        arena.Update(Idle with { AttackPressed = true }, .1f);
+        presentation.Update(arena, .1f);
+        Assert.True(arena.Monsters[0].IsDefeated);
+        Assert.Contains(presentation.Effects, item => item.ActorId == "near");
+        var frozen = presentation.Effects.ToArray();
+        presentation.Update(arena, 0);
+        Assert.Equal(frozen, presentation.Effects);
+        presentation.Reset(arena);
+        presentation.Update(arena, 0);
+        Assert.Empty(presentation.Effects);
+        var other = CreateArena();
+        other.Update(Idle with { AttackPressed = true }, 0);
+        presentation.Update(other, 0);
+        Assert.Empty(presentation.Effects);
+        other.ResetEncounter();
+        presentation.Update(other, .1f);
+        Assert.Empty(presentation.Effects);
+    }
+
+    [Fact]
+    public void Effects_DoNotConsumeCombatRandomAndIgnoreIncomingPlayerDamage()
+    {
+        var random = new CriticalRandom(false);
+        var arena = CreateArena(contactDamage: 10, nearX: 140, random: random);
+        var presentation = new ActorPresentation();
+        presentation.Reset(arena);
+        arena.Update(Idle, 0);
+        Assert.Contains(arena.Events, item => item.Kind == CombatEventKind.Damaged && item.ActorId == "player");
+        var before = random.Calls;
+        presentation.Update(arena, .1f);
+        Assert.Empty(presentation.Effects);
+        Assert.Equal(before, random.Calls);
+        arena.Update(Idle with { AttackPressed = true }, .2f);
+        before = random.Calls;
+        presentation.Update(arena, .2f);
+        Assert.NotEmpty(presentation.Effects);
+        presentation.Update(arena, 0);
+        Assert.Equal(before, random.Calls);
+    }
+
+    private sealed class CriticalRandom(bool critical) : Random
+    {
+        public int Calls { get; private set; }
+        public override int Next(int maxValue)
+        {
+            Calls++;
+            return critical ? 0 : maxValue - 1;
+        }
+    }
+
+    private static ArenaSimulation CreateArena(int health = 100, int contactDamage = 0, float nearX = 190,
+        Random? random = null)
     {
         var fixture = MixedEncounterFixture.CreateContent(contactDamage);
         var definitions = fixture.Monsters.ToDictionary(pair => pair.Key, pair => pair.Value with
@@ -167,7 +316,7 @@ public sealed class ActorPresentationTests
             MaxHealth = health,
             MoveSpeed = .01f
         });
-        return new ArenaSimulation(fixture with { Monsters = definitions }, new Random(17),
+        return new ArenaSimulation(fixture with { Monsters = definitions }, random ?? new Random(17),
             MixedEncounterFixture.CreateEncounter(
                 new MonsterSpawnDefinition("near", "monster.training_slime", nearX, 270),
                 new MonsterSpawnDefinition("far", "monster.training_slime", 700, 270)));

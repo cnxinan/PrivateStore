@@ -1,0 +1,56 @@
+Attack effect references
+=======================
+
+The native C# attack visuals in CombatEffectArt.cs adapt the layered crescent,
+directional cross flare, spark spray and broken-ring techniques from pixelfx:
+https://github.com/patch-gg/pixelfx (reference commit a841596)
+src/fx/melee/sword-slash.js
+src/fx/impacts/hit-spark.js
+src/fx/impacts/crit-hit.js
+
+Upstream notice: src/core/sim.js and credited effects adapt Sprite Fusion's
+open-source pixel art VFX, Copyright (c) 2026 Hugo Duprez, MIT License:
+https://www.spritefusion.com/pixel-art-vfx
+
+No pixelfx demonstration actors, act timing or fonts are distributed.
+
+MIT License
+
+Copyright (c) 2026 Patch
+Copyright (c) 2026 Hugo Duprez
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+Pixel artwork provenance
+========================
+
+The Content/Pixel actors, equipment, NPC, props and most terrain are original
+offline coordinate artwork authored for DarkLoot, not Diablo assets.
+Editable artwork scripts and provenance are in tools/pixel_art in the source.
+Crypt terrain slots 4..11 sample a locally generated stone material, then crop,
+remap and redraw it. The saved source records these upstream model labels:
+
+stabilityai/stable-diffusion-xl-base-1.0: CreativeML Open RAIL++-M
+nerijs/pixel-art-xl: CreativeML OpenRAIL-M per author metadata
+madebyollin/sdxl-vae-fp16-fix: MIT
+
+See Content/Pixel/provenance.json for pinned revisions and material edits.
+These are source-model license labels, not a blanket license grant for models
+or a claim of exclusive copyright over generated pixels. No model weights,
+Python packages or generation services are distributed or required at runtime.

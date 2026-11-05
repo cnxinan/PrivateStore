@@ -39,6 +39,8 @@ internal sealed class RuntimeSmokeTest
     private bool _sawPartialGlobe;
     private int _fullGlobePixels;
     private bool _sawRoomPixels;
+    private int _attackEffectKinds;
+    private CombatEffect[]? _pausedEffects;
     private bool _capturedCleanRoom;
     private double? _pausedRoomTime;
     private int _playerAppearanceStates;
@@ -80,6 +82,7 @@ internal sealed class RuntimeSmokeTest
     private bool _sawPartialDeath;
     private bool _sawIsolatedPoses;
     private bool _sawPartialDeathPixels;
+    internal bool WaitingForCorpseDraw { get; private set; }
     private bool _sawPlayerDeathPixels;
     private bool _sawDeathHud;
     private bool _sawPlayerHurtKnockback;
@@ -751,6 +754,9 @@ internal sealed class RuntimeSmokeTest
         }
         _sawIsolatedPoses |= arena.Monsters.GroupBy(monster => monster.Id).Any(group =>
             group.Select(monster => monsterPose(monster.InstanceId)).Distinct().Count() > 1);
+        WaitingForCorpseDraw = !_sawPartialDeathPixels && arena.Monsters.Any(monster => monster.IsDefeated &&
+            monster.Id == "monster.training_slime" &&
+            monsterPose(monster.InstanceId).Opacity is > .4f and < .9f);
         if (arena.Player.AttackSequence != _attackBeforeUpdate)
         {
             _lastSwingUpdate = _updates;
@@ -1279,15 +1285,13 @@ internal sealed class RuntimeSmokeTest
         var floor = camera.WorldToScreen(new NumericsVector(530, 390));
         var stone = Enumerable.Range((int)floor.Y, 48).SelectMany(y =>
             Enumerable.Range((int)floor.X, 64).Select(x => pixels[y * width + x])).ToArray();
-        var expected = GothicRoomArt.CreateRoomPixels();
-        var bounds = GothicRoomLayout.Bounds;
-        var matching = Enumerable.Range(0, stone.Length).Count(index => stone[index] ==
-            expected[(390 + index / 64 - bounds.Y) * bounds.Width + 530 + index % 64 - bounds.X]);
+        var expected = room.FloorReference(new Microsoft.Xna.Framework.Rectangle(530, 390, 64, 48));
+        var matching = Enumerable.Range(0, stone.Length).Count(index => stone[index] == expected[index]);
         Log($"cathedral floor probe: screen={floor}; materialPixels={matching}/{stone.Length}; " +
             $"mean={stone.Average(color => (color.R + color.G + color.B) / 3d):F2}");
         Check(matching >= stone.Length * .95 &&
               stone.Average(color => (color.R + color.G + color.B) / 3d) is > 20 and < 110,
-            "actual cathedral Draw presents readable textured stone instead of the flat green grid");
+            "actual cathedral Draw matches the loaded pixel floor atlas instead of procedural background pixels");
         _sawRoomPixels = true;
     }
 
@@ -1372,6 +1376,40 @@ internal sealed class RuntimeSmokeTest
         Check(_sawRoomPixels, "cathedral room actual Draw acceptance covered architecture and readable stone floor");
         Check(_sawBothPanels && _sawResourceTooltip && _sawItemTooltip && _sawPartialGlobe && _fullGlobePixels > 0,
             "gothic UI actual Draw acceptance covered dual panels, 8x4 grid, both tooltips and full/partial globe");
+    }
+
+    public void ValidateAttackEffectDraw(GraphicsDevice device, Camera2D camera, ActorPresentation presentation,
+        bool paused)
+    {
+        if (paused)
+        {
+            if (_pausedEffects is null)
+                _pausedEffects = presentation.Effects.ToArray();
+            else if (_pausedEffects.Length > 0)
+                Check(_pausedEffects.SequenceEqual(presentation.Effects), "open panel freezes actual attack effect ages");
+            return;
+        }
+        _pausedEffects = null;
+        foreach (var effect in presentation.Effects.Where(item => item.Age == 0))
+        {
+            var bit = 1 << (int)effect.Kind;
+            if ((_attackEffectKinds & bit) != 0)
+                continue;
+            var anchor = camera.WorldToScreen(effect.Position);
+            var bounds = new Microsoft.Xna.Framework.Rectangle((int)anchor.X - 58, (int)anchor.Y - 58, 116, 116);
+            var pixels = new Microsoft.Xna.Framework.Color[bounds.Width * bounds.Height];
+            device.GetBackBufferData(bounds, pixels, 0, pixels.Length);
+            var expected = effect.Kind is CombatEffectKind.Slash or CombatEffectKind.Punch ?
+                new Microsoft.Xna.Framework.Color(237, 249, 244) : new Microsoft.Xna.Framework.Color(255, 240, 163);
+            Check(pixels.Count(color => color == expected) >= 8,
+                $"actual world Draw contains real {effect.Kind} pixels at event position {effect.Position}");
+            _attackEffectKinds |= bit;
+            var full = new Microsoft.Xna.Framework.Color[device.Viewport.Width * device.Viewport.Height];
+            device.GetBackBufferData(full);
+            CaptureFrame(device, full, $"attack-effects-{effect.Kind.ToString().ToLowerInvariant()}.png");
+        }
+        if (_stage == SmokeStage.Complete)
+            Check(_attackEffectKinds == 15, "actual gameplay Draw covered punch, equipped slash, hit and critical");
     }
 
     public void ValidatePlayerDraw(GraphicsDevice device, Camera2D camera, ArenaSimulation arena, ActorPose pose,
@@ -1481,6 +1519,7 @@ internal sealed class RuntimeSmokeTest
                         .Any(pixel => pixel.G > pixel.R + 25 && pixel.G > pixel.B + 40),
                     "real Draw backbuffer retains green partial-death slime geometry at death anchor");
                 _sawPartialDeathPixels = true;
+                WaitingForCorpseDraw = false;
             }
         }
         if (!_sawPlayerDeathPixels && arena.Player.IsDead &&
@@ -1516,7 +1555,9 @@ internal sealed class RuntimeSmokeTest
         Check(_sawKilledFeedbackDraw && _sawIndependentFeedbackDraw && attackFlash == 0,
             "real Draw received killed-target and independent critical feedback; death cleared swing flash");
         Check(_sawPartialDeath && _sawIsolatedPoses && _sawPartialDeathPixels && _sawPlayerDeathPixels,
-            "real smoke observed partial death geometry and per-instance independent phases/events");
+            $"real smoke observed partial death geometry and per-instance independent phases/events " +
+            $"(death={_sawPartialDeath}; poses={_sawIsolatedPoses}; " +
+            $"corpsePixels={_sawPartialDeathPixels}; playerPixels={_sawPlayerDeathPixels})");
         Check(_sawDeathHud && _sawPlayerHurtKnockback && _sawIgnoredArrowDuringImmunity &&
               _sawMonsterLootBeforeFade && _sawMonsterProgressWhileDead &&
               _sawArrowProgressWhileDead && _sawReactionPause &&

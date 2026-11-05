@@ -16,7 +16,7 @@ public sealed class MonsterBehaviorSystem
         MonsterState monster,
         Vector2 playerPosition,
         float elapsedSeconds,
-        Action<ProjectileState> launch)
+        Action<ProjectileState> launch, WorldMap? map = null)
     {
         ArgumentNullException.ThrowIfNull(monster);
         ArgumentNullException.ThrowIfNull(launch);
@@ -38,6 +38,15 @@ public sealed class MonsterBehaviorSystem
             return;
         }
 
+        if (map?.IsDungeon == true && !monster.HasAwakened)
+        {
+            var roomStart = MathF.Floor(monster.SpawnPosition.X / DungeonSession.RoomStride) *
+                DungeonSession.RoomStride;
+            if (playerPosition.X < roomStart)
+                return;
+            monster.HasAwakened = true;
+        }
+
         var deltaX = (double)playerPosition.X - monster.Position.X;
         var deltaY = (double)playerPosition.Y - monster.Position.Y;
         var distanceSquared = deltaX * deltaX + deltaY * deltaY;
@@ -45,7 +54,8 @@ public sealed class MonsterBehaviorSystem
             ? monster.Definition.RangedAttack
             : null;
         var inRange = rangedAttack is not null &&
-            distanceSquared <= (double)rangedAttack.Range * rangedAttack.Range;
+            distanceSquared <= (double)rangedAttack.Range * rangedAttack.Range &&
+            (map is null || map.HasLineOfSight(monster.Position, playerPosition));
 
         if (distanceSquared > 0 && !monster.IsWindingUp)
         {
@@ -54,7 +64,17 @@ public sealed class MonsterBehaviorSystem
 
         if (distanceSquared > 0 && !inRange)
         {
-            MoveTowardsPlayer(monster, deltaX, deltaY, distanceSquared, elapsedSeconds);
+            if (map is null)
+                MoveTowardsPlayer(monster, deltaX, deltaY, distanceSquared, elapsedSeconds);
+            else
+            {
+                var waypoint = map.NextWaypoint(monster.Position, playerPosition);
+                var delta = waypoint - monster.Position;
+                var distance = delta.Length();
+                if (distance > 0)
+                    monster.Position = map.Move(monster.Position,
+                        delta / distance * Math.Min(monster.MoveSpeed * elapsedSeconds, distance));
+            }
         }
 
         if (rangedAttack is null)

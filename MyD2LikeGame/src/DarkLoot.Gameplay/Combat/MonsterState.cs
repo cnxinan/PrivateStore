@@ -45,6 +45,8 @@ public sealed class MonsterState
     public bool IsWindingUp { get; internal set; }
 
     public float WindupRemaining { get; internal set; }
+    public float WindupProgress => IsWindingUp && Definition.RangedAttack is { WindupSeconds: > 0 } attack
+        ? Math.Clamp(1 - WindupRemaining / attack.WindupSeconds, 0, 1) : 0;
 
     public Vector2 LockedAimDirection { get; internal set; }
 
@@ -53,6 +55,7 @@ public sealed class MonsterState
     internal Vector2 SpawnPosition { get; }
 
     internal bool DeathResolved { get; set; }
+    internal bool HasAwakened { get; set; }
 
     internal float RemainingUntilNextLaunch { get; set; }
 
@@ -69,6 +72,7 @@ public sealed class MonsterState
 
     internal void ResetBehaviorTimers()
     {
+        HasAwakened = false;
         CancelWindup();
         RemainingUntilNextLaunch = 0;
         HasLaunched = false;

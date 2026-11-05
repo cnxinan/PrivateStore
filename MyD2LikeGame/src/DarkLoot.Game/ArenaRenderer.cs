@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using DarkLoot.Data;
 using DarkLoot.Data.Definitions;
 using DarkLoot.Engine.Animation;
@@ -16,24 +17,49 @@ namespace DarkLoot.Game;
 
 public sealed class ArenaRenderer
 {
-    private readonly ActorRenderer _actors = new();
+    private ActorRenderer _actors = null!;
+    private CombatEffectRenderer _effects = null!;
+
+    internal void LoadEffects(GraphicsDevice device, PixelContent content)
+    {
+        _actors = new ActorRenderer(content);
+        _effects = new CombatEffectRenderer(device);
+    }
+    internal void UnloadEffects() => _effects?.Dispose();
+    internal CombatEffectRenderer Effects => _effects;
 
     public void Draw(SpriteBatch batch, ShapeRenderer shapes, SpriteFont font,
         ArenaSimulation arena, GameContent content, Camera2D camera, ActorPresentation presentation,
-        GothicRoomRenderer room)
+        GothicRoomRenderer room, DungeonRoomRenderer? dungeon = null, DungeonSession? adventure = null)
     {
-        room.Draw(batch, camera);
+        if (arena.Map?.IsDungeon == true)
+        {
+            if (dungeon is null || adventure is null)
+                throw new InvalidOperationException("Dungeon rendering requires the live dungeon session.");
+            dungeon.Draw(batch, camera, arena.Map, adventure.Completed);
+        }
+        else
+            room.Draw(batch, camera);
 
-        var smithPosition = camera.WorldToScreen(BlacksmithService.Position);
-        shapes.Ellipse(batch, smithPosition + new Vector2(2, 22), new Vector2(31, 8), 0, Color.Black * .35f);
-        shapes.Circle(batch, smithPosition + new Vector2(-14, -12), 9, Color.BurlyWood);
-        shapes.Line(batch, smithPosition + new Vector2(-14, -2), smithPosition + new Vector2(-14, 18),
-            Color.SaddleBrown, 12);
-        shapes.Rectangle(batch, new Rectangle((int)smithPosition.X, (int)smithPosition.Y, 30, 8), Color.SlateGray);
-        shapes.Rectangle(batch, new Rectangle((int)smithPosition.X + 8, (int)smithPosition.Y + 8, 14, 12), Color.DimGray);
-        if (arena.BlacksmithOperations.CanInteract(arena.Player))
-            GameText.Draw(batch, font, GameText.SmithPrompt,
-                smithPosition + new Vector2(-30, -42), Color.Gold, 220);
+        if (arena.Map?.IsDungeon != true)
+        {
+            var smithPosition = camera.WorldToScreen(BlacksmithService.Position);
+            shapes.Ellipse(batch, smithPosition + new Vector2(2, 22), new Vector2(31, 8), 0, Color.Black * .35f);
+            _actors.DrawBlacksmith(batch, smithPosition, room.AnimationTime);
+            if (arena.BlacksmithOperations.CanInteract(arena.Player))
+                GameText.Draw(batch, font, GameText.SmithPrompt,
+                    smithPosition + new Vector2(-30, -42), Color.Gold, 220);
+            var questMarker = QuestPanel.Marker(arena);
+            if (questMarker.Length > 0)
+                GameText.Draw(batch, font, questMarker,
+                    smithPosition + new Vector2(-20, -74), Color.Gold, 28, 30, centered: true);
+            if (adventure is not null)
+            {
+                var portal = camera.WorldToScreen(DungeonSession.HubEntrance);
+                room.DrawPortal(batch, camera, DungeonSession.HubEntrance);
+                GameText.Draw(batch, font, GameText.PortalEntry, portal + new Vector2(-40, -67), Color.Gold, 160);
+            }
+        }
 
         var lootRows = new List<Rectangle>(arena.GroundResources.Count);
         var viewport = batch.GraphicsDevice.Viewport;
@@ -42,6 +68,9 @@ public sealed class ArenaRenderer
         foreach (var drop in arena.GroundResources)
         {
             var position = camera.WorldToScreen(drop.Position);
+            if (arena.Map?.IsDungeon == true && (position.X < 0 || position.X > viewport.Width ||
+                position.Y < 0 || position.Y > lootBounds.Bottom))
+                continue;
             var (name, color) = drop.Stack.Kind switch
             {
                 ResourceKind.Material => (content.Materials[drop.Stack.DefinitionId].Name, Color.LightGray),
@@ -67,18 +96,44 @@ public sealed class ArenaRenderer
         foreach (var monster in arena.Monsters)
         {
             var monsterPosition = camera.WorldToScreen(monster.Position);
-            var kind = monster.Behavior == MonsterBehavior.Archer ? ActorVisualKind.Archer :
-                monster.Id == "monster.fast_wolf" ? ActorVisualKind.Wolf : ActorVisualKind.Slime;
+            if (arena.Map?.IsDungeon == true && (monsterPosition.X < -70 || monsterPosition.X > viewport.Width + 70 ||
+                monsterPosition.Y < -70 || monsterPosition.Y > lootBounds.Bottom + 70))
+                continue;
+            var kind = ActorPresentation.MonsterVisual(monster);
             var pose = presentation.GetMonsterPose(monster.InstanceId);
             shapes.Ellipse(batch, monsterPosition + new Vector2(3, 10), new Vector2(19, 6), 0,
                 Color.Black * (.3f * pose.Opacity));
-            _actors.Draw(batch, shapes, kind, monsterPosition, pose);
-            if (monster.IsDefeated)
-            {
-                continue;
-            }
+            _actors.Draw(batch, shapes, kind, monsterPosition, pose,
+                frame: presentation.GetMonsterFrame(monster.InstanceId),
+                sizeScale: monster.Id == "monster.crypt_guardian" ? 1.25f : 1);
+        }
+        foreach (var arrow in arena.Projectiles)
+        {
+            var tip = camera.WorldToScreen(arrow.Position);
+            var arrowDirection = new Vector2(arrow.Direction.X, arrow.Direction.Y);
+            var source = arena.Monsters.First(monster => monster.InstanceId == arrow.SourceInstanceId);
+            _actors.DrawProjectile(batch, shapes, tip, arrowDirection, ActorPresentation.MonsterVisual(source));
+        }
 
-            DrawHealthBar(batch, shapes, monsterPosition + new Vector2(-24, -31), 48,
+        var playerPosition = camera.WorldToScreen(arena.Player.Position);
+        shapes.Ellipse(batch, playerPosition + new Vector2(3, 18), new Vector2(15, 5), 0,
+            Color.Black * (.35f * presentation.PlayerPose.Opacity));
+        _actors.Draw(batch, shapes, ActorVisualKind.Player, playerPosition, presentation.PlayerPose,
+            PlayerAppearance.From(arena.Player.Inventory), presentation.PlayerFrame);
+        _effects.Draw(batch, camera, presentation.Effects);
+
+        // Actor labels and health bars stay above transient attack pixels.
+        foreach (var monster in arena.Monsters)
+        {
+            if (monster.IsDefeated)
+                continue;
+            var monsterPosition = camera.WorldToScreen(monster.Position);
+            if (arena.Map?.IsDungeon == true && (monsterPosition.X < -70 || monsterPosition.X > viewport.Width + 70 ||
+                monsterPosition.Y < -70 || monsterPosition.Y > lootBounds.Bottom + 70))
+                continue;
+            var kind = ActorPresentation.MonsterVisual(monster);
+            var headroom = kind is ActorVisualKind.Warrior or ActorVisualKind.Cultist ? 15 : 0;
+            DrawHealthBar(batch, shapes, monsterPosition + new Vector2(-24, -31 - headroom), 48,
                 (float)monster.Health / monster.MaxHealth, Color.LimeGreen);
             var label = string.Format(GameText.Monster, content.Monsters[monster.Id].Name,
                 monster.Health, monster.MaxHealth);
@@ -86,29 +141,15 @@ public sealed class ArenaRenderer
             var labelX = Math.Clamp(monsterPosition.X - labelWidth / 2, 8,
                 batch.GraphicsDevice.Viewport.Width - labelWidth - 8);
             GameText.Draw(batch, font, label,
-                new Vector2(labelX, monsterPosition.Y - 57), Color.White, labelWidth);
+                new Vector2(labelX, monsterPosition.Y - 57 - headroom), Color.White, labelWidth);
             if (monster.IsWindingUp)
             {
                 var locked = monster.LockedAimDirection;
                 shapes.Line(batch, monsterPosition,
-                    monsterPosition + new Vector2(locked.X, locked.Y) * 90, Color.Orange, 2);
+                    monsterPosition + new Vector2(locked.X, locked.Y) * 90,
+                    kind == ActorVisualKind.Cultist ? Color.MediumPurple : Color.Orange, 2);
             }
         }
-        foreach (var arrow in arena.Projectiles)
-        {
-            var tip = camera.WorldToScreen(arrow.Position);
-            var arrowDirection = new Vector2(arrow.Direction.X, arrow.Direction.Y);
-            var side = new Vector2(-arrowDirection.Y, arrowDirection.X);
-            shapes.Line(batch, tip - arrowDirection * 16, tip, Color.BurlyWood, 3);
-            shapes.Line(batch, tip, tip - arrowDirection * 6 + side * 4, Color.White, 2);
-            shapes.Line(batch, tip, tip - arrowDirection * 6 - side * 4, Color.White, 2);
-        }
-
-        var playerPosition = camera.WorldToScreen(arena.Player.Position);
-        shapes.Ellipse(batch, playerPosition + new Vector2(3, 18), new Vector2(15, 5), 0,
-            Color.Black * (.35f * presentation.PlayerPose.Opacity));
-        _actors.Draw(batch, shapes, ActorVisualKind.Player, playerPosition, presentation.PlayerPose,
-            presentation.SwingHasHit, presentation.SwingWasCritical, PlayerAppearance.From(arena.Player.Inventory));
         if (!arena.Player.IsDead)
             DrawHealthBar(batch, shapes, playerPosition + new Vector2(-24, 26), 48,
                 (float)arena.Player.Health / arena.Player.MaximumHealth, Color.Crimson);

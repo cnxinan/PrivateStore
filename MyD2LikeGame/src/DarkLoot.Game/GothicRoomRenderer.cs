@@ -3,33 +3,21 @@ using DarkLoot.Engine.Camera;
 using DarkLoot.Engine.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using NVector = System.Numerics.Vector2;
 
 namespace DarkLoot.Game;
 
 public sealed class GothicRoomRenderer : IDisposable
 {
     private readonly ShapeRenderer _shapes;
-    private Texture2D _room = null!;
-    private Texture2D _glow = null!;
+    private readonly PixelSceneRenderer _scene;
     private bool _disposed;
     internal double AnimationTime { get; private set; }
 
-    public GothicRoomRenderer(GraphicsDevice device, ShapeRenderer shapes)
+    internal GothicRoomRenderer(PixelContent content, ShapeRenderer shapes)
     {
         _shapes = shapes;
-        try
-        {
-            var bounds = GothicRoomLayout.Bounds;
-            _room = new Texture2D(device, bounds.Width, bounds.Height);
-            _room.SetData(GothicRoomArt.CreateRoomPixels());
-            _glow = new Texture2D(device, 128, 128);
-            _glow.SetData(GothicRoomArt.CreateGlowPixels(128));
-        }
-        catch
-        {
-            Dispose();
-            throw;
-        }
+        _scene = new PixelSceneRenderer(content);
     }
 
     public void Update(float seconds, bool advance)
@@ -44,51 +32,39 @@ public sealed class GothicRoomRenderer : IDisposable
     public void Draw(SpriteBatch batch, Camera2D camera)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
-        var bounds = GothicRoomLayout.Bounds;
-        var origin = camera.WorldToScreen(new System.Numerics.Vector2(bounds.X, bounds.Y));
-        batch.Draw(_room, origin, Color.White);
-        var index = 0;
-        foreach (var source in GothicRoomLayout.Braziers)
+        _scene.Floor(batch, camera, GothicRoomLayout.Bounds, 16);
+        _scene.Floor(batch, camera, GothicRoomLayout.Floor, 0);
+        for (var index = 0; index < 5; index++)
         {
-            var position = camera.WorldToScreen(source);
-            var flicker = (float)(Math.Sin(AnimationTime * 7.3 + index * 2.7) * .5 +
-                Math.Sin(AnimationTime * 13.1 + index) * .3);
-            var radius = index == 4 ? 93 : 115;
-            batch.Draw(_glow, new Rectangle((int)position.X - radius, (int)position.Y - radius,
-                radius * 2, radius * 2), new Color(238, 140, 55) * (.13f + flicker * .025f));
-            var lean = (float)Math.Sin(AnimationTime * 5 + index) * 2;
-            var height = 13 + flicker * 3;
-            _shapes.Ellipse(batch, position + new Vector2(lean, -height * .4f),
-                new Vector2(8, height), .1f, new Color(178, 52, 18) * .8f);
-            _shapes.Ellipse(batch, position + new Vector2(-lean, -height * .5f),
-                new Vector2(4, height * .8f), -.13f, new Color(240, 139, 43));
-            _shapes.Ellipse(batch, position + new Vector2(0, -3),
-                new Vector2(3, height * .37f), 0, new Color(255, 222, 129));
-            for (var spark = 0; spark < 2; spark++)
-            {
-                var age = (float)((AnimationTime * .35 + index * .17 + spark * .5) % 1);
-                var offset = new Vector2(MathF.Sin(age * 5 + index) * 7, -13 - age * 32);
-                _shapes.Rectangle(batch, new Rectangle((int)(position.X + offset.X),
-                    (int)(position.Y + offset.Y), 1, 2), new Color(248, 166, 78) * (1 - age) * .7f);
-            }
-            index++;
+            var x = 64 + index * 192;
+            _scene.Prop(batch, camera, 7, new Rectangle(x, -108, 64, 96));
         }
+        foreach (var x in new[] { -72, 196, 452, 708, 968 })
+            _scene.Prop(batch, camera, 0, new Rectangle(x, -112, 64, 150));
+        _scene.Prop(batch, camera, 15, new Rectangle(416, 210, 128, 128));
+        _scene.Prop(batch, camera, 1, new Rectangle(0, 164, 88, 100));
+        _scene.Prop(batch, camera, 2, new Rectangle(140, 238, 64, 48));
+        _scene.Prop(batch, camera, 3, new Rectangle(12, 284, 120, 56));
+        _scene.Prop(batch, camera, 4, new Rectangle(26, 86, 80, 80));
+        _scene.Prop(batch, camera, 14, new Rectangle(74, 346, 56, 48));
+        _scene.Prop(batch, camera, 5, new Rectangle(240, -4, 48, 88));
+        _scene.Prop(batch, camera, 6, new Rectangle(704, -4, 48, 88));
+        for (var index = 0; index < GothicRoomLayout.Braziers.Count; index++)
+            _scene.Torch(batch, camera, GothicRoomLayout.Braziers[index], AnimationTime, index);
         for (var mote = 0; mote < 15; mote++)
         {
-            var x = 70 + mote % 5 * 192 + (float)Math.Sin(AnimationTime * .23 + mote) * 17;
-            var y = 16 + mote / 5 * 64 + (float)Math.Cos(AnimationTime * .17 + mote) * 12;
-            var position = camera.WorldToScreen(new System.Numerics.Vector2(x, y));
-            _shapes.Rectangle(batch, new Rectangle((int)position.X, (int)position.Y, 1, 1),
+            var point = camera.WorldToScreen(new NVector(
+                70 + mote % 5 * 192 + (float)Math.Sin(AnimationTime * .23 + mote) * 17,
+                16 + mote / 5 * 64 + (float)Math.Cos(AnimationTime * .17 + mote) * 12));
+            _shapes.Rectangle(batch, new Rectangle((int)point.X, (int)point.Y, 1, 1),
                 new Color(152, 165, 167) * .3f);
         }
     }
 
-    public void Dispose()
-    {
-        if (_disposed)
-            return;
-        _disposed = true;
-        _room?.Dispose();
-        _glow?.Dispose();
-    }
+    internal void DrawPortal(SpriteBatch batch, Camera2D camera, NVector world) =>
+        _scene.Portal(batch, camera, world, AnimationTime, new Color(247, 188, 87));
+
+    internal Color[] FloorReference(Rectangle probe) => _scene.FloorReference(GothicRoomLayout.Floor, probe, 0);
+
+    public void Dispose() => _disposed = true;
 }

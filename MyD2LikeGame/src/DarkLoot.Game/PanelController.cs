@@ -5,19 +5,20 @@ using Microsoft.Xna.Framework;
 
 namespace DarkLoot.Game;
 
-public enum PanelKind { None, Inventory, Blacksmith }
+public enum PanelKind { None, Inventory, Blacksmith, Journal }
 
 public readonly record struct PanelFrame(
     PanelKind ActivePanel, bool AdvanceWorld, bool HandlePanelActions,
     bool ExitRequested, bool RestartRequested, BlacksmithStatus? Feedback,
     bool InventoryOpen = false, bool BlacksmithOpen = false,
-    bool BlockWorldInput = false, bool PointerOverUi = false);
+    bool BlockWorldInput = false, bool PointerOverUi = false, bool JournalOpen = false);
 
 public sealed class PanelController
 {
     public PanelKind ActivePanel { get; private set; }
     public bool InventoryOpen { get; private set; }
     public bool BlacksmithOpen { get; private set; }
+    public bool JournalOpen { get; private set; }
 
     public PanelFrame Route(GameInputSnapshot input, PlayerState player, BlacksmithService smith,
         int width = 1120, int height = 720)
@@ -26,16 +27,16 @@ public sealed class PanelController
         var pointer = new Point((int)input.PointerScreenPosition.X, (int)input.PointerScreenPosition.Y);
         bool Click(Rectangle bounds) => input.AttackPressed && bounds.Contains(pointer);
         var overUi = layout.Console.Contains(pointer) || layout.Globe.Contains(pointer) ||
-            InventoryOpen && layout.Inventory.Contains(pointer) ||
+            (InventoryOpen || JournalOpen) && layout.Inventory.Contains(pointer) ||
             BlacksmithOpen && layout.Blacksmith.Contains(pointer);
         PanelFrame Frame(bool world = false, bool actions = false, bool exit = false,
             bool restart = false, BlacksmithStatus? feedback = null, bool block = true) =>
             new(ActivePanel, world, actions, exit, restart, feedback,
-                InventoryOpen, BlacksmithOpen, block, overUi);
+                InventoryOpen, BlacksmithOpen, block, overUi, JournalOpen);
 
         if (player.IsDead)
         {
-            InventoryOpen = BlacksmithOpen = false;
+            InventoryOpen = BlacksmithOpen = JournalOpen = false;
             ActivePanel = PanelKind.None;
             return Frame(world: !input.ExitPressed, exit: input.ExitPressed);
         }
@@ -53,14 +54,27 @@ public sealed class PanelController
             return Frame();
         }
 
-        if (InventoryOpen && Click(layout.InventoryClose))
+        if ((InventoryOpen || JournalOpen) && Click(layout.InventoryClose))
         {
-            Close(PanelKind.Inventory);
+            Close(JournalOpen ? PanelKind.Journal : PanelKind.Inventory);
             return Frame();
         }
         if (BlacksmithOpen && Click(layout.BlacksmithClose))
         {
             Close(PanelKind.Blacksmith);
+            return Frame();
+        }
+
+        if (Click(layout.QuestButton))
+        {
+            if (JournalOpen)
+                Close(PanelKind.Journal);
+            else
+            {
+                InventoryOpen = false;
+                JournalOpen = true;
+                ActivePanel = PanelKind.Journal;
+            }
             return Frame();
         }
 
@@ -70,6 +84,7 @@ public sealed class PanelController
                 Close(PanelKind.Inventory);
             else
             {
+                JournalOpen = false;
                 InventoryOpen = true;
                 ActivePanel = PanelKind.Inventory;
             }
@@ -82,6 +97,7 @@ public sealed class PanelController
                 Close(PanelKind.Blacksmith);
             else if (smith.CanInteract(player))
             {
+                JournalOpen = false;
                 InventoryOpen = BlacksmithOpen = true;
                 ActivePanel = PanelKind.Blacksmith;
             }
@@ -95,8 +111,8 @@ public sealed class PanelController
 
         if (input.AttackPressed)
         {
-            if (InventoryOpen && layout.Inventory.Contains(pointer))
-                ActivePanel = PanelKind.Inventory;
+            if ((InventoryOpen || JournalOpen) && layout.Inventory.Contains(pointer))
+                ActivePanel = JournalOpen ? PanelKind.Journal : PanelKind.Inventory;
             else if (BlacksmithOpen && layout.Blacksmith.Contains(pointer))
                 ActivePanel = PanelKind.Blacksmith;
         }
@@ -104,7 +120,7 @@ public sealed class PanelController
         var consumed = overUi &&
             (input.AttackPressed || input.AttackHeld || input.ClosePanelPressed || input.ScrollDelta != 0);
         return Frame(world: world, actions: !world,
-            restart: world && (Click(layout.RestartButton) || input.RestartPressed && !consumed), block: consumed);
+            restart: world && (Click(layout.RestartButton) || input.RestartPressed && !consumed), block: !world || consumed);
     }
 
     private void Close(PanelKind panel)
@@ -113,7 +129,9 @@ public sealed class PanelController
             InventoryOpen = false;
         else if (panel == PanelKind.Blacksmith)
             BlacksmithOpen = false;
+        else if (panel == PanelKind.Journal)
+            JournalOpen = false;
         ActivePanel = InventoryOpen ? PanelKind.Inventory :
-            BlacksmithOpen ? PanelKind.Blacksmith : PanelKind.None;
+            JournalOpen ? PanelKind.Journal : BlacksmithOpen ? PanelKind.Blacksmith : PanelKind.None;
     }
 }

@@ -4,12 +4,13 @@ using DarkLoot.Gameplay.Combat;
 using DarkLoot.Gameplay.Crafting;
 using DarkLoot.Gameplay.Items;
 using DarkLoot.Gameplay.Resources;
+using DarkLoot.Gameplay.Quests;
 
 namespace DarkLoot.Gameplay.Persistence;
 
 public sealed class ProgressPersistence
 {
-    private const int CurrentVersion = 1;
+    private const int CurrentVersion = 2;
     private readonly GameContent _content;
     private readonly ItemStatCalculator _calculator = new();
 
@@ -32,7 +33,8 @@ public sealed class ProgressPersistence
             inventory.EquippedArmorId,
             CopyCounts(arena.Player.Resources.Materials),
             CopyCounts(arena.Player.Resources.Recipes),
-            Array.AsReadOnly(arena.Blacksmith.KnownRecipeIds.Order(StringComparer.Ordinal).ToArray()));
+            Array.AsReadOnly(arena.Blacksmith.KnownRecipeIds.Order(StringComparer.Ordinal).ToArray()),
+            arena.Quests.Progress);
     }
 
     public void Restore(ArenaSimulation arena, ProgressSnapshot snapshot)
@@ -43,13 +45,26 @@ public sealed class ProgressPersistence
             arena.Player.Inventory.Items.Count != 0 ||
             arena.Player.Resources.Materials.Count != 0 ||
             arena.Player.Resources.Recipes.Count != 0 ||
-            arena.Blacksmith.KnownRecipeIds.Count != 0)
+            arena.Blacksmith.KnownRecipeIds.Count != 0 ||
+            arena.Quests.Progress != new QuestProgress(0, false, 0))
         {
             throw new InvalidOperationException("Progress can only be restored into a fresh arena.");
         }
 
-        if (snapshot.Version != CurrentVersion)
+        if (snapshot.Version != 1 && snapshot.Version != CurrentVersion)
             throw Invalid("version", $"unsupported save version {snapshot.Version}; expected {CurrentVersion}");
+        if (snapshot.Version == CurrentVersion && snapshot.Quests is null ||
+            snapshot.Version == 1 && snapshot.Quests is not null)
+            throw Invalid("quests", "quest state must match the save version");
+        var quests = snapshot.Quests ?? new QuestProgress(0, false, 0);
+        try
+        {
+            QuestState.Validate(quests);
+        }
+        catch (ArgumentException exception)
+        {
+            throw Invalid("quests", exception.Message, exception);
+        }
         if (snapshot.Items is null)
             throw Invalid("items", "collection is required");
 
@@ -113,6 +128,7 @@ public sealed class ProgressPersistence
         arena.Player.Inventory.RestoreValidated(items, snapshot.EquippedWeaponId, snapshot.EquippedArmorId);
         arena.Player.Resources.Commit(resources);
         arena.Blacksmith.Commit(knowledge);
+        arena.Quests.Commit(quests);
         arena.Player.Health = totals.MaximumHealth;
     }
 

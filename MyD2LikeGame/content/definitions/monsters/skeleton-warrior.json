@@ -1,0 +1,9 @@
+{
+  "id": "monster.skeleton_warrior",
+  "name": "骷髅剑士",
+  "maxHealth": 50,
+  "contactDamage": 8,
+  "moveSpeed": 55,
+  "lootTableId": "resource.skeleton",
+  "behavior": "Chase"
+}

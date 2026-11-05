@@ -19,3 +19,172 @@
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Color
 /build:Fonts/UIFont.spritefont
+
+#begin Pixel/atlas.json
+/copy:Pixel/atlas.json
+
+#begin Pixel/Actors/player.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyEnabled=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:GenerateMipmaps=False
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Pixel/Actors/player.png
+
+#begin Pixel/Actors/player-flash.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/build:Pixel/Actors/player-flash.png
+
+#begin Pixel/Actors/player-armed.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/build:Pixel/Actors/player-armed.png
+
+#begin Pixel/Actors/player-armed-flash.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/build:Pixel/Actors/player-armed-flash.png
+
+#begin Pixel/Actors/slime.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/build:Pixel/Actors/slime.png
+
+#begin Pixel/Actors/slime-flash.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/build:Pixel/Actors/slime-flash.png
+
+#begin Pixel/Actors/wolf.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/build:Pixel/Actors/wolf.png
+
+#begin Pixel/Actors/wolf-flash.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/build:Pixel/Actors/wolf-flash.png
+
+#begin Pixel/Actors/archer.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/build:Pixel/Actors/archer.png
+
+#begin Pixel/Actors/archer-flash.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/build:Pixel/Actors/archer-flash.png
+
+#begin Pixel/Actors/warrior.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/build:Pixel/Actors/warrior.png
+
+#begin Pixel/Actors/warrior-flash.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/build:Pixel/Actors/warrior-flash.png
+
+#begin Pixel/Actors/cultist.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/build:Pixel/Actors/cultist.png
+
+#begin Pixel/Actors/cultist-flash.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/build:Pixel/Actors/cultist-flash.png
+
+#begin Pixel/Equipment/weapon-common.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/build:Pixel/Equipment/weapon-common.png
+
+#begin Pixel/Equipment/weapon-common-flash.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/build:Pixel/Equipment/weapon-common-flash.png
+
+#begin Pixel/Equipment/weapon-magic.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/build:Pixel/Equipment/weapon-magic.png
+
+#begin Pixel/Equipment/weapon-magic-flash.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/build:Pixel/Equipment/weapon-magic-flash.png
+
+#begin Pixel/Equipment/weapon-rare.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/build:Pixel/Equipment/weapon-rare.png
+
+#begin Pixel/Equipment/weapon-rare-flash.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/build:Pixel/Equipment/weapon-rare-flash.png
+
+#begin Pixel/Equipment/armor-common.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/build:Pixel/Equipment/armor-common.png
+
+#begin Pixel/Equipment/armor-common-flash.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/build:Pixel/Equipment/armor-common-flash.png
+
+#begin Pixel/Equipment/armor-magic.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/build:Pixel/Equipment/armor-magic.png
+
+#begin Pixel/Equipment/armor-magic-flash.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/build:Pixel/Equipment/armor-magic-flash.png
+
+#begin Pixel/Equipment/armor-rare.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/build:Pixel/Equipment/armor-rare.png
+
+#begin Pixel/Equipment/armor-rare-flash.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/build:Pixel/Equipment/armor-rare-flash.png
+
+#begin Pixel/NPC/blacksmith.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/build:Pixel/NPC/blacksmith.png
+
+#begin Pixel/World/terrain.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/build:Pixel/World/terrain.png
+
+#begin Pixel/World/props.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/build:Pixel/World/props.png
+
+#begin Pixel/World/portal.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/build:Pixel/World/portal.png
+
+#begin Pixel/World/torch.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/build:Pixel/World/torch.png
+
+#begin Pixel/World/glow.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/build:Pixel/World/glow.png

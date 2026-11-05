@@ -29,9 +29,11 @@ public sealed class BlacksmithService
     private readonly InventoryService _equipment;
     private readonly BlacksmithState _state;
     private readonly EquipmentFactory _equipmentFactory = new();
+    private readonly bool _available;
 
     public BlacksmithService(
-        GameContent content, Random random, InventoryService equipment, BlacksmithState state)
+        GameContent content, Random random, InventoryService equipment, BlacksmithState state,
+        bool available = true)
     {
         ArgumentNullException.ThrowIfNull(content);
         ArgumentNullException.ThrowIfNull(random);
@@ -41,6 +43,7 @@ public sealed class BlacksmithService
         _random = random;
         _equipment = equipment;
         _state = state;
+        _available = available;
     }
 
     public static Vector2 Position { get; } = new(120, 230);
@@ -49,7 +52,7 @@ public sealed class BlacksmithService
     {
         ArgumentNullException.ThrowIfNull(player);
         ValidatePosition(player.Position);
-        return !player.IsDead &&
+        return _available && !player.IsDead &&
             Vector2.DistanceSquared(player.Position, Position) <= InteractionDistanceSquared;
     }
 

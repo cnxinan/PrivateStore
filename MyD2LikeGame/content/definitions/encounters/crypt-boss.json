@@ -1,0 +1,6 @@
+{
+  "id": "encounter.crypt_boss",
+  "spawns": [
+    { "instanceId": "guardian", "monsterId": "monster.crypt_guardian", "x": 700, "y": 270 }
+  ]
+}

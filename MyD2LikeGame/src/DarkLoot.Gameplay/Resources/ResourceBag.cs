@@ -72,6 +72,19 @@ public sealed class ResourceBag
         _readOnlyRecipes = snapshot.ReadOnlyRecipes;
     }
 
+    internal ResourceBagSnapshot PrepareQuest(IReadOnlyList<MaterialCost> costs, IReadOnlyList<ResourceStack> rewards)
+    {
+        var (materials, recipes) = CopyCounts();
+        foreach (var cost in costs)
+            Decrement(materials, cost.MaterialId, cost.Quantity);
+        foreach (var reward in rewards)
+        {
+            var target = reward.Kind == ResourceKind.Material ? materials : recipes;
+            target[reward.DefinitionId] = checked(target.GetValueOrDefault(reward.DefinitionId) + reward.Quantity);
+        }
+        return new(materials, recipes, new HashSet<Guid>(_collectedDropIds));
+    }
+
     private (Dictionary<string, int> Materials, Dictionary<string, int> Recipes) CopyCounts() =>
         (new Dictionary<string, int>(_materials, StringComparer.Ordinal),
          new Dictionary<string, int>(_recipes, StringComparer.Ordinal));

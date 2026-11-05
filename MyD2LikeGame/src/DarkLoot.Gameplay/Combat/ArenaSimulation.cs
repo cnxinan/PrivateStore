@@ -6,6 +6,7 @@ using DarkLoot.Gameplay.Crafting;
 using DarkLoot.Gameplay.Items;
 using DarkLoot.Gameplay.Loot;
 using DarkLoot.Gameplay.Resources;
+using DarkLoot.Gameplay.Quests;
 
 namespace DarkLoot.Gameplay.Combat;
 
@@ -54,24 +55,34 @@ public sealed class ArenaSimulation
     }
 
     public ArenaSimulation(GameContent content, Random random, EncounterDefinition encounter)
+        : this(content, random, encounter, null, null)
+    {
+    }
+
+    internal ArenaSimulation(GameContent content, Random random, EncounterDefinition encounter,
+        WorldMap? map, ArenaSimulation? sharedProgress)
     {
         ArgumentNullException.ThrowIfNull(content);
         ArgumentNullException.ThrowIfNull(random);
         ArgumentNullException.ThrowIfNull(encounter);
         if (string.IsNullOrWhiteSpace(encounter.Id) ||
             encounter.Spawns is null ||
-            encounter.Spawns.Count == 0)
+            encounter.Spawns.Count == 0 && map is null)
         {
             throw new ArgumentException("Encounter must have an ID and at least one spawn.", nameof(encounter));
         }
 
+        Map = map;
         EquipmentOperations = new InventoryService(content);
         _random = random;
         _killRewards = new KillRewardService(content, random);
         _killRewards.BeginRound(0);
         ResourceOperations = new ResourcePickupService(content);
-        Blacksmith = new BlacksmithState();
-        BlacksmithOperations = new BlacksmithService(content, random, EquipmentOperations, Blacksmith);
+        Blacksmith = sharedProgress?.Blacksmith ?? new BlacksmithState();
+        BlacksmithOperations = new BlacksmithService(content, random, EquipmentOperations, Blacksmith,
+            map?.IsDungeon != true);
+        Quests = sharedProgress?.Quests ?? new QuestState();
+        QuestOperations = new QuestService(content, Quests, BlacksmithOperations);
         _readOnlyMonsters = _monsters.AsReadOnly();
         _readOnlyLastSwingHits = _lastSwingHits.AsReadOnly();
         _readOnlyGroundResources = _groundResources.AsReadOnly();
@@ -83,8 +94,9 @@ public sealed class ArenaSimulation
                 string.IsNullOrWhiteSpace(spawn.InstanceId) ||
                 spawn.InstanceId == "player" ||
                 string.IsNullOrWhiteSpace(spawn.MonsterId) ||
-                !float.IsFinite(spawn.X) || spawn.X is < 0 or > ArenaWidth ||
-                !float.IsFinite(spawn.Y) || spawn.Y is < 0 or > ArenaHeight ||
+                !float.IsFinite(spawn.X) || spawn.X < 0 || spawn.X > (map?.Width ?? ArenaWidth) ||
+                !float.IsFinite(spawn.Y) || spawn.Y < 0 || spawn.Y > (map?.Height ?? ArenaHeight) ||
+                map is not null && !map.CanOccupy(new Vector2(spawn.X, spawn.Y)) ||
                 !instanceIds.Add(spawn.InstanceId))
             {
                 throw new ArgumentException(
@@ -123,7 +135,7 @@ public sealed class ArenaSimulation
             _monsters.Add(new MonsterState(spawn, definition));
         }
 
-        Player = new PlayerState(
+        Player = sharedProgress?.Player ?? new PlayerState(
             content,
             _itemStatCalculator,
             PlayerSpawn,
@@ -133,6 +145,7 @@ public sealed class ArenaSimulation
     }
 
     public PlayerState Player { get; }
+    public WorldMap? Map { get; }
 
     public IReadOnlyList<MonsterState> Monsters => _readOnlyMonsters;
 
@@ -159,6 +172,8 @@ public sealed class ArenaSimulation
     public BlacksmithState Blacksmith { get; }
 
     public BlacksmithService BlacksmithOperations { get; }
+    public QuestState Quests { get; }
+    public QuestService QuestOperations { get; }
 
     internal bool HasStarted { get; private set; }
 
@@ -212,7 +227,7 @@ public sealed class ArenaSimulation
             TryAttack(intent.AttackPressed && !Player.Reaction.IsActive);
         }
 
-        if (_projectileSystem.Update(elapsedSeconds, Player.Position, !Player.IsDead, ApplyProjectileDamage))
+        if (_projectileSystem.Update(elapsedSeconds, Player.Position, !Player.IsDead, ApplyProjectileDamage, Map))
         {
             return;
         }
@@ -223,7 +238,7 @@ public sealed class ArenaSimulation
                 monster,
                 Player.Position,
                 actionSeconds,
-                LaunchProjectile);
+                LaunchProjectile, Map);
         }
 
         if (Player.IsDead || TryMonsterContactDamage())
@@ -305,7 +320,8 @@ public sealed class ArenaSimulation
                     SwingDirection,
                     monster.Position,
                     MeleeRange,
-                    MeleeHalfAngleDegrees)).ToArray();
+                    MeleeHalfAngleDegrees) &&
+                (Map is null || Map.HasLineOfSight(Player.Position, monster.Position))).ToArray();
         foreach (var monster in targets)
         {
             var critical = Player.CriticalChance switch
@@ -339,6 +355,7 @@ public sealed class ArenaSimulation
             {
                 var rewards = ResolveMonsterRewards(monster);
                 monster.DeathResolved = true;
+                Quests.CreditKill(monster.Id);
                 monster.Reaction.Clear();
                 _events.Add(new CombatEvent(
                     CombatEventKind.Died, monster.InstanceId, monster.Position, direction, appliedDamage, critical));
@@ -380,7 +397,8 @@ public sealed class ArenaSimulation
             if (monster.IsDefeated || monster.Reaction.IsActive ||
                 monster.ContactDamage <= 0 ||
                 Vector2.DistanceSquared(Player.Position, monster.Position) >
-                MonsterContactRange * MonsterContactRange)
+                MonsterContactRange * MonsterContactRange ||
+                Map is not null && !Map.HasLineOfSight(Player.Position, monster.Position))
             {
                 continue;
             }
@@ -416,7 +434,8 @@ public sealed class ArenaSimulation
             var distanceSquared = Vector2.DistanceSquared(
                 Player.Position,
                 _groundResources[index].Position);
-            if (distanceSquared <= nearestDistanceSquared)
+            if (distanceSquared <= nearestDistanceSquared &&
+                (Map is null || Map.HasLineOfSight(Player.Position, _groundResources[index].Position)))
             {
                 nearestDistanceSquared = distanceSquared;
                 nearestIndex = index;
@@ -568,12 +587,14 @@ public sealed class ArenaSimulation
         };
     }
 
-    private static Vector2 MoveAndClamp(
+    private Vector2 MoveAndClamp(
         Vector2 position,
         Vector2 direction,
         float speed,
         float elapsedSeconds)
     {
+        if (Map is not null)
+            return Map.Move(position, direction * speed * elapsedSeconds);
         var x = position.X + (double)direction.X * speed * elapsedSeconds;
         var y = position.Y + (double)direction.Y * speed * elapsedSeconds;
         return new Vector2(
@@ -581,7 +602,7 @@ public sealed class ArenaSimulation
             (float)Math.Clamp(y, 0d, ArenaHeight));
     }
 
-    private static Vector2 ApplyDisplacement(Vector2 position, Vector2 delta) =>
+    private Vector2 ApplyDisplacement(Vector2 position, Vector2 delta) =>
         MoveAndClamp(position, delta, 1, 1);
 
     private static Vector2 NormalizeFinite(Vector2 vector)

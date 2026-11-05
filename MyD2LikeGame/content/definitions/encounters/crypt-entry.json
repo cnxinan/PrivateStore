@@ -1,0 +1,8 @@
+{
+  "id": "encounter.crypt_entry",
+  "spawns": [
+    { "instanceId": "slime.1", "monsterId": "monster.training_slime", "x": 620, "y": 250 },
+    { "instanceId": "slime.2", "monsterId": "monster.training_slime", "x": 760, "y": 350 },
+    { "instanceId": "warrior.1", "monsterId": "monster.skeleton_warrior", "x": 800, "y": 180 }
+  ]
+}

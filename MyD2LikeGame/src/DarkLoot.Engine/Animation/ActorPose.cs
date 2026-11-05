@@ -2,8 +2,10 @@ using System.Numerics;
 
 namespace DarkLoot.Engine.Animation;
 
-public enum ActorVisualKind { Player, Slime, Wolf, Archer }
+public enum ActorVisualKind { Player, Slime, Wolf, Archer, Warrior, Cultist }
 public enum ActorAction { Idle, Move, Attack, Hurt, Dead }
+
+public readonly record struct ActorFrame(ActorAction Action, float Progress);
 
 /// <summary>Update snapshot. AttackTriggered is a one-Update impulse; Hurt and WindingUp are continuous states.</summary>
 public readonly record struct ActorAnimationInput(

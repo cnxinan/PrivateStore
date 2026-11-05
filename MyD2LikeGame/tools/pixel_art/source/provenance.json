@@ -1,0 +1,27 @@
+{
+  "asset": "crypt-floor-64.png",
+  "dimensions": [64, 64],
+  "kind": "local AI-generated stone material source; not an actor or a screenshot",
+  "seed": 42,
+  "originalLocalJobId": "47293790-0e8d-4acf-8b86-0c29aab15715",
+  "models": [
+    {
+      "id": "stabilityai/stable-diffusion-xl-base-1.0",
+      "revision": "462165984030d82259a11f4367a4eed129e94a7b",
+      "licenseLabel": "CreativeML Open RAIL++-M"
+    },
+    {
+      "id": "nerijs/pixel-art-xl",
+      "revision": "8bf4a4d9ea283e00a51fafda8e0539f8248ea037",
+      "licenseLabel": "CreativeML OpenRAIL-M per author metadata"
+    },
+    {
+      "id": "madebyollin/sdxl-vae-fp16-fix",
+      "revision": "207b116dae70ace3637169f1ddd2434b91b3a8cd",
+      "licenseLabel": "MIT"
+    }
+  ],
+  "edit": "world.py crops the centre 32px at original pixel scale, remaps luminance to five original blue/grey stone shades, offsets material samples, and hand-cuts new mortar/bevels/chips. Only terrain slots 4..11 use this material.",
+  "otherArtwork": "All actors, equipment, NPC, props, other terrain, portal, torch and light are original deterministic coordinate drawings authored for DarkLoot, not copies of Diablo art or existing C# geometry.",
+  "licenseNote": "Model license labels record upstream metadata, not a claim of exclusive copyright over generated source pixels. Review applicable model use restrictions when redistributing models. No model weights or generation service are distributed or needed for rebuilds."
+}
